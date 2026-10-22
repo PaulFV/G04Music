@@ -78,10 +78,8 @@
   }
   /* Umschalter Kacheln / Liste */
   function layoutToggle(){
-    var g=lay()==='grid';
-    return '<div class="seg" role="group" aria-label="Ansicht">'+
-      '<button class="seg__b'+(g?' is-on':'')+'" type="button" data-layout="grid" title="Kacheln" aria-label="Kacheln" aria-pressed="'+g+'">'+ic('tiles',17)+'</button>'+
-      '<button class="seg__b'+(!g?' is-on':'')+'" type="button" data-layout="list" title="Liste" aria-label="Liste" aria-pressed="'+(!g)+'">'+ic('rows',17)+'</button></div>';
+    var g=lay()==='grid', to=g?'list':'grid', label=g?'Als Liste anzeigen':'Als Kacheln anzeigen';
+    return '<button class="lay-btn" type="button" data-layout="'+to+'" title="'+label+'" aria-label="'+label+'">'+ic(g?'rows':'tiles',18)+'</button>';
   }
   function rows(arr,l){
     reg(l,arr);
