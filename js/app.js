@@ -246,6 +246,7 @@
   /* ---------- Los ---------- */
   var start=location.hash.slice(1)||S.view;
   go(start,true);
+  setTimeout(V.revealActive,50);
   V.renderStage(); V.renderNP(); V.renderDock();
   G.library.load();
 })();

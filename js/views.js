@@ -114,7 +114,8 @@
      ============================================================ */
   function viewStart(){
     var L=G.library, favs=resolve(S.favs), hist=resolve(S.history);
-    var TABS=[['favs','Favoriten','star',favs.length],['songs','Songs','music',L.songs().length],['videos','Videos','video',L.videos().length],['radio','Radio','radio',''],['yt','YouTube','yt',S.yt.length],['history','Verlauf','clock',hist.length]];
+    /* jeder Reiter mit eigener Farbe (R,G,B) */
+    var TABS=[['favs','Favoriten','star',favs.length,'255,200,87'],['songs','Songs','music',L.songs().length,'255,95,162'],['videos','Videos','video',L.videos().length,'167,139,250'],['radio','Radio','radio','','45,212,191'],['yt','YouTube','yt',S.yt.length,'255,64,64'],['history','Verlauf','clock',hist.length,'96,165,250']];
     var t=S.tab, body='';
     if(t==='favs') body = favs.length? grid(favs,'favs') : empty('star','Noch keine Favoriten','Tippe auf den Stern ☆ auf einem Song, Sender oder Video.');
     else if(t==='songs') body = L.songs().length? grid(L.songs(),'songs') : empty('music','Noch keine eigenen Songs','Füge MP3-, M4A-, FLAC- oder WAV-Dateien hinzu. Sie bleiben nur auf diesem Gerät.',BTN_FILES+(canFolder()?BTN_FOLDER:''));
@@ -122,8 +123,8 @@
     else if(t==='radio') body = radioBody(true);
     else if(t==='yt') body = S.yt.length? grid(resolve(S.yt),'ytS',true) : empty('yt','Noch keine YouTube-Links','Kopiere einen Link zu einem Video oder einer Playlist und füge ihn im Bereich YouTube ein.','<button class="btn btn--solid" type="button" data-go="yt">'+ic('plus',17)+'Link einfügen</button>');
     else body = hist.length? grid(hist,'hist') : empty('clock','Noch nichts gehört','Hier erscheint, was zuletzt lief.');
-    return importBar()+'<section class="panel glass" style="display:flex;flex-direction:column;gap:14px"><div class="tabs-row"><div class="tabs" role="tablist">'+
-      TABS.map(function(x){ return '<button class="tab'+(t===x[0]?' is-active':'')+'" type="button" role="tab" aria-selected="'+(t===x[0])+'" data-tab="'+x[0]+'">'+ic(x[2],16)+x[1]+(x[3]!==''?' <em class="num">'+x[3]+'</em>':'')+'</button>'; }).join('')+
+    return importBar()+'<section class="panel glass" style="display:flex;flex-direction:column;gap:14px"><div class="tabs-row"><div class="tabs" id="startTabs" data-keep-scroll role="tablist">'+
+      TABS.map(function(x){ return '<button class="tab tab--c'+(t===x[0]?' is-active':'')+'" style="--c:'+x[4]+'" type="button" role="tab" aria-selected="'+(t===x[0])+'" data-tab="'+x[0]+'">'+ic(x[2],16)+x[1]+(x[3]!==''?' <em class="num">'+x[3]+'</em>':'')+'</button>'; }).join('')+
       '</div>'+layoutToggle()+'</div>'+body+'</section>';
   }
 
@@ -137,7 +138,7 @@
       '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
       '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
       (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+layoutToggle()+'</div>'+
-      '<div class="chips chips--sm">'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length]].map(function(x){
+      '<div class="chips chips--sm" id="musicChips" data-keep-scroll>'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length]].map(function(x){
         return '<button class="chip'+(ui.musicTab===x[0]&&!ui.album?' is-active':'')+'" type="button" data-mtab="'+x[0]+'">'+x[1]+' <span class="num" style="opacity:.6">'+x[2]+'</span></button>'; }).join('')+'</div></section>';
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
 
@@ -197,7 +198,7 @@
     return '<section class="panel glass filters">'+
       '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="radioSearch" type="search" placeholder="Sender suchen" value="'+esc(ui.radioQuery)+'" autocomplete="off"></label>'+
       '<label class="select" title="Land">'+ic('globe',16)+'<select id="radioCountry" aria-label="Land">'+G.radio.COUNTRIES.map(function(c){ return '<option value="'+c[0]+'"'+(S.radioCountry===c[0]?' selected':'')+'>'+(c[0]||'Welt')+'</option>'; }).join('')+'</select></label>'+layoutToggle()+'</div>'+
-      (ui.radioQuery.trim()?'':'<div class="chips chips--sm">'+G.radio.GENRES.map(function(g){ return '<button class="chip'+(ui.radioTag===g[0]?' is-active':'')+'" type="button" data-rtag="'+g[0]+'">'+g[1]+'</button>'; }).join('')+'</div>')+
+      (ui.radioQuery.trim()?'':'<div class="chips chips--sm" id="genreChips" data-keep-scroll>'+G.radio.GENRES.map(function(g){ return '<button class="chip'+(ui.radioTag===g[0]?' is-active':'')+'" type="button" data-rtag="'+g[0]+'">'+g[1]+'</button>'; }).join('')+'</div>')+
       '</section>'+
       (favR.length?'<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Deine Sender</h3><span>'+favR.length+'</span></div>'+grid(favR,'rfav')+'</section>':'')+
       '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>'+(ui.radioQuery.trim()?'Suchergebnis':'Sender')+'</h3><span>über radio-browser.info</span></div>'+radioBody(false)+'</section>';
@@ -272,10 +273,23 @@
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */
   V.refresh = function(){
     var a=document.activeElement, id=a&&a.id, pos=a&&a.selectionStart;
-    var y=window.scrollY;
+    var y=window.scrollY, keep={};
+    u.$$('[data-keep-scroll]').forEach(function(el){ if(el.id) keep[el.id]=el.scrollLeft; });
     V.render();
+    Object.keys(keep).forEach(function(k){ var el=document.getElementById(k); if(el) el.scrollLeft=keep[k]; });
+    V.revealActive();
     if(id){ var el=document.getElementById(id); if(el&&el.tagName==='INPUT'){ el.focus({preventScroll:true}); try{ el.setSelectionRange(pos,pos); }catch(e){} } }
     window.scrollTo(0,y);
+  };
+
+  /* Gewählten Reiter/Chip in seiner Leiste sichtbar halten, ohne die Seite zu bewegen */
+  V.revealActive = function(){
+    u.$$('[data-keep-scroll]').forEach(function(bar){
+      var a=bar.querySelector('.is-active'); if(!a) return;
+      var l=a.offsetLeft-bar.offsetLeft, r=l+a.offsetWidth, pad=12;
+      if(l-pad<bar.scrollLeft) bar.scrollLeft=Math.max(0,l-pad);
+      else if(r+pad>bar.scrollLeft+bar.clientWidth) bar.scrollLeft=r+pad-bar.clientWidth;
+    });
   };
 
   /* ---------- Bühne ---------- */

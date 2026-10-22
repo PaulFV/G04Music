@@ -210,3 +210,11 @@ button.card:hover{border-color:var(--acc-line);background:var(--glass-bg-2)}
 .lay-btn:active svg{transform:scale(.85)}
 
 @media (max-width:767px){ .topbar .lay-btn{width:36px;height:36px} }
+
+/* ---------- Farbige Reiter ---------- */
+.tabs{position:relative}
+.tab--c svg{color:rgb(var(--c))}
+.tab--c:hover{color:var(--tx-0);background:rgba(var(--c),.08)}
+.tab--c.is-active{background:rgba(var(--c),.18);border-color:rgba(var(--c),.55);color:#fff;box-shadow:0 0 18px rgba(var(--c),.2)}
+.tab--c.is-active svg{filter:drop-shadow(0 0 6px rgba(var(--c),.7))}
+.tab--c.is-active em{background:rgb(var(--c));color:#140a10;font-weight:700}
