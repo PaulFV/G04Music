@@ -307,7 +307,9 @@
     if(!c){
       np.classList.remove('is-cover');
       np.innerHTML='<div class="np__head"><span class="np__ic">'+ic('music',22)+'</span><div><small>'+greet()+'</small><b>Noch nichts gewählt</b><span>Tippe auf eine Kachel, um zu starten.</span></div></div>'+
-        (G.library.tracks.length? '<div class="btn-row"><button class="btn" type="button" data-act="playAll">'+ic('shuffle',16)+'Alle Songs mischen</button></div>'
+        (G.library.tracks.length? '<div class="np-quick">'+
+          '<button class="qbtn qbtn--main" type="button" data-act="playAll" title="Alle Songs gemischt abspielen" aria-label="Alle Songs gemischt abspielen">'+ic('shuffle',24)+'</button>'+
+          '<button class="qbtn" type="button" data-act="playOrder" title="Alle Songs der Reihe nach abspielen" aria-label="Alle Songs der Reihe nach abspielen">'+ic('queue',24)+'</button></div>'
          : '<div class="btn-row">'+BTN_FILES+'<button class="btn btn--ghost" type="button" data-go="radio">'+ic('radio',16)+'Radio hören</button></div>');
       return;
     }

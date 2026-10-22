@@ -87,3 +87,10 @@
 .pdock .play-btn{width:42px;height:42px}
 .pdock__prog{position:absolute;left:18px;right:18px;bottom:0;height:2px;border-radius:2px;overflow:hidden}
 .pdock__prog i{display:block;height:100%;background:var(--acc)}
+
+/* Schnellstart ohne Text: Mischen / der Reihe nach */
+.np-quick{display:flex;gap:12px}
+.qbtn{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--acc-line);background:var(--acc-dim);color:var(--acc);transition:transform .2s var(--ease),filter .2s}
+.qbtn:hover{filter:brightness(1.2)}
+.qbtn:active{transform:scale(.93)}
+.qbtn--main{background:linear-gradient(180deg,var(--acc),var(--acc-2));color:var(--on-acc);border-color:transparent;box-shadow:0 0 22px rgba(var(--acc-rgb),.4)}

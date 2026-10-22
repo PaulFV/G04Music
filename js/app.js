@@ -87,6 +87,7 @@
       case 'fav': if(P.cur) u.toast(S.toggleFav(P.cur)?'Zu Favoriten hinzugefügt':'Aus Favoriten entfernt'); break;
       case 'sleep': sleepSheet(); break;
       case 'toStage': if(!V.hasHero()) go('start'); u.$('#hero').scrollIntoView({behavior:'smooth',block:'start'}); break;
+      case 'playOrder': var so=G.library.songs(); if(so.length){ S.set('shuffle',false); P.play(so[0],so); } break;
       case 'playAll': var s=G.library.songs(); if(s.length){ S.set('shuffle',true); P.play(s[Math.floor(Math.random()*s.length)],s); } break;
       case 'albumBack': V.ui.album=null; V.ui.musicTab='albums'; V.refresh(); break;
       case 'radioRetry': V.ui.radioKey=''; V.ui.radioItems=null; V.refresh(); break;
