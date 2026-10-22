@@ -1,4 +1,4 @@
-# G04Musik v0.4.3
+# G04Musik v0.4.4
 
 ![G04Musik](art/social-preview.png)
 
@@ -19,7 +19,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 | **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
 | **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen |
 | **YouTube** | Reiter **Suche**, **Gemerkt**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen, Links merken |
-| **Einstellungen** | Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek, Installieren |
+| **Einstellungen** | **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
 
 ### Eigene Dateien
 * **Musik:** MP3, M4A/AAC, FLAC, WAV, OGG, Opus (je nach Browser auch AIFF, WMA)

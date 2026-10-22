@@ -325,14 +325,19 @@
   });
 
   /* ---------- Installieren ---------- */
+  /* Der Browser meldet, wenn direktes Installieren geht (Chrome, Edge, Android) */
   var deferred=null;
-  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; });
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; if(S.view==='settings') V.refresh(); });
+  window.addEventListener('appinstalled',function(){ deferred=null; u.toast('G04Musik ist installiert'); if(S.view==='settings') V.refresh(); });
+  G.app={ canInstall:function(){ return !!deferred; }, install:install };
   function install(){
-    if(deferred){ deferred.prompt(); deferred.userChoice.finally(function(){ deferred=null; }); return; }
-    var ios=P.IOS;
+    if(deferred){ deferred.prompt(); deferred.userChoice.then(function(c){ deferred=null; if(c&&c.outcome==='accepted') u.toast('Wird installiert …'); if(S.view==='settings') V.refresh(); }); return; }
+    var ios=P.IOS, android=/Android/i.test(navigator.userAgent);
     u.sheet('Als App installieren', ios
-      ? '<p>In Safari unten auf <b>Teilen</b> tippen und dann <b>„Zum Home-Bildschirm“</b> wählen.</p>'
-      : '<p>Im Browser-Menü <b>„App installieren“</b> oder <b>„Zum Startbildschirm hinzufügen“</b> wählen. In Chrome und Edge auf dem Rechner gibt es dafür auch ein Symbol rechts in der Adressleiste.</p>');
+      ? '<ol class="inst-steps"><li>Diese Seite in <b>Safari</b> öffnen.</li><li>Unten auf <b>Teilen</b> '+u.ic('upload',16)+' tippen.</li><li><b>„Zum Home-Bildschirm“</b> wählen und <b>Hinzufügen</b>.</li></ol>'
+      : android
+      ? '<ol class="inst-steps"><li>Diese Seite in <b>Chrome</b> öffnen.</li><li>Oben rechts das Menü <b>⋮</b> öffnen.</li><li><b>„App installieren“</b> bzw. <b>„Zum Startbildschirm hinzufügen“</b> wählen.</li></ol>'
+      : '<ol class="inst-steps"><li>Diese Seite in <b>Chrome</b> oder <b>Edge</b> öffnen.</li><li>Rechts in der Adressleiste auf das Symbol <b>Installieren</b> klicken (oder Menü → „App installieren“).</li><li>G04Musik startet danach wie ein eigenes Programm.</li></ol>');
   }
 
   /* ---------- Fenstergröße: Navigation passt Beschriftung an ---------- */

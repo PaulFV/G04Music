@@ -298,7 +298,25 @@
     var row=function(b,s,right,act){ return (act?'<button class="set__row" type="button" data-act="'+act+'">':'<div class="set__row">')+'<div><b>'+b+'</b><span>'+s+'</span></div>'+right+(act?'</button>':'</div>'); };
     var group=function(t,r){ return '<section class="panel glass"><div class="sec-h" style="margin-bottom:4px"><h3>'+t+'</h3></div><div class="set">'+r.join('')+'</div></section>'; };
     var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-    return group('Wiedergabe',[
+    /* Als App installieren – wie in G04TV */
+    var plat=function(os,name,how,cur){ return '<div class="inst-platform'+(cur?' is-cur':'')+'"><span class="inst-platform__os">'+os+'</span><b>'+name+'</b><span>'+how+'</span></div>'; };
+    var ios=G.player.IOS, android=/Android/i.test(navigator.userAgent), desk=!ios&&!android;
+    var iconSrc=(document.querySelector('link[rel=apple-touch-icon]')||{}).href||'img/icon-180.png';
+    var installCard='<section class="panel glass inst-card">'+
+      '<div class="sec-h" style="margin-bottom:12px"><h3 style="display:flex;align-items:center;gap:10px">'+ic('download',22)+'Als App installieren</h3>'+
+        (standalone?'<span class="inst-ok">'+ic('starF',14)+' Installiert</span>':'')+'</div>'+
+      '<div class="inst">'+
+        '<div class="inst__art"><img src="'+iconSrc+'" alt="G04Musik-Icon" width="72" height="72"></div>'+
+        '<div class="inst__platforms">'+
+          plat('●','iPhone / iPad','Safari · Teilen · Zum Home-Bildschirm',ios)+
+          plat('◆','Android','Chrome · Menü (drei Punkte) · App installieren',android)+
+          plat('■','Computer','Chrome / Edge · Symbol rechts in der Adressleiste',desk)+
+        '</div>'+
+        '<div class="inst__action">'+(standalone?'<p class="inst__note">Läuft als App – ohne Adressleiste, mit eigenem Icon.</p>'
+          : (G.app&&G.app.canInstall()?'<button class="btn btn--solid" type="button" data-act="install">'+ic('download',16)+'Jetzt installieren</button>'
+          : '<button class="btn" type="button" data-act="install">'+ic('info',16)+'So geht’s</button>'))+'</div>'+
+      '</div></section>';
+    return installCard+group('Wiedergabe',[
         row('Visualizer','Spektrum auf der Bühne'+(G.player.IOS?' (auf iPhone/iPad nachgebildet)':''),sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
@@ -315,7 +333,6 @@
         row('Alles zurücksetzen','Favoriten, Verlauf, YouTube-Liste, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
       ])+
       group('Über',[
-        standalone?'':row('Als App installieren','Auf dem Startbildschirm, ohne Adressleiste','<span class="set__val">'+ic('chev',16)+'</span>','install'),
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">© PaulFV</span>'),
         row('App-Icon','So erscheint es auf dem Home-Bildschirm','<img src="'+((document.querySelector('link[rel=apple-touch-icon]')||{}).href||'img/icon-180.png')+'" alt="App-Icon" width="52" height="52" style="border-radius:12px;flex:none">'),
         row('Datenschutz','Kein Konto, kein Tracking. Deine Dateien bleiben auf dem Gerät. Für Radio und YouTube werden nur deren Server abgefragt.','')
