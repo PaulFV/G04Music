@@ -24,14 +24,13 @@
  <g stroke="#FF3B4E" stroke-opacity=".07" stroke-width="2"><path d="M32 0V512" /><path d="M0 32H512" /><path d="M80 0V512" /><path d="M0 80H512" /><path d="M128 0V512" /><path d="M0 128H512" /><path d="M176 0V512" /><path d="M0 176H512" /><path d="M224 0V512" /><path d="M0 224H512" /><path d="M272 0V512" /><path d="M0 272H512" /><path d="M320 0V512" /><path d="M0 320H512" /><path d="M368 0V512" /><path d="M0 368H512" /><path d="M416 0V512" /><path d="M0 416H512" /><path d="M464 0V512" /><path d="M0 464H512" /></g>
  <g transform="translate(256 256) scale(1.0) translate(-256 -256)">
   <circle cx="256" cy="256" r="208" fill="none" stroke="#FF3B4E" stroke-width="28" opacity=".55" filter="url(#glow)"/>
-  <circle cx="256" cy="256" r="200" fill="url(#disc)"/>
-  <g fill="none" stroke="#fff" stroke-opacity=".055" stroke-width="2"><circle cx="256" cy="256" r="124" /><circle cx="256" cy="256" r="133" /><circle cx="256" cy="256" r="142" /><circle cx="256" cy="256" r="151" /><circle cx="256" cy="256" r="160" /><circle cx="256" cy="256" r="169" /><circle cx="256" cy="256" r="178" /><circle cx="256" cy="256" r="187" /></g>
-  <path d="M256 56a200 200 0 0 1 173 100" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#ring)" stroke-width="18"/>
-  <circle cx="256" cy="256" r="118" fill="url(#ring)"/>
-  <circle cx="256" cy="256" r="118" fill="url(#shine)"/>
+  <circle cx="256" cy="256" r="200" fill="url(#ring)"/>
+  
+  <path d="M256 56a200 200 0 0 1 173 100" fill="none" stroke="#fff" stroke-opacity=".0" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#FF8A95" stroke-opacity=".55" stroke-width="10"/>
+  <circle cx="256" cy="256" r="200" fill="url(#shine)"/>
   <!-- Note -->
-  <g transform="translate(256 266) scale(1.62)">
+  <g transform="translate(256 272) scale(2.45)">
    <g filter="url(#soft)" opacity=".55" fill="#2A0008">
     <path d="M-26 -50 L36 -64 L36 22 A22 17 -20 1 1 24 6 L24 -36 L-14 -27 L-14 34 A22 17 -20 1 1 -26 18 Z"/>
    </g>

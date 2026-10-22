@@ -1,12 +1,12 @@
 /* G04Musik — Service Worker: legt die App-Dateien ab, damit sie offline startet.
    Musik, Sender und Videos kommen nicht hier hinein (eigene Dateien liegen in der IndexedDB). */
-var CACHE = 'g04musik-v0.1.3';
+var CACHE = 'g04musik-v0.1.4';
 var FILES = [
-  './', 'index.html', 'manifest.webmanifest?v=4',
+  './', 'index.html', 'manifest.webmanifest?v=5',
   'css/theme.css', 'css/layout.css', 'css/components.css', 'css/player.css', 'css/responsive.css',
   'js/util.js', 'js/db.js', 'js/id3.js', 'js/store.js', 'js/library.js', 'js/radio.js', 'js/youtube.js',
   'js/player.js', 'js/views.js', 'js/app.js',
-  'img/icon-192.png?v=4', 'img/icon-512.png?v=4', 'img/icon-180.png?v=4', 'img/favicon-32.png?v=4', 'img/icon-maskable-512.png?v=4', 'img/icon.svg?v=4', 'img/icon-96.png'
+  'img/icon-192.png?v=5', 'img/icon-512.png?v=5', 'img/icon-180.png?v=5', 'img/favicon-32.png?v=5', 'img/icon-maskable-512.png?v=5', 'img/icon.svg?v=5', 'img/icon-96.png'
 ];
 
 self.addEventListener('install', function (e) {
