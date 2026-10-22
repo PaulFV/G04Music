@@ -41,6 +41,23 @@
   setInterval(V.tick,500);
 
   /* ---------- Klicks ---------- */
+  /* Stern auf einer Kachel: Favorit an/aus, ohne abzuspielen */
+  function favFromTile(fb){
+    var tile=fb.closest('[data-l][data-i]'); if(!tile) return;
+    var r=V.lookup(tile.dataset.l,tile.dataset.i); if(!r||!r.item) return;
+    var on=S.toggleFav(r.item);
+    u.toast(on?'„'+r.item.title+'“ zu Favoriten hinzugefügt':'Aus Favoriten entfernt');
+    var nb=document.querySelector('[data-l="'+tile.dataset.l+'"][data-i="'+tile.dataset.i+'"] [data-favbtn]'); if(nb) nb.classList.add('pop');
+  }
+  document.addEventListener('click',function(e){
+    var fb=e.target.closest('[data-favbtn]');
+    if(fb){ e.preventDefault(); e.stopPropagation(); favFromTile(fb); return; }
+  },true);
+  document.addEventListener('keydown',function(e){
+    var fb=e.target.closest&&e.target.closest('[data-favbtn]');
+    if(fb&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); e.stopPropagation(); favFromTile(fb); }
+  },true);
+
   document.addEventListener('click',function(e){
     var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw]');
     if(!el) return;

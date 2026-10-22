@@ -53,7 +53,7 @@
     var on=isCur(it);
     return '<button class="tile'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,wide?'art--wide':'').replace('%BADGE%',badge)+
-      (S.isFav(it)?'<span class="tile__fav">'+ic('starF',15)+'</span>':'')+
+      '<span class="tile__fav'+(S.isFav(it)?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" title="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-label="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+S.isFav(it)+'">'+ic(S.isFav(it)?'starF':'star',17,2.1)+'</span>'+
       '<div class="tile__t">'+(on?eq():'')+esc(it.title)+'</div>'+
       '<div class="tile__s">'+esc(it.sub||'')+(it.kind==='track'&&!it.isVideo&&it.duration?' · '+u.fmt(it.duration):'')+'</div></button>';
   }
