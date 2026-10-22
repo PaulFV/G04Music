@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#07050A">
+<meta name="description" content="G04Musik — eigene Musik, Radio und YouTube in einer App. Läuft auf Handy, Tablet und Desktop. Ohne Konto, ohne Server; alles bleibt auf dem Gerät.">
+<title>G04Musik — Musik, Radio, YouTube</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="G04Musik">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/player.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<div id="app" class="shell">
+
+  <!-- Seitenleiste: Desktop voll, Tablet als schmale Leiste -->
+  <aside class="sidebar glass">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__text">G0<b>4</b>Musik</span>
+      <span class="brand__ver" id="brandVer"></span>
+    </div>
+    <nav class="nav" id="nav" aria-label="Hauptnavigation"></nav>
+    <div class="sidebar__foot"><div class="now-chip" id="sideNow"></div></div>
+  </aside>
+
+  <main class="main" id="main">
+    <header class="topbar">
+      <div class="topbar__brand brand" aria-label="G04Musik">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">G0<b>4</b>Musik</span>
+      </div>
+      <div class="topbar__title">
+        <h1 id="viewTitle">Start</h1>
+        <p id="viewSub"></p>
+      </div>
+      <div class="topbar__actions">
+        <button class="live-chip" id="liveChip" type="button" title="Was gerade läuft"><i class="live-chip__dot"></i><span>Nichts läuft</span></button>
+      </div>
+    </header>
+
+    <div class="content" id="content">
+      <!-- ============ DIE BÜHNE ============
+           Bleibt immer im Dokument (damit ein YouTube-Video beim Blättern
+           nicht neu startet) und wird nur ein- und ausgeblendet. -->
+      <section class="hero glass" id="hero">
+        <div class="stage" id="stage">
+          <div class="stage__bg" id="stageBg"></div>
+          <canvas class="stage__viz" id="viz"></canvas>
+          <!-- Eigene Dateien (Musik und Musikvideos) laufen über dieses eine Element -->
+          <video class="stage__video" id="media" playsinline webkit-playsinline x-webkit-airplay="allow" preload="metadata" hidden></video>
+          <div class="stage__yt" id="ytHost"></div>
+
+          <div class="stage__tools" id="stageTools">
+            <button class="icon-btn" id="stagePip" type="button" title="Bild-in-Bild" aria-label="Bild-in-Bild" hidden>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1" fill="currentColor"/></svg>
+            </button>
+            <button class="icon-btn" id="stageFull" type="button" title="Vollbild" aria-label="Vollbild">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            </button>
+          </div>
+
+          <div class="stage__badges" id="stageBadges"></div>
+
+          <div class="stage__cover" id="stageCover" hidden>
+            <div class="cover" id="stageArt"></div>
+            <div class="stage__meta">
+              <small id="stageKind"></small>
+              <h2 id="stageTitle"></h2>
+              <p id="stageSub"></p>
+            </div>
+          </div>
+
+          <div class="stage__idle" id="stageIdle">
+            <span class="stage__mark"><svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M8 5.5l11 6.5-11 6.5v-13z"/></svg></span>
+            <b>Nichts läuft</b>
+            <p>Wähle einen Song, einen Sender oder ein Video.</p>
+          </div>
+
+          <div class="stage__busy" id="stageBusy" hidden><div class="stage__ring"></div></div>
+
+          <div class="stage__err" id="stageErr" hidden>
+            <b>Das ließ sich nicht abspielen</b>
+            <p id="stageErrText"></p>
+            <div class="btn-row"><button class="btn btn--sm" id="stageRetry" type="button">Noch einmal</button></div>
+          </div>
+        </div>
+
+        <div class="np" id="np"></div>
+      </section>
+
+      <div class="view-host" id="viewHost"></div>
+    </div>
+  </main>
+
+  <nav class="tabbar glass" id="tabbar" aria-label="Navigation"></nav>
+</div>
+
+<!-- Mini-Player: erscheint, sobald die Bühne nicht zu sehen ist -->
+<div class="pdock glass" id="pdock" hidden></div>
+
+<!-- Überlagerungen -->
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet glass" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet__head">
+    <h2 id="sheetTitle"></h2>
+    <button class="icon-btn" id="sheetClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </button>
+  </div>
+  <div class="sheet__body" id="sheetBody"></div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<input type="file" id="pickFiles" accept="audio/*,video/*,.mp3,.m4a,.aac,.flac,.wav,.ogg,.oga,.opus,.wma,.aiff,.mp4,.m4v,.webm,.mov,.mkv,.ogv,.3gp" multiple hidden>
+<input type="file" id="pickFolder" webkitdirectory multiple hidden>
+
+<!-- Skripte klassisch geladen, damit auch file:// funktioniert -->
+<script src="js/util.js"></script>
+<script src="js/db.js"></script>
+<script src="js/id3.js"></script>
+<script src="js/store.js"></script>
+<script src="js/library.js"></script>
+<script src="js/radio.js"></script>
+<script src="js/youtube.js"></script>
+<script src="js/player.js"></script>
+<script src="js/views.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

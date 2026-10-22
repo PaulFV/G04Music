@@ -1,0 +1,81 @@
+/* ============================================================
+   G04Musik — Rahmen, Navigation (Grundform = Desktop)
+   Tablet und Handy: siehe responsive.css
+   ============================================================ */
+
+.shell{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);min-height:100vh;min-height:100dvh}
+
+/* ---------- Marke ---------- */
+.brand{display:flex;align-items:center;gap:10px;padding:4px 2px;min-width:0}
+.brand__mark{
+  width:30px;height:30px;border-radius:9px;flex:none;
+  box-shadow:0 0 16px rgba(var(--acc-rgb),.28);
+  background:url("../icons/icon-192.png") center/cover no-repeat;
+}
+.brand__text{font-size:19px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.brand__text b{color:var(--acc);font-weight:800}
+.brand__ver{font-size:11px;color:var(--tx-2);border:1px solid var(--glass-br);padding:2px 7px;border-radius:99px;margin-left:2px}
+
+/* ---------- Seitenleiste ---------- */
+.sidebar{
+  position:sticky;top:0;height:100vh;height:100dvh;
+  display:flex;flex-direction:column;gap:14px;
+  padding:max(20px,calc(env(safe-area-inset-top) + 10px)) 14px max(20px,env(safe-area-inset-bottom));
+  padding-left:max(14px,env(safe-area-inset-left));
+  border-radius:0;border-width:0 1px 0 0;z-index:40;
+}
+.nav{display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;margin:0 -4px;padding:0 4px}
+.nav__sep{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-2);padding:14px 12px 4px}
+.nav__item{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:10px 12px;border-radius:var(--r-sm);
+  background:transparent;border:1px solid transparent;color:var(--tx-1);text-align:left;font-size:14.5px;
+  transition:background var(--dur) var(--ease),color var(--dur) var(--ease);
+}
+.nav__item svg{flex:none;opacity:.85}
+.nav__item:hover{background:var(--glass-bg-2);color:var(--tx-0)}
+.nav__item.is-active{background:linear-gradient(90deg,var(--acc-dim),transparent 85%);border-color:var(--acc-line);color:var(--acc)}
+.nav__item.is-active svg{opacity:1;filter:drop-shadow(0 0 6px rgba(var(--acc-rgb),.6))}
+.nav__badge{margin-left:auto;font-size:11px;padding:1px 7px;border-radius:99px;background:var(--acc-dim);color:var(--acc)}
+.sidebar__foot{border-top:1px solid var(--glass-br);padding-top:12px}
+
+.now-chip{display:flex;align-items:center;gap:10px;font-size:13px;min-width:0;width:100%;background:none;border:0;padding:0;text-align:left}
+.now-chip__ic{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;border:1px solid var(--glass-br);background:var(--glass-bg-2) center/cover no-repeat;color:var(--tx-2)}
+.now-chip.is-live .now-chip__ic{border-color:var(--acc-line);color:var(--acc)}
+.now-chip__meta{min-width:0}
+.now-chip__meta b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.now-chip__meta span{color:var(--tx-2);font-size:11.5px}
+
+/* ---------- Hauptbereich ---------- */
+.main{min-width:0;display:flex;flex-direction:column;padding-bottom:40px}
+.topbar{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;
+  padding:max(18px,calc(env(safe-area-inset-top) + 8px)) var(--gutter) 16px;
+  padding-right:max(var(--gutter),env(safe-area-inset-right));
+  background:linear-gradient(180deg,rgba(7,5,10,.9),rgba(7,5,10,.5) 70%,transparent);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.topbar__brand{display:none}
+.topbar__title{min-width:0}
+.topbar__title h1{font-size:clamp(20px,2.6vw,26px)}
+.topbar__title p{color:var(--tx-2);font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar__actions{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0}
+
+.live-chip{display:flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:99px;background:var(--glass-bg);border:1px solid var(--glass-br);font-weight:600;font-size:13.5px;max-width:260px;min-width:0}
+.live-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-chip__dot{width:8px;height:8px;border-radius:50%;background:var(--tx-2);flex:none}
+.live-chip.is-on .live-chip__dot{background:var(--acc);box-shadow:0 0 10px var(--acc);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* Inhalt: Bühne + Ansicht */
+.content{
+  display:flex;flex-direction:column;gap:18px;
+  padding:0 var(--gutter);
+  padding-right:max(var(--gutter),env(safe-area-inset-right));
+}
+.view-host{min-width:0;display:flex;flex-direction:column;gap:18px}
+.view-host > *{animation:viewIn .38s var(--ease)}
+@keyframes viewIn{from{opacity:.35;transform:translateY(6px)}}
+
+/* Untere Leiste (nur Handy, siehe responsive.css) */
+.tabbar{display:none}

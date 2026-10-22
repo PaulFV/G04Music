@@ -1,0 +1,23 @@
+{
+  "name": "G04Musik",
+  "short_name": "G04Musik",
+  "description": "Eigene Musik, Musikvideos, Radio und YouTube in einer App. Ohne Konto, alles bleibt auf dem Gerät.",
+  "lang": "de",
+  "start_url": "./#start",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#07050A",
+  "theme_color": "#07050A",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Meine Musik", "url": "./#music", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Radio", "url": "./#radio", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

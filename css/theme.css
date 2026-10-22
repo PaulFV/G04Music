@@ -1,0 +1,107 @@
+/* ============================================================
+   G04Musik — Design-Tokens
+   Dunkle Oberfläche · Glas · Signalrot mit Violett-Akzent
+   (gleiche Bauweise wie G04TV)
+   ============================================================ */
+
+:root{
+  /* --- Farbwelt --- */
+  --bg-0:#07050A;
+  --bg-1:#0B080F;
+  --bg-2:#110D16;
+
+  --acc:#FF3B4E;
+  --acc-2:#D61F3A;
+  --acc-rgb:255,59,78;
+  --acc-dim:rgba(var(--acc-rgb),.14);
+  --acc-line:rgba(var(--acc-rgb),.34);
+  --on-acc:#FFFFFF;
+
+  --violet:#A78BFA;
+  --violet-dim:rgba(167,139,250,.14);
+  --gold:#FFC857;
+  --live:#FF4D6D;
+  --ok:#3DDC97;
+
+  /* --- Text --- */
+  --tx-0:#F3ECEF;
+  --tx-1:#B3A4AB;
+  --tx-2:#7E6F77;
+
+  /* --- Glas --- */
+  --glass-bg:rgba(255,255,255,.035);
+  --glass-bg-2:rgba(255,255,255,.06);
+  --glass-br:rgba(255,255,255,.085);
+  --glass-hi:rgba(255,255,255,.14);
+  --blur:18px;
+
+  /* --- Maße --- */
+  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:30px;
+  --sidebar-w:246px;
+  --rail-w:84px;
+  --tabbar-h:66px;
+  --gutter:clamp(16px,3vw,32px);
+
+  --sh-1:0 1px 0 var(--glass-hi) inset,0 12px 34px rgba(0,0,0,.5);
+  --ease:cubic-bezier(.22,.9,.25,1);
+  --dur:.34s;
+
+  --font:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Inter",Roboto,sans-serif;
+  --mono:"Cascadia Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  margin:0;font-family:var(--font);color:var(--tx-0);background:var(--bg-0);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15px;line-height:1.5;
+  overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,h4{margin:0;font-weight:640;letter-spacing:-.015em;line-height:1.2}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--acc);text-decoration:none}
+img{max-width:100%}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+
+/* --- Hintergrund --- */
+.bg-grid{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    linear-gradient(rgba(var(--acc-rgb),.024) 1px,transparent 1px) 0 0/64px 64px,
+    linear-gradient(90deg,rgba(var(--acc-rgb),.024) 1px,transparent 1px) 0 0/64px 64px,
+    var(--bg-0);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 20%,transparent 80%);
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 20%,transparent 80%);
+}
+.bg-glow{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(700px 460px at 12% -8%,rgba(var(--acc-rgb),.14),transparent 62%),
+    radial-gradient(620px 420px at 92% 4%,rgba(167,139,250,.10),transparent 62%),
+    radial-gradient(900px 620px at 50% 108%,rgba(var(--acc-rgb),.05),transparent 66%);
+  animation:auraDrift 22s var(--ease) infinite alternate;
+}
+@keyframes auraDrift{to{transform:translate3d(0,-14px,0) scale(1.04)}}
+
+.glass{
+  background:var(--glass-bg);border:1px solid var(--glass-br);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  box-shadow:var(--sh-1);
+}
+
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:99px;border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--acc-line);background-clip:content-box}
+
+::selection{background:var(--acc-dim);color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
