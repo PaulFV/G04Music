@@ -1,4 +1,4 @@
-# G04Musik v0.2.1
+# G04Musik v0.2.2
 
 ![G04Musik](art/social-preview.png)
 
@@ -35,7 +35,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
 * **Einschlaf-Timer** 15–90 Minuten, am Ende wird es leiser. **Wiederholen** (alle/einen), **Zufall**,
   **Als Nächstes spielen**.
-* **Kacheln oder Liste:** ein Knopf neben den Reitern bzw. Filtern wechselt die Ansicht, die Wahl wird gemerkt.
+* **Kacheln oder Liste:** ein Knopf oben in der Kopfzeile wechselt die Ansicht für die ganze App, die Wahl wird gemerkt.
 * **Stern** oben rechts auf jeder Kachel (Songs, Videos, Radiosender, YouTube): Favorit an/aus, ohne abzuspielen.
 * **Lang drücken** (oder Rechtsklick) auf eine Kachel: Favorit, als Nächstes, Infos, löschen.
 * Tastatur am Rechner: Leertaste = Pause, N/P = weiter/zurück, F = Vollbild, M = Ton aus.

@@ -77,10 +77,15 @@
       '<span class="tile__fav row__fav'+(fav?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" aria-label="'+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',16,2.1)+'</span></button>';
   }
   /* Umschalter Kacheln / Liste */
-  function layoutToggle(){
-    var g=lay()==='grid', to=g?'list':'grid', label=g?'Als Liste anzeigen':'Als Kacheln anzeigen';
-    return '<button class="lay-btn" type="button" data-layout="'+to+'" title="'+label+'" aria-label="'+label+'">'+ic(g?'rows':'tiles',18)+'</button>';
-  }
+  /* Kacheln/Liste: ein Knopf in der Kopfzeile */
+  function layoutToggle(){ return ''; }
+  V.renderLayBtn = function(){
+    var btn=u.$('#layBtn'); if(!btn) return;
+    var g=lay()==='grid', label=g?'Als Liste anzeigen':'Als Kacheln anzeigen';
+    btn.dataset.layout=g?'list':'grid'; btn.title=label; btn.setAttribute('aria-label',label);
+    btn.innerHTML=ic(g?'rows':'tiles',18);
+    btn.hidden = S.view==='settings';
+  };
   function rows(arr,l){
     reg(l,arr);
     return '<div class="list">'+arr.map(function(t,i){
@@ -208,7 +213,7 @@
       '<button class="btn btn--solid" type="submit">'+ic('plus',17)+'Hinzufügen</button></form>'+
       '<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Tipp: In der YouTube-App auf „Teilen“ → „Link kopieren“. Manche Videos erlauben das Einbetten nicht; die öffnest du dann direkt auf YouTube. YouTube spielt nicht weiter, wenn der Bildschirm gesperrt ist.</p>'+
       '</section>'+
-      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h" style="align-items:center"><h3>Gemerkt · <span class="num">'+items.length+'</span></h3>'+layoutToggle()+'</div>'+
+      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Gemerkt</h3><span>'+items.length+'</span></div>'+
       (items.length? grid(items,'yt',true) : empty('yt','Noch nichts gemerkt','Füge oben einen Link ein, zum Beispiel zu deinem eigenen Kanal-Video.'))+'</section>';
   }
 
@@ -262,7 +267,7 @@
     var hasHero=!!HERO_VIEWS[S.view] && (S.view==='start' || window.innerWidth>=768);
     u.$('#hero').hidden=!hasHero; u.$('#content').classList.toggle('no-hero',!hasHero);
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
-    V.renderNav();
+    V.renderNav(); V.renderLayBtn();
   };
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */
   V.refresh = function(){
