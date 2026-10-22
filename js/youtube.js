@@ -39,6 +39,53 @@
       .then(function(j){ return j&&!j.error? j : {}; }).catch(function(){ return {}; });
   }
 
+
+  /* ---------- Suche ----------
+     1. Mit eigenem Schlüssel (YouTube Data API v3) – am zuverlässigsten
+     2. Sonst freie Ersatz-Server (Piped, Invidious) – meist erreichbar
+     Gibt Einträge wie toItem zurück, zusätzlich mit Länge. */
+  var PIPED=['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de','https://api.piped.private.coffee'];
+  var INV=['https://inv.nadeko.net','https://invidious.nerdvpn.de','https://yewtu.be'];
+  function timed(url,ms){
+    var ctl=('AbortController' in window)?new AbortController():null, t=setTimeout(function(){ if(ctl) ctl.abort(); },ms||7000);
+    return fetch(url,{signal:ctl?ctl.signal:undefined}).then(function(r){ clearTimeout(t); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); },function(e){ clearTimeout(t); throw e; });
+  }
+  function decodeHtml(s){ var t=document.createElement('textarea'); t.innerHTML=s||''; return t.value; }
+  function vid(id,title,author,thumb,dur){
+    var it=toItem({ytType:'video',ytId:id},{title:title,author_name:author,thumbnail_url:thumb||('https://i.ytimg.com/vi/'+id+'/mqdefault.jpg')});
+    if(dur) it.duration=dur; return it;
+  }
+  function viaKey(q,key){
+    return timed('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=24&q='+encodeURIComponent(q)+'&key='+encodeURIComponent(key),9000).then(function(j){
+      return (j.items||[]).filter(function(x){ return x.id&&x.id.videoId; }).map(function(x){
+        var sn=x.snippet||{}; return vid(x.id.videoId,decodeHtml(sn.title),decodeHtml(sn.channelTitle),sn.thumbnails&&sn.thumbnails.medium&&sn.thumbnails.medium.url);
+      });
+    });
+  }
+  function viaPiped(q,i){
+    if(i>=PIPED.length) return Promise.reject(new Error('piped'));
+    return timed(PIPED[i]+'/search?q='+encodeURIComponent(q)+'&filter=videos').then(function(j){
+      var out=(j.items||[]).filter(function(x){ return x.url&&x.url.indexOf('/watch?v=')===0; }).map(function(x){
+        return vid(x.url.split('v=')[1].slice(0,11),x.title,x.uploaderName,x.thumbnail,x.duration>0?x.duration:0);
+      });
+      if(!out.length) throw new Error('leer'); return out;
+    }).catch(function(){ return viaPiped(q,i+1); });
+  }
+  function viaInv(q,i){
+    if(i>=INV.length) return Promise.reject(new Error('invidious'));
+    return timed(INV[i]+'/api/v1/search?type=video&q='+encodeURIComponent(q)).then(function(j){
+      var out=(j||[]).filter(function(x){ return x.type==='video'&&x.videoId; }).map(function(x){
+        return vid(x.videoId,x.title,x.author,null,x.lengthSeconds||0);
+      });
+      if(!out.length) throw new Error('leer'); return out;
+    }).catch(function(){ return viaInv(q,i+1); });
+  }
+  function search(q){
+    var key=G.u.ls.get('ytKey','');
+    var free=function(){ return viaPiped(q,0).catch(function(){ return viaInv(q,0); }); };
+    return key ? viaKey(q,key).catch(free) : free();
+  }
+
   /* ---------- Player ---------- */
   var frame=null, state={playing:false,time:0,duration:0,ready:false}, onState=null;
   function send(func,args){
@@ -66,7 +113,8 @@
   });
 
   G.yt = {
-    parse:parse, toItem:toItem, meta:meta, state:state,
+    parse:parse, toItem:toItem, meta:meta, state:state, search:search,
+    resultsUrl:function(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); },
     onState:function(fn){ onState=fn; },
     mount:function(host,it,volume){
       G.yt.unmount(host);

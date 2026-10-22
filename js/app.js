@@ -94,9 +94,23 @@
       case 'clearLib': u.confirm('Bibliothek leeren?','Alle eigenen Songs und Musikvideos werden von diesem Gerät entfernt. Die Originaldateien bleiben, wo sie waren.','Leeren',function(){ if(P.cur&&P.cur.kind==='track') P.stop(); G.library.clear().then(function(){ u.toast('Bibliothek geleert'); }); }); break;
       case 'resetAll': u.confirm('Alles zurücksetzen?','Favoriten, Verlauf, YouTube-Liste und Einstellungen werden gelöscht. Deine Bibliothek bleibt.','Zurücksetzen',function(){ S.resetAll(); location.reload(); }); break;
       case 'install': install(); break;
+      case 'ytClear': V.ui.ytQuery=''; V.ui.ytResults=null; V.ui.ytErr=''; V.ui.ytBusy=false; V.refresh(); break;
+      case 'ytKey': ytKeySheet(); break;
     }
   }
 
+  function ytKeySheet(){
+    var cur=u.ls.get('ytKey','');
+    u.sheet('YouTube-Suchschlüssel',
+      '<p>Optional. Mit einem eigenen, kostenlosen Schlüssel von Google sucht die App direkt bei YouTube. Ohne Schlüssel nutzt sie freie Ersatz-Server.</p>'+
+      '<p style="font-size:13px;color:var(--tx-2)">So bekommst du ihn: console.cloud.google.com → Projekt anlegen → „YouTube Data API v3“ aktivieren → Anmeldedaten → API-Schlüssel erstellen. Der Schlüssel bleibt nur auf diesem Gerät.</p>'+
+      '<label class="field">'+u.ic('link',18)+'<input id="ytKeyIn" type="text" autocomplete="off" spellcheck="false" placeholder="API-Schlüssel einfügen" value="'+u.esc(cur)+'"></label>'+
+      '<div class="btn-row" style="justify-content:flex-end">'+(cur?'<button class="btn btn--danger" type="button" data-k="del">Entfernen</button>':'')+'<button class="btn btn--solid" type="button" data-k="save">Speichern</button></div>',
+      function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-k]'); if(!x) return;
+        if(x.dataset.k==='save'){ var v=u.$('#ytKeyIn').value.trim(); if(v) u.ls.set('ytKey',v); else u.ls.del('ytKey'); u.toast(v?'Schlüssel gespeichert':'Kein Schlüssel'); }
+        else { u.ls.del('ytKey'); u.toast('Schlüssel entfernt'); }
+        u.closeSheet(); V.refresh(); }); });
+  }
   function sleepSheet(){
     var opts=[15,30,45,60,90], cur=P.sleepLeft();
     u.sheet('Einschlaf-Timer',
@@ -144,8 +158,10 @@
   document.addEventListener('submit',function(e){
     if(e.target.id!=='ytForm') return;
     e.preventDefault();
-    var inp=u.$('#ytInput'), p=G.yt.parse(inp.value);
-    if(!p){ u.toast('Das ist kein YouTube-Link. Erwartet wird z. B. youtube.com/watch?v=… oder youtu.be/…',true); return; }
+    var inp=u.$('#ytInput'), val=inp.value.trim(), p=G.yt.parse(val);
+    if(!val) return;
+    /* Nur echte Links (mit / oder .) merken, alles andere ist ein Suchbegriff */
+    if(!p || !/[\/.]/.test(val)){ ytSearch(val); inp.blur(); return; }
     var tmp=G.yt.toItem(p);
     if(S.yt.some(function(y){ return y.id===tmp.id; })){ u.toast('Ist schon in deiner Liste'); inp.value=''; return; }
     S.addYT(tmp); inp.value=''; u.toast('Hinzugefügt');
@@ -156,6 +172,11 @@
       S.save('yt'); S.emit('yt');
     });
   });
+  function ytSearch(q){
+    var ui=V.ui; ui.ytQuery=q; ui.ytBusy=true; ui.ytErr=''; ui.ytResults=null; V.refresh();
+    G.yt.search(q).then(function(list){ if(ui.ytQuery!==q) return; ui.ytBusy=false; ui.ytResults=list; V.refresh(); })
+      .catch(function(){ if(ui.ytQuery!==q) return; ui.ytBusy=false; ui.ytErr='Die freien Suchserver antworten gerade nicht. Du kannst direkt auf YouTube suchen und den Link hier einfügen – oder in den Einstellungen einen eigenen Suchschlüssel hinterlegen.'; V.refresh(); });
+  }
   ['pickFiles','pickFolder'].forEach(function(id){
     u.$('#'+id).addEventListener('change',function(e){
       var files=e.target.files; if(!files||!files.length) return;

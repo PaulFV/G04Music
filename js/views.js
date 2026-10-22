@@ -30,7 +30,7 @@
   var HERO_VIEWS = {start:1,music:1,radio:1,yt:1};
 
   /* Status je Ansicht */
-  var ui = { musicTab:u.ls.get('musicTab','songs'), musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
+  var ui = { ytQuery:'', ytResults:null, ytBusy:false, ytErr:'', musicTab:u.ls.get('musicTab','songs'), musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
 
   /* ---------- Einträge auflösen ---------- */
   function resolve(arr){
@@ -49,7 +49,7 @@
     var badge = it.kind==='radio' ? '<span class="pill pill--live">LIVE</span>'
               : it.kind==='yt' ? '<span class="pill pill--yt">YouTube</span>'
               : it.isVideo ? '<span class="pill">Video</span>' : '';
-    if(wide && it.kind==='track' && it.duration) badge+='<span class="dur num">'+u.fmt(it.duration)+'</span>';
+    if(wide && (it.kind==='track'||it.kind==='yt') && it.duration) badge+='<span class="dur num">'+u.fmt(it.duration)+'</span>';
     var on=isCur(it);
     return '<button class="tile'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,wide?'art--wide':'').replace('%BADGE%',badge)+
@@ -69,7 +69,7 @@
     var tag = it.kind==='radio' ? '<span class="pill pill--live">LIVE</span>'
             : it.kind==='yt' ? '<span class="pill pill--yt">YouTube</span>'
             : it.isVideo ? '<span class="row__x">Video</span>' : '';
-    var dur = it.kind==='track'&&it.duration ? u.fmt(it.duration) : '';
+    var dur = (it.kind==='track'||it.kind==='yt')&&it.duration ? u.fmt(it.duration) : '';
     return '<button class="row lrow'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,(it.kind==='yt'||it.isVideo)?'art--wide':'').replace('%BADGE%','')+
       '<span class="row__t"><b>'+(on?eq():'')+esc(it.title)+'</b><span>'+esc(it.sub||'')+'</span></span>'+
@@ -208,14 +208,21 @@
      YOUTUBE
      ============================================================ */
   function viewYT(){
-    var items=resolve(S.yt);
-    return '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px">'+
-      '<form class="toolbar" id="ytForm"><label class="field">'+ic('link',18)+'<input id="ytInput" type="url" inputmode="url" placeholder="YouTube-Link einfügen (Video oder Playlist)" autocomplete="off"></label>'+
-      '<button class="btn btn--solid" type="submit">'+ic('plus',17)+'Hinzufügen</button></form>'+
-      '<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Tipp: In der YouTube-App auf „Teilen“ → „Link kopieren“. Manche Videos erlauben das Einbetten nicht; die öffnest du dann direkt auf YouTube. YouTube spielt nicht weiter, wenn der Bildschirm gesperrt ist.</p>'+
+    var items=resolve(S.yt), q=ui.ytQuery||'';
+    var res='';
+    if(ui.ytBusy) res='<div class="empty"><div class="stage__ring"></div><p>Suche auf YouTube …</p></div>';
+    else if(ui.ytErr) res=empty('search','Suche gerade nicht möglich',ui.ytErr,'<a class="btn btn--solid" href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">'+ic('yt',17)+'Auf YouTube suchen</a>');
+    else if(ui.ytResults&&!ui.ytResults.length) res=empty('search','Nichts gefunden','Versuch es mit anderen Wörtern.');
+    else if(ui.ytResults) res=grid(ui.ytResults,'ytres',true);
+    return '<section class="panel glass filters">'+
+      '<form class="filterbar" id="ytForm"><label class="field field--sm">'+ic('search',17)+'<input id="ytInput" type="search" enterkeyhint="search" placeholder="YouTube durchsuchen oder Link einfügen" value="'+esc(q)+'" autocomplete="off"></label>'+
+      '<button class="btn btn--solid btn--icon" type="submit" title="Suchen" aria-label="Suchen">'+ic('search',18)+'</button></form>'+
       '</section>'+
+      (ui.ytResults||ui.ytBusy||ui.ytErr ?
+        '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Ergebnisse für „'+esc(q)+'“</h3>'+
+        '<span><a href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">auf YouTube öffnen ›</a> · <a href="#yt" data-act="ytClear">schließen</a></span></div>'+res+'</section>' : '')+
       '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Gemerkt</h3><span>'+items.length+'</span></div>'+
-      (items.length? grid(items,'yt',true) : empty('yt','Noch nichts gemerkt','Füge oben einen Link ein, zum Beispiel zu deinem eigenen Kanal-Video.'))+'</section>';
+      (items.length? grid(items,'yt',true) : empty('yt','Noch nichts gemerkt','Suche oben nach einem Video oder füge einen Link ein. Mit dem Stern merkst du dir Treffer als Favorit, mit langem Drücken in dieser Liste.'))+'</section>';
   }
 
   /* ============================================================
@@ -233,6 +240,9 @@
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
         row('Zufall','Reihenfolge mischen',sw('shuffle'))
+      ])+
+      group('YouTube',[
+        row('Eigener Suchschlüssel','Optional: macht die Suche zuverlässiger (YouTube Data API v3). Bleibt nur auf diesem Gerät.','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey')
       ])+
       group('Bibliothek',[
         row('Eigene Titel',L.songs().length+' Songs · '+L.videos().length+' Musikvideos','<span class="set__val num" id="storeUse">'+u.bytes(L.totalSize())+'</span>'),

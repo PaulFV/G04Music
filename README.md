@@ -1,4 +1,4 @@
-# G04Musik v0.2.4
+# G04Musik v0.2.5
 
 ![G04Musik](art/social-preview.png)
 
@@ -18,7 +18,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 | **Start** | Oben die Bühne (Cover, Spektrum oder Video), darunter die Reiter **Favoriten**, **Songs**, **Videos**, **Radio**, **YouTube** und **Verlauf** |
 | **Meine Musik** | Eigene Songs und Musikvideos hinzufügen, suchen, nach **Alben** ordnen |
 | **Radio** | Über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info): nach Land, Genre oder Namen |
-| **YouTube** | Links zu Videos und Playlisten merken und im eingebetteten Player abspielen |
+| **YouTube** | Direkt auf YouTube suchen und abspielen; Links zu Videos und Playlisten merken |
 | **Einstellungen** | Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek, Installieren |
 
 ### Eigene Dateien
@@ -47,6 +47,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 
 ### Gut zu wissen
 * **iPhone/iPad:** Dort ist das Spektrum nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
+* **YouTube-Suche:** ohne Schlüssel über freie Server (Piped/Invidious), mit eigenem Schlüssel (YouTube Data API v3, in den Einstellungen) direkt bei YouTube.
 * **YouTube** spielt nicht weiter, wenn der Bildschirm gesperrt ist (Vorgabe von YouTube). Manche Videos erlauben kein Einbetten.
 * **Radio-Sender** mit HLS (`.m3u8`) laufen über [hls.js](https://github.com/video-dev/hls.js), das bei Bedarf nachgeladen wird.
 * Auf HTTPS werden nur Sender mit HTTPS-Stream angezeigt (Browser blockieren sonst den Ton).
