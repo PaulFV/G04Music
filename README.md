@@ -1,4 +1,4 @@
-# G04Musik v0.4.2
+# G04Musik v0.4.3
 
 ![G04Musik](art/social-preview.png)
 
@@ -50,7 +50,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 
 ### Bildschirmgrößen
 * **Desktop** (ab 1200 px): volle Seitenleiste, Bühne und Bedienfeld nebeneinander.
-* **Tablet** (768–1199 px): schmale Leiste; **quer** geteilt – Bühne links, Inhalt rechts; **hochkant** Bühne oben.
+* **Tablet/iPad** (768–1199 px): schmale Leiste; **quer** geteilt – Player links, Inhalt rechts; **hochkant** Player oben mit Bild und Steuerung nebeneinander.
 * **Handy** (unter 768 px): untere Leiste mit Musik, Radio, YouTube, Mehr; Abspielfenster kompakt und fest oben; **quer** scrollt es mit.
 
 ### Gut zu wissen

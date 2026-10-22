@@ -47,7 +47,13 @@ body.has-dock .main{padding-bottom:110px}
   .hero{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
 }
 @media (min-width:768px) and (max-width:1199px) and (orientation:portrait){
-  .hero{grid-template-columns:1fr}
+  /* Tablet hochkant: Bild links, Steuerung rechts – der feste Player bleibt flach */
+  .hero{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;padding:12px}
+  .hero .stage{width:100%}
+  .np{gap:10px}
+  .np__next{display:none}
+  .ctl .icon-btn{width:40px;height:40px}
+  .play-btn{width:52px;height:52px}
 }
 
 /* Tablet quer (und kleine Laptops): geteilt wie bei G04TV */

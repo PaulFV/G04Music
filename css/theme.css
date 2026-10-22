@@ -52,10 +52,14 @@
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden;overscroll-behavior-x:none}
+/* Seite seitlich fest: nichts darf breiter als der Bildschirm werden */
+html,body{max-width:100%}
+body{overflow-x:clip}
+.bg-grid,.bg-glow{overflow:hidden}
 body{
   margin:0;font-family:var(--font);color:var(--tx-0);background:var(--bg-0);
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5;
   overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;
 }
 h1,h2,h3,h4{margin:0;font-weight:640;letter-spacing:-.015em;line-height:1.2}
@@ -85,7 +89,8 @@ img{max-width:100%}
     radial-gradient(900px 620px at 50% 108%,rgba(var(--acc-rgb),.05),transparent 66%);
   animation:auraDrift 22s var(--ease) infinite alternate;
 }
-@keyframes auraDrift{to{transform:translate3d(0,-14px,0) scale(1.04)}}
+/* nur senkrecht bewegen – nie breiter als der Bildschirm (sonst wackelt die Seite auf dem iPhone seitlich) */
+@keyframes auraDrift{to{transform:translate3d(0,-14px,0)}}
 
 .glass{
   background:var(--glass-bg);border:1px solid var(--glass-br);
