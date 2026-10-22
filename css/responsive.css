@@ -12,6 +12,7 @@
 body.has-dock .main{padding-bottom:110px}
 .stage__tools{position:absolute;right:10px;top:10px;z-index:5;display:flex;gap:6px;opacity:0;transition:opacity .25s}
 .stage:hover .stage__tools,.stage.show-tools .stage__tools{opacity:1}
+.stage:not(.has-video) .stage__tools{opacity:1}
 .stage__tools .icon-btn{width:34px;height:34px;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.14);color:#fff}
 .stage:fullscreen{border-radius:0;border:0}
 .stage:-webkit-full-screen{border-radius:0;border:0}

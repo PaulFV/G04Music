@@ -152,12 +152,13 @@
     var fav=S.isFav(c), rep={off:'aus',all:'alle',one:'ein Titel'}[S.settings.repeat];
     u.sheet(c.title,
       '<button class="act" type="button" data-m="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>'+
+      (G.pip.supported()?'<button class="act" type="button" data-m="pip">'+u.ic('pip',18)+'<span>Mini-Fenster<small>Bleibt sichtbar, wenn du eine andere App öffnest</small></span></button>':'')+
       '<button class="act" type="button" data-m="list">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>'+
       '<button class="act" type="button" data-m="repeat">'+u.ic(S.settings.repeat==='one'?'repeat1':'repeat',18)+'<span>Wiederholen<small>jetzt: '+rep+'</small></span></button>'+
       '<button class="act" type="button" data-m="sleep">'+u.ic('moon',18)+'<span>Einschlaf-Timer<small>'+(P.sleepAt?'noch '+P.sleepLeft()+' min':'aus')+'</small></span></button>'+
       '<button class="act act--danger" type="button" data-m="stop">'+u.ic('trash',18)+'Wiedergabe beenden</button>',
       function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-m]'); if(!x) return; var m=x.dataset.m; u.closeSheet();
-        if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
+        if(m==='pip') G.pip.toggle(); else if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
   }
   function ytKeySheet(){
     var cur=u.ls.get('ytKey','');
@@ -297,11 +298,7 @@
     else if(st.webkitRequestFullscreen) st.webkitRequestFullscreen();
     else if(m.webkitEnterFullscreen&&!m.hidden) m.webkitEnterFullscreen(); /* iPhone */
   });
-  u.$('#stagePip').addEventListener('click',function(){
-    var m=u.$('#media');
-    if(document.pictureInPictureElement) document.exitPictureInPicture().catch(function(){});
-    else if(m.requestPictureInPicture) m.requestPictureInPicture().catch(function(){ u.toast('Bild-in-Bild geht gerade nicht.',true); });
-  });
+  u.$('#stagePip').addEventListener('click',function(){ G.pip.toggle(); });
   u.$('#stageRetry').addEventListener('click',function(){ P.toggle(); });
   u.$('#stage').addEventListener('click',function(e){
     var st=u.$('#stage'); if(e.target.closest('button')) return;

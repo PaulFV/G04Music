@@ -377,8 +377,10 @@
     var isYT=c&&c.kind==='yt', isVid=c&&c.kind==='track'&&c.isVideo&&!u.$('#media').hidden;
     st.classList.toggle('has-video',!!isVid);
     u.$('#stageCover').hidden=!c||isYT;
-    u.$('#stagePip').hidden=!(isVid&&document.pictureInPictureEnabled);
-    u.$('#stageTools').hidden=!c||(!isVid&&!isYT);
+    var pipOk=!!(c&&G.pip&&G.pip.supported());
+    u.$('#stagePip').hidden=!pipOk;
+    u.$('#stageFull').hidden=!(isVid||isYT);
+    u.$('#stageTools').hidden=!c||(!pipOk&&!isVid&&!isYT);
     u.$('#stageBusy').hidden=!(c&&P.loading&&!isYT&&!P.error);
     u.$('#stageErr').hidden=!P.error; u.$('#stageErrText').textContent=P.error||'';
     u.$('#stageBg').style.backgroundImage = c&&c.art&&c.kind!=='radio' ? 'url("'+c.art+'")' : (c? u.grad(c.title) : 'none');
