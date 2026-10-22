@@ -1,6 +1,6 @@
-# G04Musik v0.1.0
+# G04Musik v0.1.1
 
-<img src="art/icon-1024.png" width="120" alt="G04Musik Icon" align="right">
+![G04Musik](art/social-preview.png)
 
 **Eigene Musik, Musikvideos, Radio und YouTube in einer App** – als installierbare Web-App für
 **Handy, Tablet und Desktop**. Ohne Backend, ohne Konto, ohne Tracking. Deine Dateien bleiben auf dem Gerät.

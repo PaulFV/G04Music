@@ -10,7 +10,7 @@
 .brand__mark{
   width:30px;height:30px;border-radius:9px;flex:none;
   box-shadow:0 0 16px rgba(var(--acc-rgb),.28);
-  background:url("../icons/icon-192.png") center/cover no-repeat;
+  display:block;object-fit:cover;
 }
 .brand__text{font-size:19px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
 .brand__text b{color:var(--acc);font-weight:800}
