@@ -211,7 +211,7 @@
     if(!c){ ms.metadata=null; ms.playbackState='none'; return; }
     var art=[];
     if(c.art) art.push({src:c.art,sizes:'512x512'});
-    art.push({src:'img/icon-512.png?v=5',sizes:'512x512',type:'image/png'});
+    art.push({src:'img/icon-512.png?v=6',sizes:'512x512',type:'image/png'});
     try{
       ms.metadata=new MediaMetadata({
         title:c.title,

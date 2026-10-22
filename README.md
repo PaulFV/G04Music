@@ -1,4 +1,4 @@
-# G04Musik v0.1.6
+# G04Musik v0.1.7
 
 ![G04Musik](art/social-preview.png)
 
@@ -59,7 +59,7 @@ manifest.webmanifest  Installation als App
 sw.js                 Service Worker (App-Dateien offline)
 css/  theme · layout · components · player · responsive
 js/   util · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · player · views · app
-img/                App-Icons (rote Scheibe mit großer weißer Note)
+img/                App-Icons (rote Kopfhörer mit Klangwelle)
 ```
 
 ## Starten
