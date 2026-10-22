@@ -59,7 +59,7 @@
   },true);
 
   document.addEventListener('click',function(e){
-    var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw]');
+    var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout]');
     if(!el) return;
     var d=el.dataset;
     if(d.go){ e.preventDefault(); go(d.go); return; }
@@ -69,6 +69,7 @@
     if(d.album!=null){ V.ui.album=d.album; V.render(); window.scrollTo(0,u.$('#viewHost').offsetTop-80); return; }
     if(d.cc!=null){ S.radioCountry=d.cc; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); return; }
     if(d.rtag!=null){ V.ui.radioTag=d.rtag; V.ui.radioItems=null; V.refresh(); return; }
+    if(d.layout){ if(S.settings.layout!==d.layout){ S.set('layout',d.layout); V.refresh(); } return; }
     if(d.sw){ S.set(d.sw,!S.settings[d.sw]); if(d.sw==='viz'&&S.settings.viz&&!P.IOS) u.toast('Der echte Visualizer startet mit dem nächsten Song.'); return; }
     if(d.act) act(d.act,el);
   });

@@ -4,7 +4,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.1.9';
+  G.VERSION = '0.2.0';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
@@ -70,6 +70,8 @@
     globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.7 5.4 3.7 8.5s-1.2 5.9-3.7 8.5c-2.5-2.6-3.7-5.4-3.7-8.5s1.2-5.9 3.7-8.5z"/>',
     info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h0"/>',
     disk:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 15h10"/>',
+    tiles:'<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
+    rows:'<rect x="4" y="5" width="4" height="4" rx="1"/><rect x="4" y="15" width="4" height="4" rx="1"/><path d="M11 7h9M11 17h9"/>',
     queue:'<path d="M4 6h12M4 12h12M4 18h8"/><path d="M17 15l4 3-4 3z" fill="currentColor"/>'
   };
   u.ic = function(n,s,w){ return '<svg viewBox="0 0 24 24" width="'+(s||20)+'" height="'+(s||20)+'" fill="none" stroke="currentColor" stroke-width="'+(w||1.9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(I[n]||'')+'</svg>'; };

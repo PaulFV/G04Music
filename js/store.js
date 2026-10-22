@@ -22,7 +22,8 @@
       keepAwake: true,
       sleepDefault: 30,
       repeat: 'off',      /* off | all | one */
-      shuffle: false
+      shuffle: false,
+      layout: 'grid'     /* grid | list */
     }, u.ls.get('settings', {})),
     listeners: []
   };
