@@ -4,7 +4,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.2.5';
+  G.VERSION = '0.3.0';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
@@ -72,9 +72,33 @@
     disk:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 15h10"/>',
     tiles:'<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
     rows:'<rect x="4" y="5" width="4" height="4" rx="1"/><rect x="4" y="15" width="4" height="4" rx="1"/><path d="M11 7h9M11 17h9"/>',
+    listAdd:'<path d="M4 6h11M4 12h11M4 18h7"/><path d="M18 14v7M14.5 17.5h7"/>',
+    download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+    upload:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
+    edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+    up:'<path d="M6 15l6-6 6 6"/>',
+    down:'<path d="M6 9l6 6 6-6"/>',
+    lists:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h10M7 17h6"/>',
     queue:'<path d="M4 6h12M4 12h12M4 18h8"/><path d="M17 15l4 3-4 3z" fill="currentColor"/>'
   };
   u.ic = function(n,s,w){ return '<svg viewBox="0 0 24 24" width="'+(s||20)+'" height="'+(s||20)+'" fill="none" stroke="currentColor" stroke-width="'+(w||1.9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(I[n]||'')+'</svg>'; };
+
+  /* ---------- Datei speichern: auf dem Handy über "Teilen", sonst Download ---------- */
+  u.saveFile = function(name,text,mime){
+    var blob=new Blob([text],{type:mime||'application/octet-stream'});
+    try{
+      var file=new File([blob],name,{type:blob.type});
+      if(navigator.canShare && navigator.canShare({files:[file]}) && /iP(hone|ad|od)|Android/.test(navigator.userAgent)){
+        return navigator.share({files:[file],title:name}).then(function(){ return true; }).catch(function(e){ if(e&&e.name==='AbortError') return false; return dl(); });
+      }
+    }catch(e){}
+    function dl(){
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+      return Promise.resolve(true);
+    }
+    return dl();
+  };
 
   /* ---------- Meldungen ---------- */
   u.toast = function(msg,err){

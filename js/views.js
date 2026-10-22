@@ -30,7 +30,7 @@
   var HERO_VIEWS = {start:1,music:1,radio:1,yt:1};
 
   /* Status je Ansicht */
-  var ui = { ytQuery:'', ytResults:null, ytBusy:false, ytErr:'', musicTab:u.ls.get('musicTab','songs'), musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
+  var ui = { listOpen:null, ytQuery:'', ytResults:null, ytBusy:false, ytErr:'', musicTab:u.ls.get('musicTab','songs'), musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
 
   /* ---------- Einträge auflösen ---------- */
   function resolve(arr){
@@ -138,8 +138,9 @@
       '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
       '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
       (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+layoutToggle()+'</div>'+
-      '<div class="chips chips--sm" id="musicChips" data-keep-scroll>'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length]].map(function(x){
+      '<div class="chips chips--sm" id="musicChips" data-keep-scroll>'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length],['lists','Listen',G.lists.all.length+1]].map(function(x){
         return '<button class="chip'+(ui.musicTab===x[0]&&!ui.album?' is-active':'')+'" type="button" data-mtab="'+x[0]+'">'+x[1]+' <span class="num" style="opacity:.6">'+x[2]+'</span></button>'; }).join('')+'</div></section>';
+    if(ui.musicTab==='lists') return importBar()+head+viewLists();
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
 
     var q=ui.musicQuery.trim().toLowerCase();
@@ -167,6 +168,51 @@
         (songs.length? (lay()==='list'? rows(songs,'msongs') : grid(songs,'msongs')) : empty('music',q?'Kein Treffer':'Noch keine Songs',q?'Versuch es mit einem anderen Wort.':'Füge Musikdateien hinzu.'))+'</section>';
     }
     return importBar()+head+body;
+  }
+
+  /* ============================================================
+     LISTEN (eigene Playlisten + Favoriten)
+     ============================================================ */
+  function listArt(l){
+    if(l.id===G.lists.FAV_ID) return '<div class="art art--list" style="background:linear-gradient(140deg,#FFD978,#E0A21A 60%,#7A4A00)">'+ic('starF',40)+'</div>';
+    var a=G.lists.art(l);
+    return '<div class="art art--list" style="'+(a?'background-image:url(&quot;'+esc(a)+'&quot;)':'background-image:'+u.grad(l.name))+'">'+(a?'':ic('lists',38))+'</div>';
+  }
+  function viewLists(){
+    var PL=G.lists;
+    if(ui.listOpen){
+      var l = ui.listOpen===PL.FAV_ID ? PL.favList() : PL.get(ui.listOpen);
+      if(!l){ ui.listOpen=null; return viewLists(); }
+      var fav=l.id===PL.FAV_ID, items=fav? resolve(S.favs) : PL.resolve(l), miss=fav?0:PL.missing(l);
+      var dur=items.reduce(function(a,t){ return a+(t.duration||0); },0);
+      var btn=function(act,icon,label,cls){ return '<button class="qbtn qbtn--sm'+(cls||'')+'" type="button" data-act="'+act+'" title="'+label+'" aria-label="'+label+'">'+ic(icon,20)+'</button>'; };
+      return '<section class="panel glass" style="display:flex;flex-direction:column;gap:14px">'+
+        '<div class="pl-head">'+listArt(l)+
+          '<div class="pl-head__t"><small>'+(fav?'FAVORITEN':'LISTE')+'</small><h2>'+esc(l.name)+'</h2><p>'+items.length+' Einträge'+(dur?' · '+Math.round(dur/60)+' min':'')+(miss?' · <span style="color:var(--warn,#FFB020)">'+miss+' Songs fehlen auf diesem Gerät</span>':'')+'</p></div></div>'+
+        '<div class="pl-actions">'+
+          btn('plBack','chev','Alle Listen',' qbtn--back')+
+          (items.length? btn('plPlay','play','Abspielen',' qbtn--main')+btn('plShuffle','shuffle','Gemischt abspielen') : '')+
+          btn('plExport','upload','Exportieren')+
+          (fav?'':btn('plRename','edit','Umbenennen')+btn('plDelete','trash','Liste löschen',' qbtn--danger'))+
+        '</div>'+
+        (items.length? '<div class="list">'+reg('pl',items).map(function(it,i){ return lrow(it,'pl',i); }).join('')+'</div>'
+          : empty(fav?'star':'listAdd','Noch leer', fav?'Tippe auf den Stern bei einem Song, Sender oder Video.':'Lang drücken auf einen Song, Sender oder ein Video und „Zu Liste hinzufügen“ wählen – oder beim Abspielen auf das Listen-Symbol tippen.'))+
+        (items.length?'<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Lang drücken auf einen Eintrag: verschieben oder aus der Liste entfernen.</p>':'')+
+        '</section>';
+    }
+    var all=[PL.favList()].concat(PL.all);
+    return '<section class="panel glass" style="display:flex;flex-direction:column;gap:14px">'+
+      '<div class="sec-h" style="align-items:center"><h3>Deine Listen</h3><div class="pl-actions">'+
+        '<button class="qbtn qbtn--sm qbtn--main" type="button" data-act="plNew" title="Neue Liste" aria-label="Neue Liste">'+ic('plus',20)+'</button>'+
+        '<button class="qbtn qbtn--sm" type="button" data-act="plImport" title="Liste importieren" aria-label="Liste importieren">'+ic('download',20)+'</button>'+
+        '<button class="qbtn qbtn--sm" type="button" data-act="plExportAll" title="Alles exportieren (Favoriten und alle Listen)" aria-label="Alles exportieren">'+ic('upload',20)+'</button>'+
+      '</div></div>'+
+      '<div class="grid">'+all.map(function(l){
+        var n = l.id===PL.FAV_ID ? resolve(S.favs).length : l.items.length;
+        return '<button class="tile" type="button" data-plopen="'+esc(l.id)+'">'+listArt(l)+'<div class="tile__t">'+esc(l.name)+'</div><div class="tile__s">'+n+' Einträge</div></button>';
+      }).join('')+'</div>'+
+      '<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Import: G04Musik-Dateien (.json) und M3U-Listen. Eigene Songs werden über den Dateinamen in deiner Bibliothek wiedergefunden.</p>'+
+      '</section>';
   }
 
   /* ============================================================
@@ -350,6 +396,7 @@
       '<button class="icon-btn" type="button" data-act="next" title="Weiter" aria-label="Weiter">'+ic('next',18)+'</button>'+
       '<button class="icon-btn'+(st.repeat!=='off'?' is-on':'')+'" type="button" data-act="repeat" title="Wiederholen: '+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'" aria-label="Wiederholen">'+ic(rep,18)+'</button></div>'+
       '<div class="ctl"><button class="icon-btn'+(fav?' is-on':'')+'" type="button" data-act="fav" title="Favorit" aria-label="Favorit" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',18)+'</button>'+
+      '<button class="icon-btn" type="button" data-act="toList" title="Zu Liste hinzufügen" aria-label="Zu Liste hinzufügen">'+ic('listAdd',18)+'</button>'+
       '<button class="icon-btn'+(P.sleepAt?' is-on':'')+'" type="button" data-act="sleep" title="Einschlaf-Timer" aria-label="Einschlaf-Timer">'+ic('moon',18)+'</button>'+(P.sleepAt?'<span class="sleep-tag num">'+P.sleepLeft()+' min</span>':'')+
       '<label class="vol" title="Lautstärke">'+ic(st.volume>0?'vol':'mute',18)+'<input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></label>'+
       '<button class="icon-btn" type="button" data-act="stop" title="Beenden" aria-label="Beenden"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+

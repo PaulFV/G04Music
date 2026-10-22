@@ -35,6 +35,7 @@
       lastPlaying=P.playing;
     }
     else if(what==='favs'){ V.refresh(); V.renderNP(); }
+    else if(what==='lists'){ V.refresh(); }
     else if(what==='library'||what==='import'||what==='yt'){ V.refresh(); if(what==='library') V.renderNP(); }
     else if(what==='settings'){ V.renderNP(); if(S.view==='settings') V.refresh(); }
   });
@@ -59,7 +60,7 @@
   },true);
 
   document.addEventListener('click',function(e){
-    var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout]');
+    var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout],[data-plopen]');
     if(!el) return;
     var d=el.dataset;
     if(d.go){ e.preventDefault(); go(d.go); return; }
@@ -69,6 +70,7 @@
     if(d.album!=null){ V.ui.album=d.album; V.render(); window.scrollTo(0,u.$('#viewHost').offsetTop-80); return; }
     if(d.cc!=null){ S.radioCountry=d.cc; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); return; }
     if(d.rtag!=null){ V.ui.radioTag=d.rtag; V.ui.radioItems=null; V.refresh(); return; }
+    if(d.plopen){ V.ui.listOpen=d.plopen; V.ui.musicTab='lists'; V.refresh(); var vh=u.$('#viewHost'); window.scrollTo(0,Math.max(0,vh.offsetTop-80)); return; }
     if(d.layout){ if(S.settings.layout!==d.layout){ S.set('layout',d.layout); V.refresh(); } return; }
     if(d.sw){ S.set(d.sw,!S.settings[d.sw]); if(d.sw==='viz'&&S.settings.viz&&!P.IOS) u.toast('Der echte Visualizer startet mit dem nächsten Song.'); return; }
     if(d.act) act(d.act,el);
@@ -94,11 +96,53 @@
       case 'clearLib': u.confirm('Bibliothek leeren?','Alle eigenen Songs und Musikvideos werden von diesem Gerät entfernt. Die Originaldateien bleiben, wo sie waren.','Leeren',function(){ if(P.cur&&P.cur.kind==='track') P.stop(); G.library.clear().then(function(){ u.toast('Bibliothek geleert'); }); }); break;
       case 'resetAll': u.confirm('Alles zurücksetzen?','Favoriten, Verlauf, YouTube-Liste und Einstellungen werden gelöscht. Deine Bibliothek bleibt.','Zurücksetzen',function(){ S.resetAll(); location.reload(); }); break;
       case 'install': install(); break;
+      case 'toList': if(P.cur) listPicker(P.cur); break;
+      case 'plNew': nameSheet('Neue Liste','',function(n){ var l=G.lists.create(n); u.toast('Liste „'+l.name+'“ angelegt'); V.ui.listOpen=l.id; V.ui.musicTab='lists'; if(S.view!=='music') go('music'); else V.refresh(); }); break;
+      case 'plImport': u.$('#pickList').click(); break;
+      case 'plExportAll': G.lists.exportFile('all','json').then(function(ok){ if(ok) u.toast('Favoriten und alle Listen exportiert'); }); break;
+      case 'plBack': V.ui.listOpen=null; V.refresh(); break;
+      case 'plPlay': case 'plShuffle':
+        var r=V.lookup('pl',0); if(r&&r.list.length){ S.set('shuffle',a==='plShuffle'); P.play(a==='plShuffle'? r.list[Math.floor(Math.random()*r.list.length)] : r.list[0], r.list); } break;
+      case 'plExport': exportSheet(V.ui.listOpen); break;
+      case 'plRename': var lr=G.lists.get(V.ui.listOpen); if(lr) nameSheet('Liste umbenennen',lr.name,function(n){ G.lists.rename(lr.id,n); u.toast('Umbenannt'); }); break;
+      case 'plDelete': var ld=G.lists.get(V.ui.listOpen); if(ld) u.confirm('Liste löschen?','„'+ld.name+'“ wird gelöscht. Die Songs selbst bleiben in deiner Bibliothek.','Löschen',function(){ G.lists.remove(ld.id); V.ui.listOpen=null; u.toast('Liste gelöscht'); }); break;
       case 'ytClear': V.ui.ytQuery=''; V.ui.ytResults=null; V.ui.ytErr=''; V.ui.ytBusy=false; V.refresh(); break;
       case 'ytKey': ytKeySheet(); break;
     }
   }
 
+  /* ---------- Listen: Namen eingeben, Liste wählen, exportieren ---------- */
+  function nameSheet(title,val,cb){
+    u.sheet(title,'<form id="nameForm" style="display:flex;flex-direction:column;gap:10px"><label class="field">'+u.ic('edit',18)+'<input id="nameIn" type="text" maxlength="60" placeholder="Name der Liste" value="'+u.esc(val)+'" autocomplete="off"></label>'+
+      '<div class="btn-row" style="justify-content:flex-end"><button class="btn btn--solid" type="submit">Speichern</button></div></form>',function(b){
+      u.$('#nameForm',b).addEventListener('submit',function(e){ e.preventDefault(); var n=u.$('#nameIn').value.trim(); if(!n){ u.$('#nameIn').focus(); return; } u.closeSheet(); cb(n); });
+    });
+  }
+  function listPicker(it){
+    var L=G.lists.all;
+    u.sheet('Zu Liste hinzufügen',
+      '<p>„'+u.esc(it.title)+'“</p><div class="pick-list">'+
+      L.map(function(l){ var has=l.items.some(function(x){ return S.key(x)===S.key(it); });
+        return '<button class="act" type="button" data-pl="'+u.esc(l.id)+'"'+(has?' disabled style="opacity:.5"':'')+'>'+u.ic('lists',18)+'<span>'+u.esc(l.name)+'<small>'+l.items.length+(l.items.length===1?' Eintrag':' Einträge')+(has?' · schon drin':'')+'</small></span></button>'; }).join('')+
+      '</div><form id="plNewForm" class="filterbar"><label class="field field--sm">'+u.ic('plus',17)+'<input id="plNewIn" type="text" maxlength="60" placeholder="Neue Liste anlegen" autocomplete="off"></label><button class="btn btn--solid btn--icon" type="submit" aria-label="Anlegen und hinzufügen">'+u.ic('plus',18)+'</button></form>',
+      function(b){
+        b.addEventListener('click',function(e){ var x=e.target.closest('[data-pl]'); if(!x||x.disabled) return; u.closeSheet(); if(G.lists.add(x.dataset.pl,it)) u.toast('Zu „'+G.lists.get(x.dataset.pl).name+'“ hinzugefügt'); });
+        u.$('#plNewForm',b).addEventListener('submit',function(e){ e.preventDefault(); var n=u.$('#plNewIn').value.trim(); if(!n){ u.$('#plNewIn').focus(); return; } var l=G.lists.create(n,[it]); u.closeSheet(); u.toast('Liste „'+l.name+'“ angelegt'); });
+      });
+  }
+  function exportSheet(id){
+    var PL=G.lists, l = id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
+    u.sheet('„'+l.name+'“ exportieren',
+      '<button class="act" type="button" data-ex="json">'+u.ic('upload',18)+'<span>Als G04Musik-Datei (.json)<small>Zum Sichern oder für ein anderes Gerät mit G04Musik</small></span></button>'+
+      '<button class="act" type="button" data-ex="m3u">'+u.ic('lists',18)+'<span>Als M3U-Liste<small>Für andere Player, z. B. VLC. Sender und YouTube als Adresse, eigene Songs als Dateiname</small></span></button>',
+      function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-ex]'); if(!x) return; u.closeSheet(); PL.exportFile(id,x.dataset.ex).then(function(ok){ if(ok) u.toast('Exportiert'); }); }); });
+  }
+  /* Position eines angezeigten Eintrags in der gespeicherten Liste */
+  function rawIndex(l,it){
+    for(var i=0;i<l.items.length;i++){ var x=l.items[i];
+      if(S.key(x)===S.key(it) || (x.kind==='track'&&it.kind==='track'&&x.fileName&&x.fileName===it.fileName)) return i; }
+    return -1;
+  }
   function ytKeySheet(){
     var cur=u.ls.get('ytKey','');
     u.sheet('YouTube-Suchschlüssel',
@@ -127,6 +171,12 @@
     h+='<button class="act" type="button" data-x="play">'+u.ic('play',18)+'Abspielen</button>';
     if(P.cur && S.key(P.cur)!==S.key(it)) h+='<button class="act" type="button" data-x="nextUp">'+u.ic('queue',18)+'Als Nächstes spielen</button>';
     h+='<button class="act" type="button" data-x="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>';
+    h+='<button class="act" type="button" data-x="toList">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>';
+    var inList = el.dataset.l==='pl' && V.ui.listOpen && V.ui.listOpen!==G.lists.FAV_ID;
+    if(inList){
+      h+='<div class="btn-row"><button class="btn btn--ghost btn--sm" type="button" data-x="up">'+u.ic('up',16)+'Nach oben</button><button class="btn btn--ghost btn--sm" type="button" data-x="down">'+u.ic('down',16)+'Nach unten</button></div>';
+      h+='<button class="act act--danger" type="button" data-x="unlist">'+u.ic('trash',18)+'Aus dieser Liste entfernen</button>';
+    }
     if(it.kind==='yt') h+='<a class="act" href="'+(it.ytType==='list'?'https://www.youtube.com/playlist?list=':'https://www.youtube.com/watch?v=')+u.esc(it.ytId)+'" target="_blank" rel="noopener">'+u.ic('yt',18)+'Auf YouTube öffnen</a>';
     if(it.kind==='track') h+='<div class="act" style="cursor:default">'+u.ic('info',18)+'<span>'+u.esc(it.fileName||'')+'<small>'+[u.fmt(it.duration),u.bytes(it.size),(it.type||'').replace(/^(audio|video)\//,'').toUpperCase()].filter(function(x){return x&&x!=='–:––';}).join(' · ')+'</small></span></div>';
     if(it.kind==='track') h+='<button class="act act--danger" type="button" data-x="del">'+u.ic('trash',18)+'Aus der Bibliothek löschen</button>';
@@ -137,6 +187,12 @@
         if(k==='play') P.play(it,r.list);
         else if(k==='nextUp'){ P.queue.splice(P.index+1,0,it); u.toast('Kommt als Nächstes'); V.renderNP(); }
         else if(k==='fav') u.toast(S.toggleFav(it)?'Zu Favoriten hinzugefügt':'Aus Favoriten entfernt');
+        else if(k==='toList') listPicker(it);
+        else if(k==='up'||k==='down'||k==='unlist'){
+          var l=G.lists.get(V.ui.listOpen), ix=l?rawIndex(l,it):-1; if(ix<0) return;
+          if(k==='unlist'){ G.lists.removeAt(l.id,ix); u.toast('Aus der Liste entfernt'); }
+          else G.lists.move(l.id,ix,k==='up'?-1:1);
+        }
         else if(k==='del') u.confirm('Löschen?','„'+it.title+'“ wird von diesem Gerät entfernt.','Löschen',function(){ if(P.cur&&P.cur.id===it.id) P.stop(); G.library.remove(it.id).then(function(){ u.toast('Gelöscht'); }); });
         else if(k==='delyt'){ if(P.cur&&P.cur.id===it.id) P.stop(); S.removeYT(it.id); u.toast('Entfernt'); }
       });
@@ -177,6 +233,20 @@
     G.yt.search(q).then(function(list){ if(ui.ytQuery!==q) return; ui.ytBusy=false; ui.ytResults=list; V.refresh(); })
       .catch(function(){ if(ui.ytQuery!==q) return; ui.ytBusy=false; ui.ytErr='Die freien Suchserver antworten gerade nicht. Du kannst direkt auf YouTube suchen und den Link hier einfügen – oder in den Einstellungen einen eigenen Suchschlüssel hinterlegen.'; V.refresh(); });
   }
+  u.$('#pickList').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      try{
+        var r=G.lists.importText(String(fr.result),f.name);
+        var msg=[]; if(r.lists) msg.push(r.lists+(r.lists===1?' Liste':' Listen')); if(r.favs) msg.push(r.favs+' Favoriten');
+        u.toast((msg.length?msg.join(' und ')+' importiert':'Nichts Neues gefunden')+(r.missing?' · '+r.missing+' Songs fehlen auf diesem Gerät':''));
+        V.ui.listOpen=null; V.ui.musicTab='lists'; if(S.view!=='music') go('music'); else V.refresh();
+      }catch(err){ u.toast(err.message||'Die Datei ließ sich nicht lesen.',true); }
+    };
+    fr.onerror=function(){ u.toast('Die Datei ließ sich nicht lesen.',true); };
+    fr.readAsText(f);
+  });
   ['pickFiles','pickFolder'].forEach(function(id){
     u.$('#'+id).addEventListener('change',function(e){
       var files=e.target.files; if(!files||!files.length) return;

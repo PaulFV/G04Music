@@ -218,3 +218,18 @@ button.card:hover{border-color:var(--acc-line);background:var(--glass-bg-2)}
 .tab--c.is-active{background:rgba(var(--c),.18);border-color:rgba(var(--c),.55);color:#fff;box-shadow:0 0 18px rgba(var(--c),.2)}
 .tab--c.is-active svg{filter:drop-shadow(0 0 6px rgba(var(--c),.7))}
 .tab--c.is-active em{background:rgb(var(--c));color:#140a10;font-weight:700}
+
+/* ---------- Listen ---------- */
+.art--list{color:rgba(255,255,255,.92)}
+.pl-head{display:flex;gap:16px;align-items:flex-end;min-width:0}
+.pl-head .art{width:112px;flex:none;font-size:0}
+.pl-head__t{min-width:0}
+.pl-head__t small{color:var(--acc);font-weight:700;letter-spacing:.08em;font-size:11.5px}
+.pl-head__t h2{font-size:clamp(20px,3vw,26px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-head__t p{color:var(--tx-1);font-size:13.5px}
+.pl-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qbtn.qbtn--sm{width:42px;height:42px}
+.qbtn--back svg{transform:rotate(180deg)}
+.qbtn.qbtn--danger{border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.1);color:var(--live)}
+.pick-list{display:flex;flex-direction:column;gap:8px}
+@media (max-width:767px){ .pl-head .art{width:84px} }

@@ -1,4 +1,4 @@
-# G04Musik v0.2.5
+# G04Musik v0.3.0
 
 ![G04Musik](art/social-preview.png)
 
@@ -16,7 +16,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 | Bereich | Beschreibung |
 |:--|:--|
 | **Start** | Oben die Bühne (Cover, Spektrum oder Video), darunter die Reiter **Favoriten**, **Songs**, **Videos**, **Radio**, **YouTube** und **Verlauf** |
-| **Meine Musik** | Eigene Songs und Musikvideos hinzufügen, suchen, nach **Alben** ordnen |
+| **Meine Musik** | Eigene Songs und Musikvideos hinzufügen, suchen, nach **Alben** ordnen, **eigene Listen** anlegen |
 | **Radio** | Über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info): nach Land, Genre oder Namen |
 | **YouTube** | Direkt auf YouTube suchen und abspielen; Links zu Videos und Playlisten merken |
 | **Einstellungen** | Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek, Installieren |
@@ -27,6 +27,13 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * Titel, Künstler, Album, Nummer und **Cover** werden aus den Tags gelesen (ID3 bei MP3, iTunes-Tags bei M4A/MP4). Ohne Tags
   hilft der Dateiname („Künstler - Titel.mp3“). Videos bekommen automatisch ein Vorschaubild.
 * Ganze **Ordner** auf einmal (Desktop-Browser). Gespeichert wird in der **IndexedDB** des Browsers.
+
+### Eigene Listen und Favoriten
+* **Listen mit Namen** anlegen; Songs, Musikvideos, Radiosender und YouTube-Videos hinzufügen (lang drücken → „Zu Liste hinzufügen“ oder beim Abspielen das Listen-Symbol).
+* In der Liste: abspielen, gemischt abspielen, umbenennen, löschen; Einträge verschieben oder entfernen (lang drücken).
+* **Favoriten** stehen als eigene Liste ganz oben und lassen sich genauso exportieren.
+* **Export:** einzelne Liste oder Favoriten als G04Musik-Datei (`.g04musik.json`) oder **M3U** (für VLC & Co.); „Alles exportieren“ sichert Favoriten und alle Listen in einer Datei. Auf dem Handy über „Teilen“.
+* **Import:** G04Musik-Dateien und M3U-Listen. Eigene Songs werden über Dateiname und Größe (sonst Titel und Künstler) in der Bibliothek wiedergefunden; fehlende werden angezeigt und tauchen auf, sobald die Datei hinzugefügt ist.
 
 ### Wiedergabe
 * **Bühne** mit echtem Spektrum (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt auf der Bühne,

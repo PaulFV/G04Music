@@ -1,11 +1,11 @@
 /* G04Musik — Service Worker: legt die App-Dateien ab, damit sie offline startet.
    Musik, Sender und Videos kommen nicht hier hinein (eigene Dateien liegen in der IndexedDB). */
-var CACHE = 'g04musik-v0.2.5';
+var CACHE = 'g04musik-v0.3.0';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest?v=6',
-  'css/theme.css?v=0.2.5', 'css/layout.css?v=0.2.5', 'css/components.css?v=0.2.5', 'css/player.css?v=0.2.5', 'css/responsive.css?v=0.2.5',
-  'js/util.js?v=0.2.5', 'js/db.js?v=0.2.5', 'js/id3.js?v=0.2.5', 'js/store.js?v=0.2.5', 'js/library.js?v=0.2.5', 'js/radio.js?v=0.2.5', 'js/youtube.js?v=0.2.5',
-  'js/player.js?v=0.2.5', 'js/views.js?v=0.2.5', 'js/app.js?v=0.2.5',
+  'css/theme.css?v=0.3.0', 'css/layout.css?v=0.3.0', 'css/components.css?v=0.3.0', 'css/player.css?v=0.3.0', 'css/responsive.css?v=0.3.0',
+  'js/util.js?v=0.3.0', 'js/db.js?v=0.3.0', 'js/id3.js?v=0.3.0', 'js/store.js?v=0.3.0', 'js/library.js?v=0.3.0', 'js/radio.js?v=0.3.0', 'js/youtube.js?v=0.3.0', 'js/playlists.js?v=0.3.0',
+  'js/player.js?v=0.3.0', 'js/views.js?v=0.3.0', 'js/app.js?v=0.3.0',
   'img/icon-192.png?v=6', 'img/icon-512.png?v=6', 'img/icon-180.png?v=6', 'img/favicon-32.png?v=6', 'img/icon-maskable-512.png?v=6', 'img/icon.svg?v=6', 'img/icon-96.png'
 ];
 
