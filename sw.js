@@ -1,6 +1,6 @@
 /* G04Musik — Service Worker: legt die App-Dateien ab, damit sie offline startet.
    Musik, Sender und Videos kommen nicht hier hinein (eigene Dateien liegen in der IndexedDB). */
-var CACHE = 'g04musik-v0.1.4';
+var CACHE = 'g04musik-v0.1.5';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest?v=5',
   'css/theme.css', 'css/layout.css', 'css/components.css', 'css/player.css', 'css/responsive.css',
@@ -23,7 +23,8 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET' || url.origin !== location.origin) return;
   if (req.headers.has('range')) return;
   e.respondWith(
-    fetch(req).then(function (res) {
+    /* cache:'no-cache' = beim Server nachfragen, statt bis zu 10 Minuten alte Dateien zu nehmen */
+    fetch(req, { cache: 'no-cache' }).then(function (res) {
       if (res.ok && res.type === 'basic') { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
       return res;
     }).catch(function () {
