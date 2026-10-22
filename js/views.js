@@ -105,11 +105,12 @@
   function viewMusic(){
     var L=G.library;
     if(!L.ready) return '<section class="panel glass">'+empty('music','Bibliothek wird geladen …','')+'</section>';
-    var head='<section class="panel glass" style="display:flex;flex-direction:column;gap:12px">'+
-      '<div class="toolbar"><label class="field">'+ic('search',18)+'<input id="musicSearch" type="search" placeholder="Titel, Künstler oder Album suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
-      '<div class="btn-row">'+BTN_FILES+(canFolder()?BTN_FOLDER:'')+'</div></div>'+
-      '<div class="chips">'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Musikvideos',L.videos().length]].map(function(x){
-        return '<button class="chip'+(ui.musicTab===x[0]&&!ui.album?' is-active':'')+'" type="button" data-mtab="'+x[0]+'">'+x[1]+' · <span class="num">'+x[2]+'</span></button>'; }).join('')+'</div></section>';
+    var head='<section class="panel glass filters">'+
+      '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
+      '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
+      (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+'</div>'+
+      '<div class="chips chips--sm">'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length]].map(function(x){
+        return '<button class="chip'+(ui.musicTab===x[0]&&!ui.album?' is-active':'')+'" type="button" data-mtab="'+x[0]+'">'+x[1]+' <span class="num" style="opacity:.6">'+x[2]+'</span></button>'; }).join('')+'</div></section>';
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
 
     var q=ui.musicQuery.trim().toLowerCase();
@@ -165,10 +166,10 @@
   }
   function viewRadio(){
     var favR=S.favs.filter(function(f){ return f.kind==='radio'; });
-    return '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px">'+
-      '<label class="field">'+ic('search',18)+'<input id="radioSearch" type="search" placeholder="Sender suchen, z. B. 1LIVE, SWR3, Jazz" value="'+esc(ui.radioQuery)+'" autocomplete="off"></label>'+
-      '<div class="chips">'+G.radio.COUNTRIES.map(function(c){ return '<button class="chip'+(S.radioCountry===c[0]?' is-active':'')+'" type="button" data-cc="'+c[0]+'">'+(c[0]?'':ic('globe',14)+' ')+c[1]+'</button>'; }).join('')+'</div>'+
-      (ui.radioQuery.trim()?'':'<div class="chips">'+G.radio.GENRES.map(function(g){ return '<button class="chip'+(ui.radioTag===g[0]?' is-active':'')+'" type="button" data-rtag="'+g[0]+'">'+g[1]+'</button>'; }).join('')+'</div>')+
+    return '<section class="panel glass filters">'+
+      '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="radioSearch" type="search" placeholder="Sender suchen" value="'+esc(ui.radioQuery)+'" autocomplete="off"></label>'+
+      '<label class="select" title="Land">'+ic('globe',16)+'<select id="radioCountry" aria-label="Land">'+G.radio.COUNTRIES.map(function(c){ return '<option value="'+c[0]+'"'+(S.radioCountry===c[0]?' selected':'')+'>'+(c[0]||'Welt')+'</option>'; }).join('')+'</select></label></div>'+
+      (ui.radioQuery.trim()?'':'<div class="chips chips--sm">'+G.radio.GENRES.map(function(g){ return '<button class="chip'+(ui.radioTag===g[0]?' is-active':'')+'" type="button" data-rtag="'+g[0]+'">'+g[1]+'</button>'; }).join('')+'</div>')+
       '</section>'+
       (favR.length?'<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Deine Sender</h3><span>'+favR.length+'</span></div>'+grid(favR,'rfav')+'</section>':'')+
       '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>'+(ui.radioQuery.trim()?'Suchergebnis':'Sender')+'</h3><span>über radio-browser.info</span></div>'+radioBody(false)+'</section>';

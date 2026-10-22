@@ -136,6 +136,9 @@
     else if(t.id==='radioSearch') radioSearch(t.value);
     else if(t.id==='volRange') P.setVolume(t.value/100);
   });
+  document.addEventListener('change',function(e){
+    if(e.target.id==='radioCountry'){ S.radioCountry=e.target.value; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); }
+  });
   document.addEventListener('submit',function(e){
     if(e.target.id!=='ytForm') return;
     e.preventDefault();

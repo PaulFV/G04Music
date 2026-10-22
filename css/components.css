@@ -166,3 +166,19 @@ button.card:hover{border-color:var(--acc-line);background:var(--glass-bg-2)}
 
 .prog-line{height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
 .prog-line i{display:block;height:100%;background:linear-gradient(90deg,var(--acc-2),var(--acc));transition:width .2s}
+
+/* ---------- Kompakte Filter ---------- */
+.filters{display:flex;flex-direction:column;gap:8px;padding:10px 12px}
+.filterbar{display:flex;gap:8px;align-items:center;min-width:0}
+.filterbar .field{flex:1;min-width:0}
+.field--sm{height:38px;border-radius:11px;padding:0 10px;gap:8px}
+.field--sm input{font-size:14.5px}
+.select{position:relative;display:flex;align-items:center;gap:6px;height:38px;padding:0 26px 0 10px;border-radius:11px;border:1px solid var(--glass-br);background:rgba(0,0,0,.28);color:var(--tx-1);flex:none;cursor:pointer}
+.select::after{content:"";position:absolute;right:10px;top:50%;width:6px;height:6px;margin-top:-5px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);pointer-events:none}
+.select:focus-within{border-color:var(--acc-line)}
+.select select{appearance:none;-webkit-appearance:none;background:none;border:0;outline:0;font-size:14px;font-weight:600;color:var(--tx-0);cursor:pointer;padding:0}
+.select select option{background:#17111b;color:#fff}
+.btn--icon{height:38px;padding:0 12px;border-radius:11px;font-size:13.5px;gap:6px;flex:none}
+.chips--sm{gap:6px}
+.chips--sm .chip{padding:4px 11px;font-size:12.5px}
+@media (max-width:520px){ .btn--icon span{display:none} .btn--icon{width:38px;padding:0;justify-content:center} }
