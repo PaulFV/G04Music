@@ -9,7 +9,7 @@
 
   /* ---------- Navigation ---------- */
   function go(view,keepScroll){
-    if(!V.NAV.some(function(n){ return n.id===view; })) view='start';
+    if(!V.NAV.some(function(n){ return n.id===view; })) view='music';
     S.view=view; S.save('view');
     if(location.hash.slice(1)!==view) history.replaceState(null,'','#'+view);
     V.render(); updateDock();
@@ -60,13 +60,14 @@
   },true);
 
   document.addEventListener('click',function(e){
-    var el=e.target.closest('[data-go],[data-tab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout],[data-plopen]');
+    var el=e.target.closest('[data-go],[data-rtab],[data-ytab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout],[data-plopen]');
     if(!el) return;
     var d=el.dataset;
     if(d.go){ e.preventDefault(); go(d.go); return; }
-    if(d.tab){ S.tab=d.tab; S.save('tab'); V.refresh(); return; }
+    if(d.rtab){ V.ui.radioTab=d.rtab; u.ls.set('radioTab',d.rtab); V.refresh(); return; }
+    if(d.ytab){ V.ui.ytTab=d.ytab; u.ls.set('ytTab',d.ytab); V.refresh(); return; }
     if(d.l!=null&&d.i!=null){ var r=V.lookup(d.l,d.i); if(r&&r.item) P.play(r.item,r.list); return; }
-    if(d.mtab){ V.ui.musicTab=d.mtab; V.ui.album=null; u.ls.set('musicTab',d.mtab); V.refresh(); return; }
+    if(d.mtab){ V.ui.musicTab=d.mtab; V.ui.album=null; V.ui.listOpen=null; u.ls.set('musicTab',d.mtab); V.refresh(); return; }
     if(d.album!=null){ V.ui.album=d.album; V.render(); window.scrollTo(0,u.$('#viewHost').offsetTop-80); return; }
     if(d.cc!=null){ S.radioCountry=d.cc; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); return; }
     if(d.rtag!=null){ V.ui.radioTag=d.rtag; V.ui.radioItems=null; V.refresh(); return; }
@@ -76,7 +77,7 @@
     if(d.act) act(d.act,el);
   });
 
-  function act(a){
+  function act(a,el){
     switch(a){
       case 'pickFiles': u.$('#pickFiles').click(); break;
       case 'pickFolder': u.$('#pickFolder').click(); break;
@@ -88,7 +89,7 @@
       case 'repeat': var nx={off:'all',all:'one',one:'off'}[S.settings.repeat]; S.set('repeat',nx); u.toast({off:'Wiederholen aus',all:'Alle wiederholen',one:'Diesen Titel wiederholen'}[nx]); break;
       case 'fav': if(P.cur) u.toast(S.toggleFav(P.cur)?'Zu Favoriten hinzugefügt':'Aus Favoriten entfernt'); break;
       case 'sleep': sleepSheet(); break;
-      case 'toStage': if(!V.hasHero()) go('start'); u.$('#hero').scrollIntoView({behavior:'smooth',block:'start'}); break;
+      case 'toStage': if(!V.hasHero()) go(P.cur&&P.cur.kind==='radio'?'radio':P.cur&&P.cur.kind==='yt'?'yt':'music'); u.$('#hero').scrollIntoView({behavior:'smooth',block:'start'}); break;
       case 'playOrder': var so=G.library.songs(); if(so.length){ S.set('shuffle',false); P.play(so[0],so); } break;
       case 'playAll': var s=G.library.songs(); if(s.length){ S.set('shuffle',true); P.play(s[Math.floor(Math.random()*s.length)],s); } break;
       case 'albumBack': V.ui.album=null; V.ui.musicTab='albums'; V.refresh(); break;
@@ -96,6 +97,8 @@
       case 'clearLib': u.confirm('Bibliothek leeren?','Alle eigenen Songs und Musikvideos werden von diesem Gerät entfernt. Die Originaldateien bleiben, wo sie waren.','Leeren',function(){ if(P.cur&&P.cur.kind==='track') P.stop(); G.library.clear().then(function(){ u.toast('Bibliothek geleert'); }); }); break;
       case 'resetAll': u.confirm('Alles zurücksetzen?','Favoriten, Verlauf, YouTube-Liste und Einstellungen werden gelöscht. Deine Bibliothek bleibt.','Zurücksetzen',function(){ S.resetAll(); location.reload(); }); break;
       case 'install': install(); break;
+      case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
+      case 'npMore': npMore(); break;
       case 'toList': if(P.cur) listPicker(P.cur); break;
       case 'plNew': nameSheet('Neue Liste','',function(n){ var l=G.lists.create(n); u.toast('Liste „'+l.name+'“ angelegt'); V.ui.listOpen=l.id; V.ui.musicTab='lists'; if(S.view!=='music') go('music'); else V.refresh(); }); break;
       case 'plImport': u.$('#pickList').click(); break;
@@ -131,7 +134,7 @@
       });
   }
   function exportSheet(id){
-    var PL=G.lists, l = id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
+    var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
     u.sheet('„'+l.name+'“ exportieren',
       '<button class="act" type="button" data-ex="json">'+u.ic('upload',18)+'<span>Als G04Musik-Datei (.json)<small>Zum Sichern oder für ein anderes Gerät mit G04Musik</small></span></button>'+
       '<button class="act" type="button" data-ex="m3u">'+u.ic('lists',18)+'<span>Als M3U-Liste<small>Für andere Player, z. B. VLC. Sender und YouTube als Adresse, eigene Songs als Dateiname</small></span></button>',
@@ -142,6 +145,19 @@
     for(var i=0;i<l.items.length;i++){ var x=l.items[i];
       if(S.key(x)===S.key(it) || (x.kind==='track'&&it.kind==='track'&&x.fileName&&x.fileName===it.fileName)) return i; }
     return -1;
+  }
+  /* Zusatzknöpfe des Players als Blatt (Handy) */
+  function npMore(){
+    var c=P.cur; if(!c) return;
+    var fav=S.isFav(c), rep={off:'aus',all:'alle',one:'ein Titel'}[S.settings.repeat];
+    u.sheet(c.title,
+      '<button class="act" type="button" data-m="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>'+
+      '<button class="act" type="button" data-m="list">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>'+
+      '<button class="act" type="button" data-m="repeat">'+u.ic(S.settings.repeat==='one'?'repeat1':'repeat',18)+'<span>Wiederholen<small>jetzt: '+rep+'</small></span></button>'+
+      '<button class="act" type="button" data-m="sleep">'+u.ic('moon',18)+'<span>Einschlaf-Timer<small>'+(P.sleepAt?'noch '+P.sleepLeft()+' min':'aus')+'</small></span></button>'+
+      '<button class="act act--danger" type="button" data-m="stop">'+u.ic('trash',18)+'Wiedergabe beenden</button>',
+      function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-m]'); if(!x) return; var m=x.dataset.m; u.closeSheet();
+        if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
   }
   function ytKeySheet(){
     var cur=u.ls.get('ytKey','');
@@ -253,7 +269,7 @@
       var wasEmpty=!G.library.tracks.length;
       G.library.importFiles(files).then(function(n){
         e.target.value='';
-        if(n&&wasEmpty&&S.view==='start'){ S.tab=G.library.songs().length?'songs':'videos'; S.save('tab'); V.refresh(); }
+        if(n&&wasEmpty&&S.view==='music'){ V.ui.musicTab=G.library.songs().length?'songs':'videos'; V.refresh(); }
       });
     });
   });
@@ -333,6 +349,10 @@
   if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
     window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){ r.update().catch(function(){}); }).catch(function(){}); });
   }
+
+  /* ---------- Höhe der Kopfzeile: darunter klebt das Abspielfenster ---------- */
+  function setTopH(){ document.documentElement.style.setProperty('--topbar-h', u.$('.topbar').offsetHeight+'px'); }
+  window.addEventListener('resize',u.debounce(setTopH,100)); setTopH();
 
   /* ---------- Los ---------- */
   var start=location.hash.slice(1)||S.view;

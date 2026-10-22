@@ -75,11 +75,15 @@
   function fileSafe(s){ return String(s).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Liste'; }
   /* Favoriten als Pseudo-Liste (gleiche Form wie eine Liste) */
   PL.FAV_ID = 'favorites';
-  PL.favList = function(){ return { id: PL.FAV_ID, name: 'Favoriten', items: S.favs.map(function(f){ return f.kind === 'track' ? slim(G.library.get(f.id) || f) : f; }) }; };
+  var KIND_NAME = { track: 'Musik', radio: 'Radio', yt: 'YouTube' };
+  PL.favList = function(kind){
+    var f = S.favs.filter(function(x){ return !kind || x.kind === kind; });
+    return { id: kind ? 'fav:' + kind : PL.FAV_ID, name: 'Favoriten' + (kind ? ' ' + KIND_NAME[kind] : ''), items: f.map(function(x){ return x.kind === 'track' ? slim(G.library.get(x.id) || x) : x; }) };
+  };
   PL.toJSON = function(lists, favs){
     var o = { format: 'g04musik-playlist', version: 1, app: 'G04Musik ' + G.VERSION, exported: new Date().toISOString(),
       lists: lists.filter(function(l){ return l.id !== PL.FAV_ID; }).map(function(l){ return { name: l.name, items: l.items }; }) };
-    if (favs) o.favorites = PL.favList().items;
+    if (favs) o.favorites = Array.isArray(favs) ? favs : PL.favList().items;
     return JSON.stringify(o, null, 2);
   };
   PL.toM3U = function(l){
@@ -97,9 +101,10 @@
   /* what: 'all' (Favoriten + alle Listen) oder eine Liste/Favoriten; kind: 'json' | 'm3u' */
   PL.exportFile = function(what, kind){
     if (what === 'all') return u.saveFile('G04Musik-Sicherung.g04musik.json', PL.toJSON(PL.all, true), 'application/json');
-    var l = what === PL.FAV_ID ? PL.favList() : PL.get(what); if (!l) return Promise.resolve(false);
+    var isFav = what === PL.FAV_ID || String(what).indexOf('fav:') === 0;
+    var l = isFav ? PL.favList(what === PL.FAV_ID ? '' : what.slice(4)) : PL.get(what); if (!l) return Promise.resolve(false);
     if (kind === 'm3u') return u.saveFile(fileSafe(l.name) + '.m3u', PL.toM3U(l), 'audio/x-mpegurl');
-    return u.saveFile(fileSafe(l.name) + '.g04musik.json', l.id === PL.FAV_ID ? PL.toJSON([], true) : PL.toJSON([l]), 'application/json');
+    return u.saveFile(fileSafe(l.name) + '.g04musik.json', isFav ? PL.toJSON([], l.items) : PL.toJSON([l]), 'application/json');
   };
 
   /* ---------- Import ---------- */

@@ -1,5 +1,5 @@
 /* ============================================================
-   G04Musik — Ansichten: Start, Meine Musik, Radio, YouTube, Einstellungen
+   G04Musik — Ansichten: Musik, Radio, YouTube, Einstellungen
    sowie Bühne, Bedienfeld und Mini-Player
    ============================================================ */
 (function(){
@@ -14,23 +14,27 @@
   V.lookup = function(l,i){ var a=lists[l]; return a? {item:a[+i],list:a} : null; };
 
   V.NAV = [
-    {id:'start', n:'Start', i:'home'},
-    {id:'music', n:'Meine Musik', short:'Musik', i:'music'},
+    {id:'music', n:'Musik', i:'music'},
     {id:'radio', n:'Radio', i:'radio'},
     {id:'yt',    n:'YouTube', i:'yt'},
     {id:'settings', n:'Einstellungen', short:'Mehr', i:'gear'}
   ];
   var TITLES = {
-    start:['Start','Deine Musik, Radio und Videos an einem Ort'],
-    music:['Meine Musik','Eigene Songs und Musikvideos auf diesem Gerät'],
+    music:['Musik','Eigene Songs, Alben, Videos und Listen'],
     radio:['Radio','Sender aus aller Welt, live'],
-    yt:['YouTube','Videos und Playlisten, die du dir merkst'],
+    yt:['YouTube','Suchen, merken, abspielen'],
     settings:['Einstellungen','Wiedergabe, Bibliothek, Über']
   };
-  var HERO_VIEWS = {start:1,music:1,radio:1,yt:1};
+  var HERO_VIEWS = {music:1,radio:1,yt:1};
 
-  /* Status je Ansicht */
-  var ui = { listOpen:null, ytQuery:'', ytResults:null, ytBusy:false, ytErr:'', musicTab:u.ls.get('musicTab','songs'), musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
+  /* Farben der Reiter (R,G,B) */
+  var C = { pink:'255,95,162', orange:'255,159,67', violet:'167,139,250', blue:'96,165,250', gold:'255,200,87', teal:'45,212,191', red:'255,64,64' };
+
+  /* Status je Bereich */
+  var ui = { listOpen:null, ytQuery:'', ytResults:null, ytBusy:false, ytErr:'',
+    musicTab:u.ls.get('musicTab','songs'), radioTab:u.ls.get('radioTab','stations'), ytTab:u.ls.get('ytTab','search'),
+    musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
+  if(ui.musicTab==='favs'||ui.musicTab==='lists'||ui.musicTab==='songs'||ui.musicTab==='albums'||ui.musicTab==='videos'){} else ui.musicTab='songs';
 
   /* ---------- Einträge auflösen ---------- */
   function resolve(arr){
@@ -109,61 +113,71 @@
     return '<div class="panel glass" style="display:flex;flex-direction:column;gap:8px"><div class="sec-h"><h3>Wird eingelesen …</h3><span class="num">'+im.done+' von '+im.total+'</span></div><div class="prog-line"><i style="width:'+(im.done/im.total*100)+'%"></i></div></div>';
   }
 
-  /* ============================================================
-     START
-     ============================================================ */
-  function viewStart(){
-    var L=G.library, favs=resolve(S.favs), hist=resolve(S.history);
-    /* jeder Reiter mit eigener Farbe (R,G,B) */
-    var TABS=[['favs','Favoriten','star',favs.length,'255,200,87'],['songs','Songs','music',L.songs().length,'255,95,162'],['videos','Videos','video',L.videos().length,'167,139,250'],['radio','Radio','radio','','45,212,191'],['yt','YouTube','yt',S.yt.length,'255,64,64'],['history','Verlauf','clock',hist.length,'96,165,250']];
-    var t=S.tab, body='';
-    if(t==='favs') body = favs.length? grid(favs,'favs') : empty('star','Noch keine Favoriten','Tippe auf den Stern ☆ auf einem Song, Sender oder Video.');
-    else if(t==='songs') body = L.songs().length? grid(L.songs(),'songs') : empty('music','Noch keine eigenen Songs','Füge MP3-, M4A-, FLAC- oder WAV-Dateien hinzu. Sie bleiben nur auf diesem Gerät.',BTN_FILES+(canFolder()?BTN_FOLDER:''));
-    else if(t==='videos') body = L.videos().length? grid(L.videos(),'videos',true) : empty('video','Noch keine Musikvideos','MP4, WebM, MOV und M4V gehen in jedem modernen Browser. MKV klappt meist in Chrome und Edge.',BTN_FILES);
-    else if(t==='radio') body = radioBody(true);
-    else if(t==='yt') body = S.yt.length? grid(resolve(S.yt),'ytS',true) : empty('yt','Noch keine YouTube-Links','Kopiere einen Link zu einem Video oder einer Playlist und füge ihn im Bereich YouTube ein.','<button class="btn btn--solid" type="button" data-go="yt">'+ic('plus',17)+'Link einfügen</button>');
-    else body = hist.length? grid(hist,'hist') : empty('clock','Noch nichts gehört','Hier erscheint, was zuletzt lief.');
-    return importBar()+'<section class="panel glass" style="display:flex;flex-direction:column;gap:14px"><div class="tabs-row"><div class="tabs" id="startTabs" data-keep-scroll role="tablist">'+
-      TABS.map(function(x){ return '<button class="tab tab--c'+(t===x[0]?' is-active':'')+'" style="--c:'+x[4]+'" type="button" role="tab" aria-selected="'+(t===x[0])+'" data-tab="'+x[0]+'">'+ic(x[2],16)+x[1]+(x[3]!==''?' <em class="num">'+x[3]+'</em>':'')+'</button>'; }).join('')+
-      '</div>'+layoutToggle()+'</div>'+body+'</section>';
+  /* Reiterleiste eines Bereichs: farbig, merkt ihre Position */
+  function subTabs(id,attr,cur,tabs){
+    return '<div class="tabs" id="'+id+'" data-keep-scroll role="tablist">'+tabs.map(function(x){
+      var on=cur===x[0];
+      return '<button class="tab tab--c'+(on?' is-active':'')+'" style="--c:'+x[4]+'" type="button" role="tab" aria-selected="'+on+'" '+attr+'="'+x[0]+'">'+ic(x[2],16)+x[1]+(x[3]!==''&&x[3]!=null?' <em class="num">'+x[3]+'</em>':'')+'</button>';
+    }).join('')+'</div>';
+  }
+  /* Favoriten nur einer Art (track | radio | yt) */
+  function favsOf(kind){ return resolve(S.favs.filter(function(f){ return f.kind===kind; })); }
+  function recentOf(kind){ return resolve(S.history.filter(function(f){ return f.kind===kind; })); }
+  var FAV_TXT = { track:'Tippe auf den Stern ☆ bei einem Song oder Musikvideo.', radio:'Tippe auf den Stern ☆ bei einem Sender.', yt:'Tippe auf den Stern ☆ bei einem Video oder Suchtreffer.' };
+  function favSection(kind,l){
+    var items=favsOf(kind), wide=kind==='yt';
+    return '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h" style="align-items:center"><h3>Favoriten · <span class="num">'+items.length+'</span></h3>'+
+      (items.length?'<button class="qbtn qbtn--sm" type="button" data-act="favExport" data-kind="'+kind+'" title="Favoriten exportieren" aria-label="Favoriten exportieren">'+ic('upload',20)+'</button>':'')+'</div>'+
+      (items.length? grid(items,l,wide) : empty('star','Noch keine Favoriten',FAV_TXT[kind]))+'</section>';
+  }
+  function recentSection(kind,l){
+    var items=recentOf(kind);
+    return '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Zuletzt gehört</h3><span>'+items.length+'</span></div>'+
+      (items.length? grid(items,l,kind==='yt') : empty('clock','Noch nichts','Hier erscheint, was zuletzt lief.'))+'</section>';
   }
 
   /* ============================================================
-     MEINE MUSIK
+     MUSIK: Songs · Alben · Videos · Listen · Favoriten
      ============================================================ */
   function viewMusic(){
-    var L=G.library;
+    var L=G.library, t=ui.musicTab;
     if(!L.ready) return '<section class="panel glass">'+empty('music','Bibliothek wird geladen …','')+'</section>';
-    var head='<section class="panel glass filters">'+
-      '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
+    var tabs=subTabs('musicTabs','data-mtab',ui.album?'albums':t,[
+      ['songs','Songs','music',L.songs().length,C.pink],['albums','Alben','album',L.albums().length,C.orange],
+      ['videos','Videos','video',L.videos().length,C.violet],['lists','Listen','lists',G.lists.all.length,C.blue],
+      ['favs','Favoriten','star',favsOf('track').length,C.gold]]);
+    var search = (t==='songs'||t==='albums'||t==='videos') && !ui.album;
+    var head='<section class="panel glass filters">'+tabs+
+      (search?'<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
       '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
-      (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+layoutToggle()+'</div>'+
-      '<div class="chips chips--sm" id="musicChips" data-keep-scroll>'+[['songs','Songs',L.songs().length],['albums','Alben',L.albums().length],['videos','Videos',L.videos().length],['lists','Listen',G.lists.all.length+1]].map(function(x){
-        return '<button class="chip'+(ui.musicTab===x[0]&&!ui.album?' is-active':'')+'" type="button" data-mtab="'+x[0]+'">'+x[1]+' <span class="num" style="opacity:.6">'+x[2]+'</span></button>'; }).join('')+'</div></section>';
-    if(ui.musicTab==='lists') return importBar()+head+viewLists();
+      (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+'</div>':'')+
+      '</section>';
+    if(t==='lists') return importBar()+head+viewLists();
+    if(t==='favs') return importBar()+head+favSection('track','mfav');
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
 
     var q=ui.musicQuery.trim().toLowerCase();
-    var match=function(t){ return !q || (t.title+' '+(t.artist||'')+' '+(t.album||'')).toLowerCase().indexOf(q)>=0; };
+    var match=function(x){ return !q || (x.title+' '+(x.artist||'')+' '+(x.album||'')).toLowerCase().indexOf(q)>=0; };
     var body='';
     if(ui.album){
       var al=L.albums().filter(function(a){ return a.key===ui.album; })[0];
       if(!al){ ui.album=null; return viewMusic(); }
-      var dur=al.tracks.reduce(function(a,t){return a+(t.duration||0);},0);
+      var dur=al.tracks.reduce(function(a,x){return a+(x.duration||0);},0);
       body='<section class="panel glass" style="display:flex;flex-direction:column;gap:14px">'+
-        '<div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap"><div class="art" style="width:120px;font-size:34px;'+u.artStyle({title:al.title,art:al.art})+'">'+(al.art?'':esc(u.initials(al.title)))+'</div>'+
-        '<div style="min-width:0;flex:1"><small style="color:var(--acc);font-weight:700;letter-spacing:.08em;font-size:11.5px">ALBUM</small><h2 style="font-size:24px">'+esc(al.title)+'</h2><p style="color:var(--tx-1)">'+esc(al.artist)+' · '+al.tracks.length+' Titel · '+Math.round(dur/60)+' min</p></div>'+
-        '<div class="btn-row"><button class="btn btn--ghost" type="button" data-act="albumBack">Alle Alben</button><button class="btn btn--solid" type="button" data-l="album" data-i="0">'+ic('play',16)+'Abspielen</button></div></div>'+
+        '<div class="pl-head"><div class="art" style="width:112px;font-size:34px;'+u.artStyle({title:al.title,art:al.art})+'">'+(al.art?'':esc(u.initials(al.title)))+'</div>'+
+        '<div class="pl-head__t"><small>ALBUM</small><h2>'+esc(al.title)+'</h2><p>'+esc(al.artist)+' · '+al.tracks.length+' Titel · '+Math.round(dur/60)+' min</p></div></div>'+
+        '<div class="pl-actions"><button class="qbtn qbtn--sm qbtn--back" type="button" data-act="albumBack" title="Alle Alben" aria-label="Alle Alben">'+ic('chev',20)+'</button>'+
+        '<button class="qbtn qbtn--sm qbtn--main" type="button" data-l="album" data-i="0" title="Abspielen" aria-label="Abspielen">'+ic('play',20)+'</button></div>'+
         rows(al.tracks,'album')+'</section>';
-    } else if(ui.musicTab==='albums'){
+    } else if(t==='albums'){
       var albums=L.albums().filter(function(a){ return !q || (a.title+' '+a.artist).toLowerCase().indexOf(q)>=0; });
       body='<section class="panel glass"><div class="grid">'+albums.map(function(a){
         return '<button class="tile" type="button" data-album="'+esc(a.key)+'"><div class="art" style="'+u.artStyle({title:a.title,art:a.art})+'">'+(a.art?'':esc(u.initials(a.title)))+'</div><div class="tile__t">'+esc(a.title)+'</div><div class="tile__s">'+esc(a.artist)+' · '+a.tracks.length+' Titel</div></button>'; }).join('')+'</div></section>';
-    } else if(ui.musicTab==='videos'){
+    } else if(t==='videos'){
       var vids=L.videos().filter(match);
       body='<section class="panel glass">'+(vids.length? grid(vids,'mvideos',true) : empty('video',q?'Kein Treffer':'Noch keine Musikvideos', q?'Versuch es mit einem anderen Wort.':'Füge MP4-, WebM-, MOV- oder MKV-Dateien hinzu.', q?'':BTN_FILES))+'</section>';
     } else {
-      var songs=L.songs().filter(match), tot=songs.reduce(function(a,t){return a+(t.duration||0);},0);
+      var songs=L.songs().filter(match), tot=songs.reduce(function(a,x){return a+(x.duration||0);},0);
       body='<section class="panel glass" style="display:flex;flex-direction:column;gap:10px"><div class="sec-h"><h3>Songs</h3><span class="num">'+songs.length+' Titel · '+Math.round(tot/60)+' min</span></div>'+
         (songs.length? (lay()==='list'? rows(songs,'msongs') : grid(songs,'msongs')) : empty('music',q?'Kein Treffer':'Noch keine Songs',q?'Versuch es mit einem anderen Wort.':'Füge Musikdateien hinzu.'))+'</section>';
     }
@@ -200,13 +214,14 @@
         (items.length?'<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Lang drücken auf einen Eintrag: verschieben oder aus der Liste entfernen.</p>':'')+
         '</section>';
     }
-    var all=[PL.favList()].concat(PL.all);
+    var all=PL.all;
     return '<section class="panel glass" style="display:flex;flex-direction:column;gap:14px">'+
       '<div class="sec-h" style="align-items:center"><h3>Deine Listen</h3><div class="pl-actions">'+
         '<button class="qbtn qbtn--sm qbtn--main" type="button" data-act="plNew" title="Neue Liste" aria-label="Neue Liste">'+ic('plus',20)+'</button>'+
         '<button class="qbtn qbtn--sm" type="button" data-act="plImport" title="Liste importieren" aria-label="Liste importieren">'+ic('download',20)+'</button>'+
-        '<button class="qbtn qbtn--sm" type="button" data-act="plExportAll" title="Alles exportieren (Favoriten und alle Listen)" aria-label="Alles exportieren">'+ic('upload',20)+'</button>'+
+        '<button class="qbtn qbtn--sm" type="button" data-act="plExportAll" title="Alles exportieren (alle Listen und Favoriten)" aria-label="Alles exportieren">'+ic('upload',20)+'</button>'+
       '</div></div>'+
+      (all.length?'':empty('lists','Noch keine Listen','Lege mit + eine Liste an oder importiere eine. Songs fügst du per langem Drücken hinzu.'))+
       '<div class="grid">'+all.map(function(l){
         var n = l.id===PL.FAV_ID ? resolve(S.favs).length : l.items.length;
         return '<button class="tile" type="button" data-plopen="'+esc(l.id)+'">'+listArt(l)+'<div class="tile__t">'+esc(l.name)+'</div><div class="tile__s">'+n+' Einträge</div></button>';
@@ -227,48 +242,51 @@
     pr.then(function(items){ if(ui.radioKey!==key) return; ui.radioItems=items; ui.radioBusy=false; V.refresh(); })
       .catch(function(){ if(ui.radioKey!==key) return; ui.radioItems=[]; ui.radioBusy=false; ui.radioErr='Die Senderliste ließ sich nicht laden. Bist du online?'; V.refresh(); });
   }
-  function radioBody(compact){
+  function radioBody(){
     loadRadio();
-    var favR=S.favs.filter(function(f){ return f.kind==='radio'; });
-    var h='';
-    if(compact && favR.length) h+='<div class="sec-h"><h3>Deine Sender</h3></div>'+grid(favR,'rfavS');
-    if(compact) h+='<div class="sec-h"><h3>Beliebt in '+esc((G.radio.COUNTRIES.filter(function(c){return c[0]===S.radioCountry;})[0]||['','Weltweit'])[1])+'</h3><a href="#radio" data-go="radio" style="font-size:13px">Alle Sender '+'›</a></div>';
-    if(ui.radioBusy && !ui.radioItems) h+='<div class="empty"><div class="stage__ring"></div><p>Sender werden geladen …</p></div>';
-    else if(ui.radioErr) h+=empty('radio','Keine Verbindung',ui.radioErr,'<button class="btn" type="button" data-act="radioRetry">Noch einmal</button>');
-    else if(ui.radioItems && !ui.radioItems.length) h+=empty('search','Keine Sender gefunden','Versuch einen anderen Namen oder ein anderes Land.');
-    else if(ui.radioItems) h+=grid(compact?ui.radioItems.slice(0,18):ui.radioItems, compact?'radioS':'radio');
-    return h;
+    if(ui.radioBusy && !ui.radioItems) return '<div class="empty"><div class="stage__ring"></div><p>Sender werden geladen …</p></div>';
+    if(ui.radioErr) return empty('radio','Keine Verbindung',ui.radioErr,'<button class="btn" type="button" data-act="radioRetry">Noch einmal</button>');
+    if(ui.radioItems && !ui.radioItems.length) return empty('search','Keine Sender gefunden','Versuch einen anderen Namen oder ein anderes Land.');
+    return ui.radioItems? grid(ui.radioItems,'radio') : '';
   }
+  /* RADIO: Sender · Favoriten · Zuletzt */
   function viewRadio(){
-    var favR=S.favs.filter(function(f){ return f.kind==='radio'; });
-    return '<section class="panel glass filters">'+
+    var t=ui.radioTab;
+    var tabs=subTabs('radioTabs','data-rtab',t,[['stations','Sender','radio','',C.teal],['favs','Favoriten','star',favsOf('radio').length,C.gold],['recent','Zuletzt','clock','',C.blue]]);
+    if(t==='favs') return '<section class="panel glass filters">'+tabs+'</section>'+favSection('radio','rfav');
+    if(t==='recent') return '<section class="panel glass filters">'+tabs+'</section>'+recentSection('radio','rrec');
+    return '<section class="panel glass filters">'+tabs+
       '<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="radioSearch" type="search" placeholder="Sender suchen" value="'+esc(ui.radioQuery)+'" autocomplete="off"></label>'+
-      '<label class="select" title="Land">'+ic('globe',16)+'<select id="radioCountry" aria-label="Land">'+G.radio.COUNTRIES.map(function(c){ return '<option value="'+c[0]+'"'+(S.radioCountry===c[0]?' selected':'')+'>'+(c[0]||'Welt')+'</option>'; }).join('')+'</select></label>'+layoutToggle()+'</div>'+
+      '<label class="select" title="Land">'+ic('globe',16)+'<select id="radioCountry" aria-label="Land">'+G.radio.COUNTRIES.map(function(c){ return '<option value="'+c[0]+'"'+(S.radioCountry===c[0]?' selected':'')+'>'+(c[0]||'Welt')+'</option>'; }).join('')+'</select></label></div>'+
       (ui.radioQuery.trim()?'':'<div class="chips chips--sm" id="genreChips" data-keep-scroll>'+G.radio.GENRES.map(function(g){ return '<button class="chip'+(ui.radioTag===g[0]?' is-active':'')+'" type="button" data-rtag="'+g[0]+'">'+g[1]+'</button>'; }).join('')+'</div>')+
       '</section>'+
-      (favR.length?'<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Deine Sender</h3><span>'+favR.length+'</span></div>'+grid(favR,'rfav')+'</section>':'')+
-      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>'+(ui.radioQuery.trim()?'Suchergebnis':'Sender')+'</h3><span>über radio-browser.info</span></div>'+radioBody(false)+'</section>';
+      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>'+(ui.radioQuery.trim()?'Suchergebnis':'Sender')+'</h3><span>über radio-browser.info</span></div>'+radioBody()+'</section>';
   }
 
   /* ============================================================
      YOUTUBE
      ============================================================ */
+  /* YOUTUBE: Suche · Gemerkt · Favoriten · Zuletzt */
   function viewYT(){
-    var items=resolve(S.yt), q=ui.ytQuery||'';
+    var t=ui.ytTab, items=resolve(S.yt), q=ui.ytQuery||'';
+    var tabs=subTabs('ytTabs','data-ytab',t,[['search','Suche','search','',C.red],['saved','Gemerkt','listAdd',items.length,C.violet],['favs','Favoriten','star',favsOf('yt').length,C.gold],['recent','Zuletzt','clock','',C.blue]]);
+    var form='<form class="filterbar" id="ytForm"><label class="field field--sm">'+ic('search',17)+'<input id="ytInput" type="search" enterkeyhint="search" placeholder="YouTube durchsuchen oder Link einfügen" value="'+esc(q)+'" autocomplete="off"></label>'+
+      '<button class="btn btn--solid btn--icon" type="submit" title="Suchen" aria-label="Suchen">'+ic('search',18)+'</button></form>';
+    if(t==='saved') return '<section class="panel glass filters">'+tabs+'</section>'+
+      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Gemerkt</h3><span>'+items.length+'</span></div>'+
+      (items.length? grid(items,'yt',true) : empty('listAdd','Noch nichts gemerkt','Füge bei „Suche“ einen YouTube-Link ein – zum Beispiel zu deinem eigenen Kanal-Video.'))+'</section>';
+    if(t==='favs') return '<section class="panel glass filters">'+tabs+'</section>'+favSection('yt','yfav');
+    if(t==='recent') return '<section class="panel glass filters">'+tabs+'</section>'+recentSection('yt','yrec');
     var res='';
     if(ui.ytBusy) res='<div class="empty"><div class="stage__ring"></div><p>Suche auf YouTube …</p></div>';
     else if(ui.ytErr) res=empty('search','Suche gerade nicht möglich',ui.ytErr,'<a class="btn btn--solid" href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">'+ic('yt',17)+'Auf YouTube suchen</a>');
     else if(ui.ytResults&&!ui.ytResults.length) res=empty('search','Nichts gefunden','Versuch es mit anderen Wörtern.');
     else if(ui.ytResults) res=grid(ui.ytResults,'ytres',true);
-    return '<section class="panel glass filters">'+
-      '<form class="filterbar" id="ytForm"><label class="field field--sm">'+ic('search',17)+'<input id="ytInput" type="search" enterkeyhint="search" placeholder="YouTube durchsuchen oder Link einfügen" value="'+esc(q)+'" autocomplete="off"></label>'+
-      '<button class="btn btn--solid btn--icon" type="submit" title="Suchen" aria-label="Suchen">'+ic('search',18)+'</button></form>'+
-      '</section>'+
+    return '<section class="panel glass filters">'+tabs+form+'</section>'+
       (ui.ytResults||ui.ytBusy||ui.ytErr ?
         '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Ergebnisse für „'+esc(q)+'“</h3>'+
-        '<span><a href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">auf YouTube öffnen ›</a> · <a href="#yt" data-act="ytClear">schließen</a></span></div>'+res+'</section>' : '')+
-      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Gemerkt</h3><span>'+items.length+'</span></div>'+
-      (items.length? grid(items,'yt',true) : empty('yt','Noch nichts gemerkt','Suche oben nach einem Video oder füge einen Link ein. Mit dem Stern merkst du dir Treffer als Favorit, mit langem Drücken in dieser Liste.'))+'</section>';
+        '<span><a href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">auf YouTube öffnen ›</a> · <a href="#yt" data-act="ytClear">schließen</a></span></div>'+res+'</section>'
+        : '<section class="panel glass">'+empty('yt','YouTube durchsuchen','Gib oben einen Künstler oder Song ein. Einen kopierten Link legt die App unter „Gemerkt“ ab.')+'</section>');
   }
 
   /* ============================================================
@@ -304,13 +322,13 @@
       ]);
   }
 
-  var VIEWS={start:viewStart,music:viewMusic,radio:viewRadio,yt:viewYT,settings:viewSettings};
+  var VIEWS={music:viewMusic,radio:viewRadio,yt:viewYT,settings:viewSettings};
 
   /* ============================================================
      Zeichnen
      ============================================================ */
   V.renderNav = function(){
-    var badge={music:G.library.tracks.length||'',yt:S.yt.length||''};
+    var badge={music:G.library.tracks.length||''};
     u.$('#nav').innerHTML=V.NAV.map(function(n){
       return '<button class="nav__item'+(S.view===n.id?' is-active':'')+'" type="button" data-go="'+n.id+'" title="'+n.n+'">'+ic(n.i,20)+'<span>'+(window.innerWidth<1200&&window.innerWidth>=768?(n.short||n.n):n.n)+'</span>'+(badge[n.id]?'<span class="nav__badge num">'+badge[n.id]+'</span>':'')+'</button>';
     }).join('');
@@ -321,10 +339,11 @@
 
   V.render = function(){
     var t=TITLES[S.view]; u.$('#viewTitle').textContent=t[0]; u.$('#viewSub').textContent=t[1];
-    var hasHero=!!HERO_VIEWS[S.view] && (S.view==='start' || window.innerWidth>=768);
+    var hasHero=!!HERO_VIEWS[S.view];
     u.$('#hero').hidden=!hasHero; u.$('#content').classList.toggle('no-hero',!hasHero);
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
     V.renderNav(); V.renderLayBtn();
+    if(!G.player.cur) V.renderNP();
   };
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */
   V.refresh = function(){
@@ -353,6 +372,8 @@
   V.renderStage = function(){
     var P=G.player, c=P.cur, st=u.$('#stage');
     u.$('#stageIdle').hidden=!!c;
+    u.$('#hero').classList.toggle('is-idle',!c);
+    u.$('#hero').classList.toggle('is-video',!!(c&&(c.kind==='yt'||c.isVideo)));
     var isYT=c&&c.kind==='yt', isVid=c&&c.kind==='track'&&c.isVideo&&!u.$('#media').hidden;
     st.classList.toggle('has-video',!!isVid);
     u.$('#stageCover').hidden=!c||isYT;
@@ -376,11 +397,12 @@
     var P=G.player, c=P.cur, st=S.settings, np=u.$('#np');
     if(!c){
       np.classList.remove('is-cover');
-      np.innerHTML='<div class="np__head"><span class="np__ic">'+ic('music',22)+'</span><div><small>'+greet()+'</small><b>Noch nichts gewählt</b><span>Tippe auf eine Kachel, um zu starten.</span></div></div>'+
-        (G.library.tracks.length? '<div class="np-quick">'+
+      var hint = S.view==='radio' ? 'Tippe auf einen Sender.' : S.view==='yt' ? 'Suche ein Video oder tippe auf einen Treffer.' : 'Tippe auf einen Song oder starte alle.';
+      var quick = S.view==='music' && G.library.songs().length ? '<div class="np-quick">'+
           '<button class="qbtn qbtn--main" type="button" data-act="playAll" title="Alle Songs gemischt abspielen" aria-label="Alle Songs gemischt abspielen">'+ic('shuffle',24)+'</button>'+
           '<button class="qbtn" type="button" data-act="playOrder" title="Alle Songs der Reihe nach abspielen" aria-label="Alle Songs der Reihe nach abspielen">'+ic('queue',24)+'</button></div>'
-         : '<div class="btn-row">'+BTN_FILES+'<button class="btn btn--ghost" type="button" data-go="radio">'+ic('radio',16)+'Radio hören</button></div>');
+        : S.view==='music' ? '<div class="btn-row">'+BTN_FILES+'</div>' : '';
+      np.innerHTML='<div class="np__head np__head--idle"><span class="np__ic">'+ic(S.view==='radio'?'radio':S.view==='yt'?'yt':'music',22)+'</span><div><small>'+greet()+'</small><b>Noch nichts gewählt</b><span>'+hint+'</span></div></div>'+quick;
       return;
     }
     np.classList.toggle('is-cover',c.kind!=='yt'&&!c.isVideo);
@@ -394,13 +416,14 @@
       '<button class="icon-btn" type="button" data-act="prev" title="Zurück" aria-label="Zurück">'+ic('prev',18)+'</button>'+
       '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',26)+'</button>'+
       '<button class="icon-btn" type="button" data-act="next" title="Weiter" aria-label="Weiter">'+ic('next',18)+'</button>'+
-      '<button class="icon-btn'+(st.repeat!=='off'?' is-on':'')+'" type="button" data-act="repeat" title="Wiederholen: '+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'" aria-label="Wiederholen">'+ic(rep,18)+'</button></div>'+
-      '<div class="ctl"><button class="icon-btn'+(fav?' is-on':'')+'" type="button" data-act="fav" title="Favorit" aria-label="Favorit" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',18)+'</button>'+
+      '<button class="icon-btn np-desk'+(st.repeat!=='off'?' is-on':'')+'" type="button" data-act="repeat" title="Wiederholen: '+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'" aria-label="Wiederholen">'+ic(rep,18)+'</button>'+
+      '<button class="icon-btn np-phone'+(fav||P.sleepAt||st.repeat!=='off'?' is-on':'')+'" type="button" data-act="npMore" title="Mehr" aria-label="Mehr">'+ic('more',18)+'</button></div>'+
+      '<div class="ctl np-desk"><button class="icon-btn'+(fav?' is-on':'')+'" type="button" data-act="fav" title="Favorit" aria-label="Favorit" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',18)+'</button>'+
       '<button class="icon-btn" type="button" data-act="toList" title="Zu Liste hinzufügen" aria-label="Zu Liste hinzufügen">'+ic('listAdd',18)+'</button>'+
       '<button class="icon-btn'+(P.sleepAt?' is-on':'')+'" type="button" data-act="sleep" title="Einschlaf-Timer" aria-label="Einschlaf-Timer">'+ic('moon',18)+'</button>'+(P.sleepAt?'<span class="sleep-tag num">'+P.sleepLeft()+' min</span>':'')+
       '<label class="vol" title="Lautstärke">'+ic(st.volume>0?'vol':'mute',18)+'<input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></label>'+
       '<button class="icon-btn" type="button" data-act="stop" title="Beenden" aria-label="Beenden"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
-      (nxt?'<div class="np__next">Danach: <b>'+esc(nxt.title)+'</b></div>':'');
+      (nxt?'<div class="np__next np-desk">Danach: <b>'+esc(nxt.title)+'</b></div>':'');
   };
   function greet(){ var h=new Date().getHours(); return h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend'; }
 

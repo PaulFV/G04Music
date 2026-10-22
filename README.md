@@ -1,4 +1,4 @@
-# G04Musik v0.3.0
+# G04Musik v0.4.0
 
 ![G04Musik](art/social-preview.png)
 
@@ -15,10 +15,10 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 
 | Bereich | Beschreibung |
 |:--|:--|
-| **Start** | Oben die Bühne (Cover, Spektrum oder Video), darunter die Reiter **Favoriten**, **Songs**, **Videos**, **Radio**, **YouTube** und **Verlauf** |
-| **Meine Musik** | Eigene Songs und Musikvideos hinzufügen, suchen, nach **Alben** ordnen, **eigene Listen** anlegen |
-| **Radio** | Über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info): nach Land, Genre oder Namen |
-| **YouTube** | Direkt auf YouTube suchen und abspielen; Links zu Videos und Playlisten merken |
+| **Abspielfenster** | Steht fest oben in Musik, Radio und YouTube – der Inhalt scrollt darunter. Auf dem Handy kompakt, Zusatzknöpfe hinter „⋯“ |
+| **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
+| **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen |
+| **YouTube** | Reiter **Suche**, **Gemerkt**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen, Links merken |
 | **Einstellungen** | Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek, Installieren |
 
 ### Eigene Dateien
@@ -31,14 +31,14 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 ### Eigene Listen und Favoriten
 * **Listen mit Namen** anlegen; Songs, Musikvideos, Radiosender und YouTube-Videos hinzufügen (lang drücken → „Zu Liste hinzufügen“ oder beim Abspielen das Listen-Symbol).
 * In der Liste: abspielen, gemischt abspielen, umbenennen, löschen; Einträge verschieben oder entfernen (lang drücken).
-* **Favoriten** stehen als eigene Liste ganz oben und lassen sich genauso exportieren.
+* **Favoriten je Bereich:** Musik, Radio und YouTube haben jeweils eigene Favoriten (eigener Reiter), jede Favoritenliste lässt sich einzeln exportieren.
 * **Export:** einzelne Liste oder Favoriten als G04Musik-Datei (`.g04musik.json`) oder **M3U** (für VLC & Co.); „Alles exportieren“ sichert Favoriten und alle Listen in einer Datei. Auf dem Handy über „Teilen“.
 * **Import:** G04Musik-Dateien und M3U-Listen. Eigene Songs werden über Dateiname und Größe (sonst Titel und Künstler) in der Bibliothek wiedergefunden; fehlende werden angezeigt und tauchen auf, sobald die Datei hinzugefügt ist.
 
 ### Wiedergabe
 * **Bühne** mit echtem Spektrum (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt auf der Bühne,
   mit **Vollbild** und **Bild-in-Bild**.
-* **Mini-Player** unten rechts, sobald die Bühne nicht zu sehen ist – die Musik läuft beim Blättern weiter.
+* **Mini-Player** unten rechts in den Einstellungen – die Musik läuft weiter.
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
 * **Einschlaf-Timer** 15–90 Minuten, am Ende wird es leiser. **Wiederholen** (alle/einen), **Zufall**,
   **Als Nächstes spielen**.
@@ -50,7 +50,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 ### Bildschirmgrößen
 * **Desktop** (ab 1200 px): volle Seitenleiste, Bühne und Bedienfeld nebeneinander.
 * **Tablet** (768–1199 px): schmale Leiste; **quer** geteilt – Bühne links, Inhalt rechts; **hochkant** Bühne oben.
-* **Handy** (unter 768 px): untere Leiste, Bühne auf Start, sonst Mini-Player; **quer** Bühne neben dem Bedienfeld.
+* **Handy** (unter 768 px): untere Leiste mit Musik, Radio, YouTube, Mehr; Abspielfenster kompakt und fest oben; **quer** scrollt es mit.
 
 ### Gut zu wissen
 * **iPhone/iPad:** Dort ist das Spektrum nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
