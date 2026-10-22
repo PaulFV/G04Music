@@ -213,6 +213,7 @@
       group('Über',[
         standalone?'':row('Als App installieren','Auf dem Startbildschirm, ohne Adressleiste','<span class="set__val">'+ic('chev',16)+'</span>','install'),
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">© PaulFV</span>'),
+        row('App-Icon','So erscheint es auf dem Home-Bildschirm','<img src="'+((document.querySelector('link[rel=apple-touch-icon]')||{}).href||'img/icon-180.png')+'" alt="App-Icon" width="52" height="52" style="border-radius:12px;flex:none">'),
         row('Datenschutz','Kein Konto, kein Tracking. Deine Dateien bleiben auf dem Gerät. Für Radio und YouTube werden nur deren Server abgefragt.','')
       ]);
   }

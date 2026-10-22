@@ -1,4 +1,4 @@
-# G04Musik v0.1.5
+# G04Musik v0.1.6
 
 ![G04Musik](art/social-preview.png)
 
