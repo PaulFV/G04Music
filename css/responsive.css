@@ -90,7 +90,9 @@ body.has-dock .main{padding-bottom:110px}
   .panel{padding:12px;border-radius:var(--r-lg)}
   .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
   .grid--wide{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tile{padding:5px;gap:4px;border-radius:11px}
+  .tile{--tp:5px;gap:4px;border-radius:11px}
+  .tile > .tile__t{bottom:calc(var(--tp) + 17px);left:calc(var(--tp) + 6px);right:calc(var(--tp) + 6px)}
+  .tile > .tile__s{bottom:calc(var(--tp) + 5px);left:calc(var(--tp) + 6px);right:calc(var(--tp) + 6px)}
   .tile .art{border-radius:8px;font-size:18px}
   .tile__t{font-size:12px;line-height:1.25}
   .tile__s{font-size:10.5px;margin-top:-3px}

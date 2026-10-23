@@ -53,13 +53,13 @@
     var badge = it.kind==='radio' ? '<span class="pill pill--live">LIVE</span>'
               : it.kind==='yt' ? '<span class="pill pill--yt">YouTube</span>'
               : it.isVideo ? '<span class="pill">Video</span>' : '';
-    if(wide && (it.kind==='track'||it.kind==='yt') && it.duration) badge+='<span class="dur num">'+u.fmt(it.duration)+'</span>';
+
     var on=isCur(it);
     return '<button class="tile'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,wide?'art--wide':'').replace('%BADGE%',badge)+
       '<span class="tile__fav'+(S.isFav(it)?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" title="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-label="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+S.isFav(it)+'">'+ic(S.isFav(it)?'starF':'star',17,2.1)+'</span>'+
       '<div class="tile__t">'+(on?eq():'')+esc(it.title)+'</div>'+
-      '<div class="tile__s">'+esc(it.sub||'')+(it.kind==='track'&&!it.isVideo&&it.duration?' · '+u.fmt(it.duration):'')+'</div></button>';
+      '<div class="tile__s">'+esc(it.sub||'')+((it.kind==='track'||it.kind==='yt')&&it.duration?' · '+u.fmt(it.duration):'')+'</div></button>';
   }
   function lay(){ return S.settings.layout==='list' ? 'list' : 'grid'; }
   function grid(arr,l,wide){
