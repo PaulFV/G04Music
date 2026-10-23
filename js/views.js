@@ -297,6 +297,9 @@
     var sw=function(k){ return '<button class="switch" type="button" role="switch" aria-checked="'+(st[k]?'true':'false')+'" data-sw="'+k+'" aria-label="Umschalten"></button>'; };
     var row=function(b,s,right,act){ return (act?'<button class="set__row" type="button" data-act="'+act+'">':'<div class="set__row">')+'<div><b>'+b+'</b><span>'+s+'</span></div>'+right+(act?'</button>':'</div>'); };
     var group=function(t,r){ return '<section class="panel glass"><div class="sec-h" style="margin-bottom:4px"><h3>'+t+'</h3></div><div class="set">'+r.join('')+'</div></section>'; };
+    /* aufklappbare Gruppe; ob offen, wird je Gruppe gemerkt */
+    var fold=function(id,t,r){ var open=u.ls.get('fold.'+id,false);
+      return '<details class="panel glass fold" data-fold="'+id+'"'+(open?' open':'')+'><summary class="fold__head"><h3>'+t+'</h3><span class="fold__chev">'+ic('down',16)+'</span></summary><div class="set">'+r.join('')+'</div></details>'; };
     var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     /* Als App installieren – wie in G04TV */
     var plat=function(os,name,how,cur){ return '<div class="inst-platform'+(cur?' is-cur':'')+'"><span class="inst-platform__os">'+os+'</span><b>'+name+'</b><span>'+how+'</span></div>'; };
@@ -324,14 +327,14 @@
         row('Zufall','Reihenfolge mischen',sw('shuffle')),
         row('YouTube-Suchschlüssel','Optional, für zuverlässigere Suche','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey')
       ])+
-      group('Bibliothek',[
+      fold('lib','Bibliothek',[
         row('Eigene Titel',L.songs().length+' Songs · '+L.videos().length+' Musikvideos','<span class="set__val num" id="storeUse">'+u.bytes(L.totalSize())+'</span>'),
         row('Dateien hinzufügen','Musik und Musikvideos von diesem Gerät','<span class="set__val">'+ic('chev',16)+'</span>','pickFiles'),
         row('Bibliothek leeren','Entfernt alle eigenen Titel von diesem Gerät','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','clearLib'),
         row('Alles zurücksetzen','Favoriten, Verlauf, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
       ])+
       installCard+
-      group('Über',[
+      fold('about','Version &amp; Copyright',[
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">'+G.VERSION+'</span>'),
         row('Copyright','© '+Math.max(2026,new Date().getFullYear())+' PaulFV · Alle Rechte vorbehalten','<span class="set__val">'+ic('chev',16)+'</span>','copyright'),
                 row('Datenschutz','Kein Konto, kein Tracking, alles bleibt auf dem Gerät','')

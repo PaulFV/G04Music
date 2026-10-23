@@ -332,7 +332,7 @@
   u.$('#sideNow').addEventListener('click',function(){ if(P.cur) act('toStage'); });
 
   /* Aufklappbare Gruppen merken, ob sie offen sind */
-  document.addEventListener('toggle',function(e){ if(e.target&&e.target.id==='instFold') u.ls.set('instOpen',e.target.open); },true);
+  document.addEventListener('toggle',function(e){ var t=e.target; if(!t||!t.matches) return; if(t.id==='instFold') u.ls.set('instOpen',t.open); else if(t.dataset&&t.dataset.fold) u.ls.set('fold.'+t.dataset.fold,t.open); },true);
 
   /* ---------- Blatt ---------- */
   u.$('#sheetClose').addEventListener('click',u.closeSheet);
