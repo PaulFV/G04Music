@@ -307,11 +307,15 @@
   });
   u.$('#stagePip').addEventListener('click',function(){ G.pip.toggle(); });
   u.$('#stageRetry').addEventListener('click',function(){ P.toggle(); });
+  /* Tippen auf das Abspielfenster: Pause / weiter */
   u.$('#stage').addEventListener('click',function(e){
-    var st=u.$('#stage'); if(e.target.closest('button')) return;
+    var st=u.$('#stage'); if(e.target.closest('button,a,iframe')) return;
+    if(!P.cur||P.error||P.cur.kind==='yt') return;
     if(st.classList.contains('has-video')){ st.classList.add('show-tools'); clearTimeout(st._t); st._t=setTimeout(function(){ st.classList.remove('show-tools'); },3000); }
+    var wasPlaying=P.playing;
+    P.toggle();
+    if(!wasPlaying){ st.classList.remove('flash-play'); void st.offsetWidth; st.classList.add('flash-play'); }
   });
-  u.$('#stage').addEventListener('dblclick',function(e){ if(u.$('#stage').classList.contains('has-video')) u.$('#stageFull').click(); });
   u.$('#liveChip').addEventListener('click',function(){ act('toStage'); });
   u.$('#sideNow').addEventListener('click',function(){ if(P.cur) act('toStage'); });
 

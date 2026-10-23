@@ -97,3 +97,17 @@
 
 .ctl .icon-btn:disabled,.play-btn:disabled{opacity:.35;pointer-events:none;box-shadow:none}
 .hero.is-idle .stage__viz{opacity:.6}
+
+/* ---------- Tippen auf die Bühne: Pause / weiter ---------- */
+.stage.can-tap{cursor:pointer}
+.stage__tap{position:absolute;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none}
+.stage__tap > span{grid-area:1/1;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;color:#fff;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  box-shadow:0 0 30px rgba(var(--acc-rgb),.35);opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s var(--ease)}
+.stage.is-paused .stage__tap-pause{opacity:1;transform:scale(1)}
+.stage.flash-play .stage__tap-play{animation:tapFlash .6s var(--ease)}
+@keyframes tapFlash{0%{opacity:0;transform:scale(.8)}25%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+.stage.is-paused .stage__viz{opacity:.45}
+@media (max-width:767px){ .stage__tap > span{width:64px;height:64px} .stage__tap svg{width:30px;height:30px} }
+.stage__cover{transition:opacity .2s}
+.stage.is-paused .stage__cover{opacity:.3}

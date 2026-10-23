@@ -391,6 +391,8 @@
     u.$('#stageIdle').hidden=!!c;
     u.$('#hero').classList.toggle('is-idle',!c);
     u.$('#hero').classList.toggle('is-video',!!(c&&(c.kind==='yt'||c.isVideo)));
+    st.classList.toggle('is-paused',!!(c&&c.kind!=='yt'&&!P.playing&&!P.loading&&!P.error));
+    st.classList.toggle('can-tap',!!(c&&c.kind!=='yt'&&!P.error));
     var isYT=c&&c.kind==='yt', isVid=c&&c.kind==='track'&&c.isVideo&&!u.$('#media').hidden;
     st.classList.toggle('has-video',!!isVid);
     u.$('#stageCover').hidden=!c||isYT;

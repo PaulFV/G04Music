@@ -1,4 +1,4 @@
-# G04Musik v0.4.7
+# G04Musik v0.4.8
 
 ![G04Musik](art/social-preview.png)
 
@@ -38,6 +38,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 ### Wiedergabe
 * **Bühne** mit echtem Spektrum (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt auf der Bühne,
   mit **Vollbild** und **Bild-in-Bild**.
+* **Antippen der Bühne** pausiert bzw. spielt weiter; pausiert steht ein großes Pause-Zeichen in der Mitte (Vollbild bei Videos über den Knopf oben rechts).
 * **Mini-Player** unten rechts in den Einstellungen – die Musik läuft weiter.
 * **Mini-Fenster (Bild-in-Bild):** bleibt über anderen Apps sichtbar – Musikvideos als Video, eigene Songs und Radio mit Cover, Titel und Fortschritt (Knopf oben rechts auf der Bühne oder im „⋯“-Menü; in Chrome/Android auch automatisch beim App-Wechsel). YouTube erlaubt das nicht.
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
