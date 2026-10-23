@@ -282,13 +282,13 @@
     /* Nur echte Links (mit / oder .) merken, alles andere ist ein Suchbegriff */
     if(!p || !/[\/.]/.test(val)){ ytSearch(val); inp.blur(); return; }
     var tmp=G.yt.toItem(p);
-    if(S.yt.some(function(y){ return y.id===tmp.id; })){ u.toast('Ist schon in deiner Liste'); inp.value=''; return; }
-    S.addYT(tmp); inp.value=''; u.toast('Hinzugefügt');
+    if(S.isFav(tmp)){ u.toast('Ist schon in deinen Favoriten'); inp.value=''; return; }
+    S.addYT(tmp); inp.value=''; u.toast('Zu Favoriten hinzugefügt');
+    V.ui.ytTab='favs'; u.ls.set('ytTab','favs'); V.refresh();
     G.yt.meta(p).then(function(m){
       if(!m.title) return;
       var full=G.yt.toItem(p,m);
-      S.yt.forEach(function(y,i){ if(y.id===full.id){ S.yt[i]=Object.assign(y,{title:full.title,sub:full.sub,art:full.art}); } });
-      S.save('yt'); S.emit('yt');
+      S.updateYT(full.id,{title:full.title,sub:full.sub,art:full.art});
     });
   });
   function ytSearch(q){

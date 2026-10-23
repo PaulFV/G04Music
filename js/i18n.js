@@ -105,7 +105,8 @@
     /* YouTube */
     'YouTube durchsuchen oder Link einfügen':'Search YouTube or paste a link',
     'YouTube durchsuchen':'Search YouTube',
-    'Gib oben einen Künstler oder Song ein. Einen kopierten Link legt die App unter „Gemerkt“ ab.':'Enter an artist or song above. A copied link is stored under "Saved".',
+    'Gib oben einen Künstler oder Song ein. Einen kopierten YouTube-Link legt die App direkt in deine Favoriten.':'Enter an artist or song above. A copied YouTube link goes straight to your favorites.',
+    'Ist schon in deinen Favoriten':'Already in your favorites', 'Zu Favoriten hinzugefügt':'Added to favorites',
     'Suche auf YouTube …':'Searching YouTube …', 'Suche gerade nicht möglich':'Search not available right now',
     'Auf YouTube suchen':'Search on YouTube', 'auf YouTube öffnen ›':'open on YouTube ›',
     'Nichts gefunden':'Nothing found', 'Versuch es mit anderen Wörtern.':'Try other words.',

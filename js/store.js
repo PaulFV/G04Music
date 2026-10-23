@@ -62,10 +62,21 @@
     s.history = s.history.filter(function(f){ return !(f.kind==='track'&&f.id===id); });
     s.save('favs'); s.save('history');
   };
+  /* Per Link eingefügte YouTube-Videos landen direkt in den Favoriten
+     (früher eigener Reiter „Gemerkt“) */
   s.addYT = function(it){
-    if(s.yt.some(function(y){ return y.id===it.id; })) return false;
-    s.yt.unshift(slim(it)); s.save('yt'); s.emit('yt'); return true;
+    if(s.isFav(it)) return false;
+    s.favs.unshift(slim(it)); s.save('favs'); s.emit('favs'); return true;
   };
+  s.updateYT = function(id,patch){
+    s.favs.forEach(function(f){ if(f.kind==='yt'&&f.id===id) Object.assign(f,patch); });
+    s.save('favs'); s.emit('favs');
+  };
+  /* Alte „Gemerkt“-Einträge einmalig in die Favoriten übernehmen */
+  if(s.yt.length){
+    s.yt.slice().reverse().forEach(function(y){ if(!s.isFav(y)) s.favs.unshift(y); });
+    s.yt=[]; s.save('favs'); s.save('yt');
+  }
   s.removeYT = function(id){
     s.yt = s.yt.filter(function(y){ return y.id!==id; });
     s.favs = s.favs.filter(function(f){ return !(f.kind==='yt'&&f.id===id); });

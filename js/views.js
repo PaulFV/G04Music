@@ -271,15 +271,13 @@
   /* ============================================================
      YOUTUBE
      ============================================================ */
-  /* YOUTUBE: Suche · Gemerkt · Favoriten · Zuletzt */
+  /* YOUTUBE: Suche · Favoriten · Zuletzt */
   function viewYT(){
-    var t=ui.ytTab, items=resolve(S.yt), q=ui.ytQuery||'';
-    var tabs=subTabs('ytTabs','data-ytab',t,[['search','Suche','search','',C.red],['saved','Gemerkt','listAdd',items.length,C.violet],['favs','Favoriten','star',favsOf('yt').length,C.gold],['recent','Zuletzt','clock','',C.blue]]);
+    if(ui.ytTab==='saved') ui.ytTab='favs';
+    var t=ui.ytTab, q=ui.ytQuery||'';
+    var tabs=subTabs('ytTabs','data-ytab',t,[['search','Suche','search','',C.red],['favs','Favoriten','star',favsOf('yt').length,C.gold],['recent','Zuletzt','clock','',C.blue]]);
     var form='<form class="filterbar" id="ytForm"><label class="field field--sm">'+ic('search',17)+'<input id="ytInput" type="search" enterkeyhint="search" placeholder="YouTube durchsuchen oder Link einfügen" value="'+esc(q)+'" autocomplete="off"></label>'+
       '<button class="btn btn--solid btn--icon" type="submit" title="Suchen" aria-label="Suchen">'+ic('search',18)+'</button></form>';
-    if(t==='saved') return '<section class="panel glass filters">'+tabs+'</section>'+
-      '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Gemerkt</h3><span>'+items.length+'</span></div>'+
-      (items.length? grid(items,'yt',true) : empty('listAdd','Noch nichts gemerkt','Füge bei „Suche“ einen YouTube-Link ein – zum Beispiel zu deinem eigenen Kanal-Video.'))+'</section>';
     if(t==='favs') return '<section class="panel glass filters">'+tabs+'</section>'+favSection('yt','yfav');
     if(t==='recent') return '<section class="panel glass filters">'+tabs+'</section>'+recentSection('yt','yrec');
     var res='';
@@ -291,7 +289,7 @@
       (ui.ytResults||ui.ytBusy||ui.ytErr ?
         '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h"><h3>Ergebnisse für „'+esc(q)+'“</h3>'+
         '<span><a href="'+esc(G.yt.resultsUrl(q))+'" target="_blank" rel="noopener">auf YouTube öffnen ›</a> · <a href="#yt" data-act="ytClear">schließen</a></span></div>'+res+'</section>'
-        : '<section class="panel glass">'+empty('yt','YouTube durchsuchen','Gib oben einen Künstler oder Song ein. Einen kopierten Link legt die App unter „Gemerkt“ ab.')+'</section>');
+        : '<section class="panel glass">'+empty('yt','YouTube durchsuchen','Gib oben einen Künstler oder Song ein. Einen kopierten YouTube-Link legt die App direkt in deine Favoriten.')+'</section>');
   }
 
   /* ============================================================
