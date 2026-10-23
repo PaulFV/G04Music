@@ -309,33 +309,31 @@
         '<div class="inst__art"><img src="'+iconSrc+'" alt="G04Musik-Icon" width="72" height="72"></div>'+
         '<div class="inst__platforms">'+
           plat('●','iPhone / iPad','Safari · Teilen · Zum Home-Bildschirm',ios)+
-          plat('◆','Android','Chrome · Menü (drei Punkte) · App installieren',android)+
-          plat('■','Computer','Chrome / Edge · Symbol rechts in der Adressleiste',desk)+
+          plat('◆','Android','Chrome · Menü ⋮ · App installieren',android)+
+          plat('■','Computer','Chrome/Edge · Symbol in der Adressleiste',desk)+
         '</div>'+
         '<div class="inst__action">'+(standalone?'<p class="inst__note">Läuft als App – ohne Adressleiste, mit eigenem Icon.</p>'
           : (G.app&&G.app.canInstall()?'<button class="btn btn--solid" type="button" data-act="install">'+ic('download',16)+'Jetzt installieren</button>'
           : '<button class="btn" type="button" data-act="install">'+ic('info',16)+'So geht’s</button>'))+'</div>'+
       '</div></section>';
-    return installCard+group('Wiedergabe',[
-        row('Visualizer','Spektrum auf der Bühne'+(G.player.IOS?' (auf iPhone/iPad nachgebildet)':''),sw('viz')),
+    return group('Wiedergabe',[
+        row('Visualizer','Spektrum auf der Bühne',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
-        row('Zufall','Reihenfolge mischen',sw('shuffle'))
-      ])+
-      group('YouTube',[
-        row('Eigener Suchschlüssel','Optional: macht die Suche zuverlässiger (YouTube Data API v3). Bleibt nur auf diesem Gerät.','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey')
+        row('Zufall','Reihenfolge mischen',sw('shuffle')),
+        row('YouTube-Suchschlüssel','Optional, für zuverlässigere Suche','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey')
       ])+
       group('Bibliothek',[
         row('Eigene Titel',L.songs().length+' Songs · '+L.videos().length+' Musikvideos','<span class="set__val num" id="storeUse">'+u.bytes(L.totalSize())+'</span>'),
         row('Dateien hinzufügen','Musik und Musikvideos von diesem Gerät','<span class="set__val">'+ic('chev',16)+'</span>','pickFiles'),
         row('Bibliothek leeren','Entfernt alle eigenen Titel von diesem Gerät','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','clearLib'),
-        row('Alles zurücksetzen','Favoriten, Verlauf, YouTube-Liste, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
+        row('Alles zurücksetzen','Favoriten, Verlauf, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
       ])+
+      installCard+
       group('Über',[
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">© PaulFV</span>'),
-        row('App-Icon','So erscheint es auf dem Home-Bildschirm','<img src="'+((document.querySelector('link[rel=apple-touch-icon]')||{}).href||'img/icon-180.png')+'" alt="App-Icon" width="52" height="52" style="border-radius:12px;flex:none">'),
-        row('Datenschutz','Kein Konto, kein Tracking. Deine Dateien bleiben auf dem Gerät. Für Radio und YouTube werden nur deren Server abgefragt.','')
+                row('Datenschutz','Kein Konto, kein Tracking, alles bleibt auf dem Gerät','')
       ]);
   }
 
@@ -359,6 +357,7 @@
     var hasHero=!!HERO_VIEWS[S.view];
     u.$('#hero').hidden=!hasHero; u.$('#content').classList.toggle('no-hero',!hasHero);
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
+    u.$('#viewHost').classList.toggle('set-view',S.view==='settings');
     V.renderNav(); V.renderLayBtn();
     if(!G.player.cur) V.renderNP();
   };
