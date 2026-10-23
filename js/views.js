@@ -611,7 +611,7 @@
 
   /* ---------- Klangbalken ----------
      Abgerundete Balken in Regenbogenfarben (wandern langsam) mit hellem Ende, weichem Schein und
-     kleinen „Spitzen“, die langsam nachsinken. Füllen bis ca. 90 % der Höhe. */
+     kleinen „Spitzen“, die langsam nachsinken. Füllen bis ca. 55 % der Höhe. */
   var cv=u.$('#viz'), cx=cv.getContext('2d'), bars=new Float32Array(64), peaks=new Float32Array(64), buf=null;
   function sizeViz(){ var r=cv.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1); if(r.width){ cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr); } }
   window.addEventListener('resize',sizeViz);
@@ -624,6 +624,9 @@
     cx.arc(x+r,y+r,r,Math.PI,1.5*Math.PI); cx.arc(x+w-r,y+r,r,1.5*Math.PI,2*Math.PI);
     cx.lineTo(x+w,bottom); cx.closePath();
   }
+  /* Takt: Wir messen den Bass (40–150 Hz). Springt er über seinen Durchschnitt, ist es ein Schlag (kick):
+     die tiefen Balken federn dann zusätzlich nach oben und der Schein leuchtet kurz auf. */
+  var beatAvg=0, kick=0, agc=.6;
   function frame(t){
     requestAnimationFrame(frame);
     var P=G.player;
@@ -632,18 +635,41 @@
     cx.clearRect(0,0,w,h);
     var dpr=w/(cv.clientWidth||w), n=Math.max(24,Math.min(64,Math.round((cv.clientWidth||w)/13)));
     var on=P.playing&&P.cur&&P.cur.kind!=='yt'&&S.settings.viz, real=on&&P.realViz();
-    if(real){ if(!buf) buf=new Uint8Array(P.analyser.frequencyBinCount); P.analyser.getByteFrequencyData(buf); }
-    var bw=w/n, gap=bw*.3, bwid=bw-gap, rad=Math.min(bwid/2,9*dpr), top=h*.9;
+    var hz=0, lvl=0;
+    if(real){
+      var bins=P.analyser.frequencyBinCount; if(!buf||buf.length!==bins) buf=new Uint8Array(bins);
+      P.analyser.getByteFrequencyData(buf);
+      hz=(P.analyser.context.sampleRate||44100)/2/bins;
+      var b0=Math.max(1,Math.round(40/hz)), b1=Math.max(b0+1,Math.round(150/hz)), bass=0;
+      for(var q=b0;q<b1;q++) bass+=buf[q];
+      bass/=(b1-b0)*255;
+      beatAvg+=(bass-beatAvg)*.04;
+      kick = (bass>beatAvg*1.2+.05 && bass>.3) ? 1 : kick*.86;
+    } else if(on){
+      kick=Math.pow(Math.max(0,Math.sin(t/1000*Math.PI*4)),8);   /* nachgebildeter Schlag (ca. 120 Schläge pro Minute) */
+    } else kick*=.8;
+    var bw=w/n, gap=bw*.3, bwid=bw-gap, rad=Math.min(bwid/2,9*dpr), top=h*.55, vals=null;
+    if(real){
+      /* Balken liegen gleichmäßig auf einer Tonleiter von 40 Hz bis 14 kHz; hohe Töne sind leiser, darum angehoben */
+      vals=new Float32Array(n);
+      for(var j=0;j<n;j++){
+        var k0=Math.max(1,Math.floor(40*Math.pow(350,j/n)/hz)), k1=Math.min(buf.length,Math.max(k0+1,Math.ceil(40*Math.pow(350,(j+1)/n)/hz)));
+        var sum=0, mx=0; for(var m=k0;m<k1;m++){ sum+=buf[m]; if(buf[m]>mx) mx=buf[m]; }
+        var v=((sum/(k1-k0))*.5+mx*.5)/255*(1+j/n*.9);
+        vals[j]=v; if(v>lvl) lvl=v;
+      }
+      agc=Math.max(.45,agc*.997,lvl);   /* leise Stücke werden angehoben, laute nicht gekappt */
+    }
     for(var i=0;i<n;i++){
       var target;
-      if(real){ var k=Math.min(buf.length-1,Math.floor(Math.pow(i/n,1.5)*buf.length*.8)); target=Math.min(1,Math.pow(buf[k]/255,1.1)*1.12); }
-      else if(on){ target=(0.16+0.5*Math.abs(Math.sin(t/430+i*.55)*Math.cos(t/910+i*.23))+0.22*Math.random()*(i<n*.35?1:.55))*(1-i/n*.4); }
+      if(real){ target=Math.min(1,Math.pow(vals[i]/agc,1.15)+kick*.16*(1-i/n)); }
+      else if(on){ target=Math.min(1,(0.16+0.5*Math.abs(Math.sin(t/430+i*.55)*Math.cos(t/910+i*.23))+0.22*Math.random()*(i<n*.35?1:.55))*(1-i/n*.4)+kick*.18*(1-i/n)); }
       else target=0.03+0.02*Math.sin(t/900+i*.4);
-      bars[i]+=(target-bars[i])*(target>bars[i]?(real?.6:.22):.13);
+      bars[i]+=(target-bars[i])*(target>bars[i]?(real?.75:.22):(real?.17:.13));
       var bh=Math.max(3*dpr,bars[i]*top), x=i*bw+gap/2, y=h-bh;
       var hue=Math.round((330+i/n*300+t/70)%360);   /* Regenbogen quer über das Fenster, wandert langsam */
-      /* weicher Schein hinter dem Balken */
-      cx.fillStyle=hsl(hue,60,on?.14:.04); barPath(x-gap*.35,y-5*dpr,bwid+gap*.7,bh+5*dpr,h,rad*1.4); cx.fill();
+      /* weicher Schein hinter dem Balken (blitzt beim Schlag auf) */
+      cx.fillStyle=hsl(hue,60,(on?.14:.04)+kick*.16); barPath(x-gap*.35,y-5*dpr,bwid+gap*.7,bh+5*dpr,h,rad*1.4); cx.fill();
       /* Balken: unten blass, oben kräftig mit hellem Ende */
       var g=cx.createLinearGradient(0,h,0,y);
       g.addColorStop(0,hsl(hue,48,on?.35:.14)); g.addColorStop(.6,hsl(hue,58,on?.9:.32)); g.addColorStop(1,hsl(hue,82,on?1:.38));

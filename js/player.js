@@ -10,7 +10,7 @@
   var G = window.G, u = G.u, S = G.store;
 
   var media = u.$('#media');
-  var radio = new Audio(); radio.preload='none';
+  var radio = null;   /* je Sender ein neues Audio-Element (siehe makeRadio) */
   var hls = null, fileUrl = null;
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 
@@ -23,24 +23,49 @@
   function vol(){ return S.settings.volume; }
   function setError(msg){ P.error=msg; P.loading=false; P.playing=false; emit(); }
 
-  /* ---------- Web Audio für den Visualizer (nur eigene Dateien) ----------
-     Auf iPhone/iPad nicht: dort verstummt die Musik sonst im Hintergrund. */
-  var actx=null;
-  function ensureAnalyser(){
-    if(IOS||actx||!S.settings.viz) return;
+  /* ---------- Web Audio für die Klangbalken ----------
+     Eigene Dateien immer; Radio, wenn der Sender das Auslesen erlaubt (CORS) – sonst bleiben
+     die Balken nachgebildet. Auf iPhone/iPad nicht: dort verstummt die Musik sonst im Hintergrund. */
+  var actx=null, mediaSrc=null;
+  function ensureCtx(){
+    if(IOS||!S.settings.viz) return false;
+    if(actx) return true;
     try{
-      var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return false;
       actx=new AC();
-      var src=actx.createMediaElementSource(media);
-      P.analyser=actx.createAnalyser(); P.analyser.fftSize=256; P.analyser.smoothingTimeConstant=.78;
-      src.connect(P.analyser); P.analyser.connect(actx.destination);
-    }catch(e){ console.warn('Visualizer',e); P.analyser=null; }
+      P.analyser=actx.createAnalyser(); P.analyser.fftSize=1024; P.analyser.smoothingTimeConstant=.5;
+      P.analyser.connect(actx.destination);
+      return true;
+    }catch(e){ console.warn('Klangbalken',e); actx=null; P.analyser=null; return false; }
   }
-  P.realViz = function(){ return !!(P.analyser && P.cur && P.cur.kind==='track' && !P.cur.isVideo); };
+  function ensureAnalyser(){
+    if(!ensureCtx()||mediaSrc) return;
+    try{ mediaSrc=actx.createMediaElementSource(media); mediaSrc.connect(P.analyser); }
+    catch(e){ console.warn('Klangbalken',e); }
+  }
+  /* Radio-Element ans Spektrum hängen, sobald es wirklich spielt. Ein Element, das einmal
+     angehängt ist, läuft nur noch darüber – darum hat jeder Sender sein eigenes Element. */
+  function hookRadio(el){
+    if(!el._viz||el._node||el!==radio||!ensureCtx()) return;
+    if(actx.state!=='running'){ actx.resume().then(function(){ if(actx.state==='running') hookRadio(el); }).catch(function(){}); return; }
+    try{ el._node=actx.createMediaElementSource(el); el._node.connect(P.analyser); }
+    catch(e){ console.warn('Klangbalken',e); }
+  }
+  P.realViz = function(){
+    if(!P.analyser||!P.cur) return false;
+    if(P.cur.kind==='track') return !P.cur.isVideo && !!mediaSrc;
+    if(P.cur.kind==='radio') return !!(radio&&radio._node);
+    return false;
+  };
 
   /* ---------- Anhalten aller Wege ---------- */
   function stopTrack(){ try{ media.pause(); }catch(e){} media.removeAttribute('src'); try{ media.load(); }catch(e){} media.hidden=true; if(fileUrl){ URL.revokeObjectURL(fileUrl); fileUrl=null; } }
-  function stopRadio(){ try{ radio.pause(); }catch(e){} if(hls){ try{hls.destroy();}catch(e){} hls=null; } radio.removeAttribute('src'); try{ radio.load(); }catch(e){} }
+  function stopRadio(){
+    var el=radio; if(!el) return;
+    try{ el.pause(); }catch(e){} if(hls){ try{hls.destroy();}catch(e){} hls=null; }
+    if(el._node){ try{ el._node.disconnect(); }catch(e){} el._node=null; }
+    el.removeAttribute('src'); try{ el.load(); }catch(e){}
+  }
   function stopYT(){ G.yt.unmount(u.$('#ytHost')); }
   function stopAll(){ stopTrack(); stopRadio(); stopYT(); }
 
@@ -87,22 +112,35 @@
       document.head.appendChild(s);
     });
   }
-  function playRadio(item){
-    radio.volume=vol();
+  /* Neues Radio-Element. cors: mit crossOrigin laden, damit das Spektrum lesbar ist */
+  function makeRadio(cors){
+    var el=new Audio(); el.preload='none';
+    el._cors=!!cors; el._viz=!!cors;
+    if(cors) el.crossOrigin='anonymous';
+    el.volume=vol(); radio=el; bind(el,'radio');
+    return el;
+  }
+  /* plain: ohne CORS (zweiter Versuch, wenn der Sender CORS nicht erlaubt: dann ohne echtes Spektrum) */
+  function playRadio(item,plain){
     var isHls = item.hls || /\.m3u8(\?|$)/i.test(item.url);
-    if(isHls && !radio.canPlayType('application/vnd.apple.mpegurl')){
+    var wantViz = ensureCtx();
+    if(actx&&actx.state==='suspended') actx.resume().catch(function(){});
+    var el = makeRadio(wantViz && !plain && !isHls);
+    var native = isHls && !!el.canPlayType('application/vnd.apple.mpegurl');
+    if(isHls && wantViz && !native) el._viz=true;   /* hls.js: Ton kommt über einen eigenen Blob, Spektrum geht immer */
+    if(isHls && !native){
       loadHls().then(function(Hls){
-        if(P.cur!==item) return;
+        if(P.cur!==item||el!==radio) return;
         if(!Hls.isSupported()){ setError('Dieser Sender sendet im HLS-Format, das dein Browser nicht kann.'); return; }
-        hls=new Hls(); hls.loadSource(item.url); hls.attachMedia(radio);
-        hls.on(Hls.Events.MANIFEST_PARSED,function(){ radio.play().catch(function(){}); });
+        hls=new Hls(); hls.loadSource(item.url); hls.attachMedia(el);
+        hls.on(Hls.Events.MANIFEST_PARSED,function(){ el.play().catch(function(){}); });
         hls.on(Hls.Events.ERROR,function(e,d){ if(d&&d.fatal) setError('Der Sender antwortet gerade nicht.'); });
       }).catch(function(){ setError('Der HLS-Abspieler ließ sich nicht laden. Bist du online?'); });
     } else {
-      radio.src=item.url;
-      radio.play().catch(function(e){ if(e.name==='NotAllowedError'){ P.loading=false; emit(); } });
+      el.src=item.url;
+      el.play().catch(function(e){ if(e.name==='NotAllowedError'){ P.loading=false; emit(); } });
     }
-    G.radio.click(item);
+    if(!plain) G.radio.click(item);
   }
 
   function playYT(item){
@@ -168,19 +206,23 @@
 
   /* ---------- Ereignisse der Elemente ---------- */
   function bind(el,kind){
-    el.addEventListener('playing',function(){ if(P.cur&&P.cur.kind===kind){ P.loading=false; P.playing=true; P.error=''; emit(); wake(); } });
-    el.addEventListener('pause',function(){ if(P.cur&&P.cur.kind===kind){ P.playing=false; emit(); wake(); } });
-    el.addEventListener('waiting',function(){ if(P.cur&&P.cur.kind===kind){ P.loading=true; emit(); } });
-    el.addEventListener('canplay',function(){ if(P.cur&&P.cur.kind===kind&&P.loading){ P.loading=false; emit(); } });
+    /* Nur das aktuelle Element zählt (ein früheres Radio-Element darf nichts mehr ändern) */
+    var mine=function(){ return P.cur&&P.cur.kind===kind&&(kind!=='radio'||el===radio); };
+    el.addEventListener('playing',function(){ if(mine()){ el._ok=true; P.loading=false; P.playing=true; P.error=''; if(kind==='radio') hookRadio(el); emit(); wake(); } });
+    el.addEventListener('pause',function(){ if(mine()){ P.playing=false; emit(); wake(); } });
+    el.addEventListener('waiting',function(){ if(mine()){ P.loading=true; emit(); } });
+    el.addEventListener('canplay',function(){ if(mine()&&P.loading){ P.loading=false; emit(); } });
     el.addEventListener('error',function(){
-      if(!P.cur||P.cur.kind!==kind||!el.getAttribute('src')&&!hls) return;
+      if(!mine()||!el.getAttribute('src')&&!hls) return;
+      /* Sender erlaubt kein CORS: ohne crossOrigin noch einmal versuchen (dann ohne echtes Spektrum) */
+      if(kind==='radio'&&el._cors&&!el._ok){ var it=P.cur; stopRadio(); playRadio(it,true); return; }
       var c=el.error&&el.error.code;
       setError(kind==='radio'
         ? 'Der Sender antwortet gerade nicht oder sendet in einem Format, das dein Browser nicht kann.'
         : (c===4 ? 'Dieses Format kann dein Browser nicht abspielen. MP3, M4A, MP4 und WebM gehen überall; MKV, AVI und WMV oft nicht.' : 'Die Datei ließ sich nicht abspielen.'));
     });
   }
-  bind(media,'track'); bind(radio,'radio');
+  bind(media,'track'); makeRadio(false);
   media.addEventListener('ended',function(){
     if(!P.cur||P.cur.kind!=='track') return;
     if(S.settings.repeat==='one'){ media.currentTime=0; media.play().catch(function(){}); return; }

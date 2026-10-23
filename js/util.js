@@ -5,7 +5,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.6.9';
+  G.VERSION = '0.6.10';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
