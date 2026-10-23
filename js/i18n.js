@@ -49,6 +49,7 @@
     'Füge Musik hinzu oder wechsle zu Radio.':'Add music or switch to Radio.',
     'Tipp: Halte einen Titel gedrückt oder tippe auf ⋯ für mehr Möglichkeiten.':'Tip: press and hold a track or tap ⋯ for more options.',
 
+    'Verkleinern':'Minimise', 'Großes Abspielfenster':'Large player',
     /* Radio: Songtitel und Infos */
     'Songinfos':'Song info', 'Songinfos zu Radio':'Song info for radio',
     'Cover, Album und Jahr über Apple (iTunes) laden':'Load cover, album and year from Apple (iTunes)',

@@ -5,7 +5,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.6.7';
+  G.VERSION = '0.6.8';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
@@ -84,7 +84,9 @@
     sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
     globe2:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.7 5.4 3.7 8.5s-1.2 5.9-3.7 8.5c-2.5-2.6-3.7-5.4-3.7-8.5s1.2-5.9 3.7-8.5z"/>',
     more:'<circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/>',
-    queue:'<path d="M4 6h12M4 12h12M4 18h8"/><path d="M17 15l4 3-4 3z" fill="currentColor"/>'
+    queue:'<path d="M4 6h12M4 12h12M4 18h8"/><path d="M17 15l4 3-4 3z" fill="currentColor"/>',
+    expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+    shrink:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'
   };
   u.ic = function(n,s,w){ return '<svg viewBox="0 0 24 24" width="'+(s||20)+'" height="'+(s||20)+'" fill="none" stroke="currentColor" stroke-width="'+(w||1.9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(I[n]||'')+'</svg>'; };
 

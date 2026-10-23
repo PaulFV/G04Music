@@ -28,7 +28,7 @@
   var lastKey=null, lastPlaying=null;
   S.on(function(what){
     if(what==='player'){
-      V.renderStage(); V.renderNP(); V.renderDock();
+      V.renderStage(); V.renderNP(); V.renderDock(); V.updateLand();
       var k=P.cur?S.key(P.cur):null;
       if(k!==lastKey){ lastKey=k; V.markPlaying(); }
       else if(P.playing!==lastPlaying){ u.$$('.eq').forEach(function(e){ e.classList.toggle('is-paused',!P.playing); }); }
@@ -129,6 +129,8 @@
           if(list&&list.length) P.play(list[0],list);
         })(); break;
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
+      case 'landMin': V.ui.landMin=true; V.updateLand(); V.renderNP(); break;
+      case 'landFull': V.ui.landMin=false; V.updateLand(); V.renderNP(); break;
       case 'npMore': npMore(); break;
       case 'npInfo': if(P.cur&&P.cur.kind==='radio') u.sheet('Songinfos','<div class="np__info">'+V.radioInfo(P.cur)+'</div>'); break;
       case 'npProxy': proxySheet(); break;

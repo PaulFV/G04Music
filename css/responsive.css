@@ -129,20 +129,6 @@ body.has-dock .main{padding-bottom:110px}
 }
 @keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
 
-/* Handy quer: Bühne neben dem Bedienfeld */
-@media (max-width:1023px) and (orientation:landscape) and (max-height:520px){
-  .shell{grid-template-columns:minmax(0,1fr)}
-  .sidebar{display:none}
-  .topbar__brand{display:flex}
-  .topbar__title{display:none}
-  .hero{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
-  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;z-index:80;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:calc(6px + env(safe-area-inset-bottom));height:54px;border-radius:20px;padding:4px;background:rgba(17,13,22,.82)}
-  .tabbar button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;background:none;border-radius:16px;color:var(--tx-1);font-size:13px;font-weight:600}
-  .tabbar button.is-active{color:var(--acc);background:var(--acc-dim);border-color:var(--acc-line)}
-  .main{padding-bottom:80px}
-  .pdock{bottom:calc(68px + env(safe-area-inset-bottom))}
-}
-
 /* Geräte ohne Maus: Kacheln nicht anheben */
 @media (hover:none){
   .tile:hover{transform:none}
@@ -193,4 +179,62 @@ body.has-dock .main{padding-bottom:110px}
 @media (max-width:767px){ .ctl--main{gap:6px} }
 @media (max-width:400px){ .ctl--main .play-btn{width:48px;height:48px} .ctl--main{gap:4px} }
 @media (max-width:340px){ .ctl--main .icon-btn{min-width:32px} .ctl--main .play-btn{width:44px;height:44px} .ctl--main{gap:3px} }
+
+/* ============================================================
+   Handy quer (niedriger Bildschirm)
+   - Abspielfenster nutzt die Höhe: Bild links groß, Bedienung rechts
+   - Läuft etwas, füllt das Abspielfenster den ganzen Bildschirm („Vollbild“,
+     Klasse land-full am body). Leiste, Kopfzeile und Mini-Player liegen dahinter.
+     Mit dem Knopf oben rechts im Bedienfeld verkleinern / wieder groß.
+   ============================================================ */
+.np-land{display:none}
+@media (max-width:1023px) and (orientation:landscape) and (max-height:520px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .sidebar{display:none}
+  .topbar{padding-top:max(8px,calc(env(safe-area-inset-top) + 4px));padding-bottom:6px}
+  .topbar__brand{display:flex}
+  .topbar__title{display:none}
+  .content{padding-left:max(var(--gutter),env(safe-area-inset-left));padding-right:max(var(--gutter),env(safe-area-inset-right))}
+
+  .hero{position:relative;top:auto;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;padding:10px;align-items:center}
+  .hero .stage{width:min(100%,calc((100dvh - 150px)*16/9));aspect-ratio:16/9;justify-self:center}
+
+  /* Bedienung wie auf dem Handy hochkant */
+  .np-desk{display:none!important}
+  .np-phone{display:grid}
+  .vol{display:none}
+  .np{position:relative;gap:8px;padding:0 2px 2px}
+  .np .np__head{padding-right:48px}
+  .seek{font-size:12px;gap:8px}
+  .seek__bar{height:20px}
+  .ctl--main{gap:8px;flex-wrap:nowrap;justify-content:center}
+  .ctl--main .icon-btn{width:40px;height:40px;flex:0 1 40px;min-width:34px}
+  .ctl--main .play-btn{width:52px;height:52px}
+  .np-fav.is-on{color:var(--gold);border-color:rgba(255,200,87,.5);background:rgba(255,200,87,.12)}
+  .np-land{display:grid;position:absolute;top:0;right:0;width:40px;height:40px}
+
+  /* Untere Leiste: flacher, damit sie weniger Platz nimmt */
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;z-index:80;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:calc(6px + env(safe-area-inset-bottom));height:46px;border-radius:18px;padding:3px;background:rgba(17,13,22,.82)}
+  .tabbar button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;background:none;border-radius:15px;color:var(--tx-1);font-size:13px;font-weight:600}
+  .tabbar button svg{width:19px;height:19px}
+  .tabbar button.is-active{color:var(--acc);background:var(--acc-dim);border-color:var(--acc-line)}
+  .main{padding-bottom:70px}
+  .pdock{bottom:calc(60px + env(safe-area-inset-bottom))}
+  .toasts{bottom:calc(60px + env(safe-area-inset-bottom))}
+
+  /* Vollbild: Abspielfenster über den ganzen Bildschirm, alles andere liegt dahinter */
+  body.land-full{overflow:hidden}
+  body.land-full .hero{
+    position:fixed;inset:0;z-index:85;margin:0;border:0;border-radius:0;
+    padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+    background:var(--bg-0);grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch;
+    -webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;
+  }
+  body.land-full .hero .stage{width:100%;height:100%;aspect-ratio:auto;border-radius:14px}
+  body.land-full .np{justify-content:center;gap:12px}
+  body.land-full .hero.is-video .stage{aspect-ratio:auto}
+  body.land-full .stage__cover{left:16px;right:16px;bottom:14px}
+  body.land-full .stage__cover .cover{width:clamp(70px,20vh,130px)}
+  body.land-full .stage__meta h2{font-size:clamp(18px,5vh,26px);-webkit-line-clamp:2}
+}
 

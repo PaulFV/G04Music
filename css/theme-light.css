@@ -54,3 +54,4 @@
 :root[data-theme="light"] .np__ic,
 :root[data-theme="light"] .now-chip__ic{background:#fff}
 :root[data-theme="light"] *::-webkit-scrollbar-thumb{background:rgba(60,20,35,.15);background-clip:content-box}
+:root[data-theme="light"] body.land-full .hero{background:var(--bg-0)}

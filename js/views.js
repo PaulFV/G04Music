@@ -420,7 +420,16 @@
     u.$('#viewHost').classList.toggle('set-view',S.view==='settings');
     V.renderNav(); V.renderLayBtn(); V.renderTopBtns();
     if(!G.player.cur) V.renderNP();
+    V.updateLand();
   };
+
+  /* Handy quer: Läuft etwas und ist ein Abspielfenster zu sehen, füllt es den ganzen Bildschirm */
+  var landMQ = window.matchMedia('(max-width:1023px) and (orientation:landscape) and (max-height:520px)');
+  V.updateLand = function(){
+    if(!G.player.cur) ui.landMin=false;   /* nach dem Beenden startet das nächste Lied wieder groß */
+    document.body.classList.toggle('land-full', landMQ.matches && !!G.player.cur && V.hasHero() && !ui.landMin);
+  };
+  if(landMQ.addEventListener) landMQ.addEventListener('change',function(){ V.updateLand(); }); else if(landMQ.addListener) landMQ.addListener(function(){ V.updateLand(); });
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */
   V.refresh = function(){
     var a=document.activeElement, id=a&&a.id, pos=a&&a.selectionStart;
@@ -542,7 +551,9 @@
     var live=P.isLive(), d=P.duration(), t=P.time(), fav=S.isFav(c), sh=V.shown(c);
     var nxt = P.queue.length>1 && !(c.kind==='yt'&&c.ytType==='list') ? P.queue[(P.index+1)%P.queue.length] : null;
     var rep = st.repeat==='one'?'repeat1':'repeat';
+    var landLbl = ui.landMin ? 'Großes Abspielfenster' : 'Verkleinern';
     np.innerHTML=
+      '<button class="icon-btn np-land" type="button" data-act="'+(ui.landMin?'landFull':'landMin')+'" title="'+landLbl+'" aria-label="'+landLbl+'">'+ic(ui.landMin?'expand':'shrink',18)+'</button>'+
       '<div class="np__head"><span class="np__ic">'+ic(c.kind==='radio'?'radio':c.kind==='yt'?'yt':c.isVideo?'video':'music',22)+'</span><div><small>'+(P.error?'Fehler':P.loading?'Lädt …':P.playing?'Jetzt läuft':'Angehalten')+'</small><b>'+esc(sh.title)+'</b><span>'+esc(sh.sub)+'</span></div></div>'+
       '<div class="seek"><span class="num js-time" style="min-width:38px">'+(live?'LIVE':u.fmt(t))+'</span><div class="seek__bar js-seek'+(live?' is-live':'')+'" role="slider" aria-label="Position" tabindex="0"><i class="js-bar" style="width:'+(d?Math.min(100,t/d*100):0)+'%"></i></div><span class="num js-dur" style="min-width:38px;text-align:right">'+(live?'':u.fmt(d))+'</span></div>'+
       '<div class="ctl ctl--main"><button class="icon-btn'+(st.shuffle?' is-on':'')+'" type="button" data-act="shuffle" title="Zufall" aria-label="Zufall" aria-pressed="'+st.shuffle+'">'+ic('shuffle',18)+'</button>'+
