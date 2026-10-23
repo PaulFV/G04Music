@@ -97,6 +97,13 @@
       case 'clearLib': u.confirm('Bibliothek leeren?','Alle eigenen Songs und Musikvideos werden von diesem Gerät entfernt. Die Originaldateien bleiben, wo sie waren.','Leeren',function(){ if(P.cur&&P.cur.kind==='track') P.stop(); G.library.clear().then(function(){ u.toast('Bibliothek geleert'); }); }); break;
       case 'resetAll': u.confirm('Alles zurücksetzen?','Favoriten, Verlauf, YouTube-Liste und Einstellungen werden gelöscht. Deine Bibliothek bleibt.','Zurücksetzen',function(){ S.resetAll(); location.reload(); }); break;
       case 'install': install(); break;
+      case 'idlePlay': (function(){
+          var list;
+          if(S.view==='music'){ list=G.library.songs(); S.set('shuffle',false); }
+          else if(S.view==='radio'){ list=G.store.favs.filter(function(f){return f.kind==='radio';}); if(!list.length) list=V.ui.radioItems||[]; }
+          else { list=G.store.favs.filter(function(f){return f.kind==='yt';}); if(!list.length) list=G.store.yt.length?G.store.yt:(V.ui.ytResults||[]); }
+          if(list&&list.length) P.play(list[0],list);
+        })(); break;
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
       case 'npMore': npMore(); break;
       case 'toList': if(P.cur) listPicker(P.cur); break;

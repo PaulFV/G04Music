@@ -94,3 +94,6 @@
 .qbtn:hover{filter:brightness(1.2)}
 .qbtn:active{transform:scale(.93)}
 .qbtn--main{background:linear-gradient(180deg,var(--acc),var(--acc-2));color:var(--on-acc);border-color:transparent;box-shadow:0 0 22px rgba(var(--acc-rgb),.4)}
+
+.ctl .icon-btn:disabled,.play-btn:disabled{opacity:.35;pointer-events:none;box-shadow:none}
+.hero.is-idle .stage__viz{opacity:.6}

@@ -415,13 +415,23 @@
   V.renderNP = function(){
     var P=G.player, c=P.cur, st=S.settings, np=u.$('#np');
     if(!c){
+      /* Nichts läuft: gleiches Fenster wie beim Abspielen, Play startet passend zum Bereich */
       np.classList.remove('is-cover');
-      var hint = S.view==='radio' ? 'Tippe auf einen Sender.' : S.view==='yt' ? 'Suche ein Video oder tippe auf einen Treffer.' : 'Tippe auf einen Song oder starte alle.';
-      var quick = S.view==='music' && G.library.songs().length ? '<div class="np-quick">'+
-          '<button class="qbtn qbtn--main" type="button" data-act="playAll" title="Alle Songs gemischt abspielen" aria-label="Alle Songs gemischt abspielen">'+ic('shuffle',24)+'</button>'+
-          '<button class="qbtn" type="button" data-act="playOrder" title="Alle Songs der Reihe nach abspielen" aria-label="Alle Songs der Reihe nach abspielen">'+ic('queue',24)+'</button></div>'
-        : S.view==='music' ? '<div class="btn-row">'+BTN_FILES+'</div>' : '';
-      np.innerHTML='<div class="np__head np__head--idle"><span class="np__ic">'+ic(S.view==='radio'?'radio':S.view==='yt'?'yt':'music',22)+'</span><div><small>'+greet()+'</small><b>Noch nichts gewählt</b><span>'+hint+'</span></div></div>'+quick;
+      var hint = S.view==='radio' ? 'Tippe auf einen Sender oder Play.' : S.view==='yt' ? 'Suche ein Video oder tippe auf einen Treffer.' : 'Tippe auf einen Song oder Play.';
+      var canStart = S.view==='music' ? G.library.songs().length>0 : S.view==='radio' ? !!(favsOf('radio').length || (ui.radioItems&&ui.radioItems.length)) : !!(favsOf('yt').length || S.yt.length || (ui.ytResults&&ui.ytResults.length));
+      var dis=' disabled';
+      np.innerHTML='<div class="np__head"><span class="np__ic">'+ic(S.view==='radio'?'radio':S.view==='yt'?'yt':'music',22)+'</span><div><small>'+greet()+'</small><b>Nichts läuft</b><span>'+hint+'</span></div></div>'+
+        '<div class="seek"><span class="num" style="min-width:38px">0:00</span><div class="seek__bar"><i style="width:0"></i></div><span class="num" style="min-width:38px;text-align:right">–:––</span></div>'+
+        '<div class="ctl ctl--main">'+
+          '<button class="icon-btn" type="button" data-act="playAll" title="Alle Songs gemischt" aria-label="Alle Songs gemischt"'+(S.view==='music'&&canStart?'':dis)+'>'+ic('shuffle',18)+'</button>'+
+          '<button class="icon-btn" type="button" aria-label="Zurück"'+dis+'>'+ic('prev',18)+'</button>'+
+          '<button class="play-btn" type="button" data-act="idlePlay" aria-label="Abspielen"'+(canStart?'':dis)+'>'+ic('play',26)+'</button>'+
+          '<button class="icon-btn" type="button" aria-label="Weiter"'+dis+'>'+ic('next',18)+'</button>'+
+          '<button class="icon-btn np-phone" type="button" aria-label="Favorit"'+dis+'>'+ic('star',18)+'</button>'+
+          '<button class="icon-btn np-phone" type="button" aria-label="Mehr"'+dis+'>'+ic('more',18)+'</button>'+
+          '<button class="icon-btn np-desk" type="button" aria-label="Wiederholen"'+dis+'>'+ic('repeat',18)+'</button>'+
+        '</div>'+
+        (S.view==='music'&&!G.library.songs().length?'<div class="btn-row np-desk">'+BTN_FILES+'</div>':'');
       return;
     }
     np.classList.toggle('is-cover',c.kind!=='yt'&&!c.isVideo);

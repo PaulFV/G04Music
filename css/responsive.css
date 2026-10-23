@@ -154,15 +154,8 @@ body.has-dock .main{padding-bottom:110px}
   .hero .stage{width:100%;aspect-ratio:12/5;border-radius:13px}
   .hero.is-video .stage{aspect-ratio:16/9}
   .stage__badges{display:none}
-  /* Nichts läuft: nur eine Zeile */
-  .hero.is-idle .stage{display:none}
-  .hero.is-idle .np{flex-direction:row;align-items:center;gap:10px}
-  .hero.is-idle .np .np__head{display:flex;flex:1;min-width:0}
-  .hero.is-idle .np__head .np__ic{display:grid;width:40px;height:40px}
-  .hero.is-idle .np__head small{display:none}
-  .hero.is-idle .np__head b{font-size:15px}
-  .hero.is-idle .np__head span{font-size:12px}
-  .hero.is-idle .btn-row .btn{padding:8px 12px;font-size:13px}
+  .hero.is-idle .stage__idle p{display:none}
+  .hero.is-idle .stage__idle b{font-size:15px}
   .np .np__head{display:none}
   .np-desk{display:none!important}
   .np-phone{display:grid}
