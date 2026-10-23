@@ -106,6 +106,7 @@
         })(); break;
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
       case 'npMore': npMore(); break;
+      case 'pip': G.pip.toggle(); break;
       case 'toList': if(P.cur) listPicker(P.cur); break;
       case 'plNew': nameSheet('Neue Liste','',function(n){ var l=G.lists.create(n); u.toast('Liste „'+l.name+'“ angelegt'); V.ui.listOpen=l.id; V.ui.musicTab='lists'; if(S.view!=='music') go('music'); else V.refresh(); }); break;
       case 'plImport': u.$('#pickList').click(); break;
@@ -166,7 +167,6 @@
     var fav=S.isFav(c), rep={off:'aus',all:'alle',one:'ein Titel'}[S.settings.repeat];
     u.sheet(c.title,
       '<button class="act" type="button" data-m="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>'+
-      (G.pip.supported()?'<button class="act" type="button" data-m="pip">'+u.ic('pip',18)+'<span>Mini-Fenster<small>Bleibt sichtbar, wenn du eine andere App öffnest</small></span></button>':'')+
       '<button class="act" type="button" data-m="list">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>'+
       '<button class="act" type="button" data-m="repeat">'+u.ic(S.settings.repeat==='one'?'repeat1':'repeat',18)+'<span>Wiederholen<small>jetzt: '+rep+'</small></span></button>'+
       '<button class="act" type="button" data-m="sleep">'+u.ic('moon',18)+'<span>Einschlaf-Timer<small>'+(P.sleepAt?'noch '+P.sleepLeft()+' min':'aus')+'</small></span></button>'+

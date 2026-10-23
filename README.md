@@ -1,4 +1,4 @@
-# G04Musik v0.5.0
+# G04Musik v0.5.1
 
 ![G04Musik](art/social-preview.png)
 
@@ -40,7 +40,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
   mit **Vollbild** und **Bild-in-Bild**.
 * **Antippen der Bühne** pausiert bzw. spielt weiter; pausiert steht ein großes Pause-Zeichen in der Mitte (Vollbild bei Videos über den Knopf oben rechts).
 * **Mini-Player** unten rechts in den Einstellungen – die Musik läuft weiter.
-* **Mini-Fenster (Bild-in-Bild):** bleibt über anderen Apps sichtbar – Musikvideos als Video, eigene Songs und Radio mit Cover, Titel und Fortschritt (Knopf oben rechts auf der Bühne oder im „⋯“-Menü; in Chrome/Android auch automatisch beim App-Wechsel). YouTube erlaubt das nicht.
+* **Mini-Fenster (Bild-in-Bild):** bleibt über anderen Apps sichtbar – Musikvideos als Video, eigene Songs und Radio mit Cover, Titel und Fortschritt (Knopf in der Bedienzeile unter dem Bild; in Chrome/Android auch automatisch beim App-Wechsel). YouTube erlaubt das nicht.
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
 * **Einschlaf-Timer** 15–90 Minuten, am Ende wird es leiser. **Wiederholen** (alle/einen), **Zufall**,
   **Als Nächstes spielen**.

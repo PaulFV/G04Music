@@ -78,10 +78,10 @@
     if (vid) return vid;
     vid = document.createElement('video');
     vid.muted = true; vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('aria-hidden', 'true');
-    vid.style.cssText = 'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+    vid.style.cssText = 'position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:.01;pointer-events:none;z-index:-1';  /* iPhone: muss im Bild sein */
     document.body.appendChild(vid);
     /* Play/Pause im Mini-Fenster steuert die echte Wiedergabe */
-    vid.addEventListener('pause', function(){ if (G.pip.active() && P.playing) P.toggle(); });
+    vid.addEventListener('pause', function(){ if (G.pip.active() && P.playing) P.toggle(); else if (!G.pip.active()) setTimeout(function(){ vid.play().catch(function(){}); }, 0); });
     vid.addEventListener('play', function(){ if (G.pip.active() && !P.playing && P.cur) P.toggle(); });
     vid.addEventListener('leavepictureinpicture', stopLoop);
     vid.addEventListener('webkitpresentationmodechanged', function(){ if (vid.webkitPresentationMode !== 'picture-in-picture') stopLoop(); });
@@ -90,34 +90,41 @@
   function stopLoop(){ clearInterval(timer); timer = null; }
 
   /* ---------- Öffnen / schließen ---------- */
+  /* Mini-Fenster für Musik vorbereiten, sobald etwas läuft – dann kann es beim
+     Tippen sofort aufgehen (Browser erlauben es nur direkt nach dem Tippen) */
+  function prepare(){
+    var c = P.cur;
+    if (!c || c.kind === 'yt' || (c.kind === 'track' && c.isVideo) || !CAN_STREAM) return null;
+    var v = ensureVid();
+    try { if (!v.srcObject) v.srcObject = cv.captureStream(4); } catch (e) { return null; }
+    draw();
+    if (v.paused) v.play().catch(function(){});
+    return v;
+  }
+  function fail(){ stopLoop(); u.toast('Das Mini-Fenster ließ sich hier nicht öffnen. Titel und Steuerung findest du auf dem Sperrbildschirm und im Kontrollzentrum.', true); }
   G.pip.toggle = function(){
     var c = P.cur;
-    if (!c) return Promise.resolve();
-    if (G.pip.active()) {
-      if (document.exitPictureInPicture && document.pictureInPictureElement) return document.exitPictureInPicture().catch(function(){});
-      var e = vid && vid.webkitPresentationMode === 'picture-in-picture' ? vid : P.mediaEl();
-      if (e.webkitSetPresentationMode) e.webkitSetPresentationMode('inline');
-      return Promise.resolve();
-    }
-    if (c.kind === 'yt') { u.toast('YouTube erlaubt kein Mini-Fenster außerhalb der App.', true); return Promise.resolve(); }
-    var target;
-    if (c.kind === 'track' && c.isVideo) target = P.mediaEl();
-    else {
-      if (!CAN_STREAM) { u.toast('Dein Browser kann für Musik kein Mini-Fenster zeigen. Sperrbildschirm und Kontrollzentrum zeigen den Titel trotzdem.', true); return Promise.resolve(); }
-      target = ensureVid();
-      if (!target.srcObject) target.srcObject = cv.captureStream(4);
-      draw(); stopLoop(); timer = setInterval(draw, 500);
-    }
-    var start = target === vid ? vid.play() : Promise.resolve();
-    return Promise.resolve(start).then(function(){
-      if (target.requestPictureInPicture) return target.requestPictureInPicture();
-      if (target.webkitSupportsPresentationMode && target.webkitSupportsPresentationMode('picture-in-picture')) { target.webkitSetPresentationMode('picture-in-picture'); return; }
-      throw new Error('kein PiP');
-    }).catch(function(){
-      stopLoop();
-      u.toast('Das Mini-Fenster ließ sich hier nicht öffnen. Sperrbildschirm und Kontrollzentrum zeigen den Titel.', true);
-    });
+    if (!c) return;
+    try {
+      if (G.pip.active()) {
+        if (document.exitPictureInPicture && document.pictureInPictureElement) { document.exitPictureInPicture().catch(function(){}); return; }
+        var e = vid && vid.webkitPresentationMode === 'picture-in-picture' ? vid : P.mediaEl();
+        if (e.webkitSetPresentationMode) e.webkitSetPresentationMode('inline');
+        return;
+      }
+      if (c.kind === 'yt') { u.toast('YouTube erlaubt kein Mini-Fenster außerhalb der App.', true); return; }
+      var target = (c.kind === 'track' && c.isVideo) ? P.mediaEl() : prepare();
+      if (!target) { u.toast('Dein Browser kann für Musik kein Mini-Fenster zeigen. Titel und Steuerung findest du auf dem Sperrbildschirm.', true); return; }
+      if (target === vid) { draw(); stopLoop(); timer = setInterval(draw, 500); }
+      /* sofort und ohne Umweg aufrufen, sonst blockiert der Browser */
+      if (target.requestPictureInPicture) {
+        target.requestPictureInPicture().then(function(){ u.toast('Mini-Fenster offen – wechsle jetzt in eine andere App'); }).catch(fail);
+      } else if (target.webkitSupportsPresentationMode && target.webkitSupportsPresentationMode('picture-in-picture')) {
+        target.webkitSetPresentationMode('picture-in-picture');
+      } else fail();
+    } catch (err) { fail(); }
   };
+
 
   /* Beim Wechsel in eine andere App von selbst öffnen (Chrome/Android, wo erlaubt) */
   if ('mediaSession' in navigator) {
@@ -126,5 +133,5 @@
   var mv = P.mediaEl(); try { mv.autoPictureInPicture = true; mv.setAttribute('autopictureinpicture', ''); } catch (e) {}
 
   /* Neuer Titel während das Mini-Fenster offen ist: Bild aktualisieren */
-  S.on(function(w){ if (w === 'player' && timer) draw(); });
+  S.on(function(w){ if (w !== 'player') return; if (timer) draw(); else if (P.playing) prepare(); });
 })();

@@ -179,3 +179,8 @@ body.has-dock .main{padding-bottom:110px}
 @media (orientation:landscape) and (max-height:520px){
   .hero{position:relative;top:auto}
 }
+
+/* Bedienzeile mit Mini-Fenster-Knopf: auf schmalen Handys etwas enger */
+@media (max-width:767px){ .ctl--main{gap:6px} }
+@media (max-width:400px){ .ctl--main .icon-btn{width:36px;height:36px} .ctl--main .play-btn{width:48px;height:48px} .ctl--main{gap:5px} }
+@media (max-width:340px){ .ctl--main .icon-btn{width:32px;height:32px} .ctl--main .play-btn{width:44px;height:44px} .ctl--main{gap:4px} }
