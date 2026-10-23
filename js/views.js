@@ -609,31 +609,51 @@
     u.$$('.js-dur').forEach(function(b){ b.textContent=u.fmt(d); });
   };
 
-  /* ---------- Visualizer ---------- */
-  var cv=u.$('#viz'), cx=cv.getContext('2d'), bars=new Float32Array(56), buf=null;
+  /* ---------- Klangbalken ----------
+     Abgerundete Balken in Regenbogenfarben (wandern langsam) mit hellem Ende, weichem Schein und
+     kleinen „Spitzen“, die langsam nachsinken. Füllen bis ca. 90 % der Höhe. */
+  var cv=u.$('#viz'), cx=cv.getContext('2d'), bars=new Float32Array(64), peaks=new Float32Array(64), buf=null;
   function sizeViz(){ var r=cv.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1); if(r.width){ cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr); } }
   window.addEventListener('resize',sizeViz);
   if('ResizeObserver' in window) new ResizeObserver(sizeViz).observe(cv);
+  function hsl(h,l,a){ return 'hsla('+h+',92%,'+l+'%,'+a+')'; }
+  /* Balken, unten gerade, oben abgerundet */
+  function barPath(x,y,w,h,bottom,r){
+    r=Math.min(r,w/2,h);
+    cx.beginPath(); cx.moveTo(x,bottom); cx.lineTo(x,y+r);
+    cx.arc(x+r,y+r,r,Math.PI,1.5*Math.PI); cx.arc(x+w-r,y+r,r,1.5*Math.PI,2*Math.PI);
+    cx.lineTo(x+w,bottom); cx.closePath();
+  }
   function frame(t){
     requestAnimationFrame(frame);
     var P=G.player;
     if(document.hidden||u.$('#hero').hidden||u.$('#stage').classList.contains('has-video')) return;
     var w=cv.width,h=cv.height; if(!w) return;
     cx.clearRect(0,0,w,h);
-    var n=bars.length, on=P.playing&&P.cur&&P.cur.kind!=='yt'&&S.settings.viz, real=on&&P.realViz();
+    var dpr=w/(cv.clientWidth||w), n=Math.max(24,Math.min(64,Math.round((cv.clientWidth||w)/13)));
+    var on=P.playing&&P.cur&&P.cur.kind!=='yt'&&S.settings.viz, real=on&&P.realViz();
     if(real){ if(!buf) buf=new Uint8Array(P.analyser.frequencyBinCount); P.analyser.getByteFrequencyData(buf); }
-    var acc=getComputedStyle(cv).getPropertyValue('--acc-rgb').trim()||'255,59,78';
-    var bw=w/n;
+    var bw=w/n, gap=bw*.3, bwid=bw-gap, rad=Math.min(bwid/2,9*dpr), top=h*.9;
     for(var i=0;i<n;i++){
       var target;
-      if(real){ var k=Math.floor(Math.pow(i/n,1.6)*buf.length*.85); target=buf[k]/255; }
+      if(real){ var k=Math.min(buf.length-1,Math.floor(Math.pow(i/n,1.5)*buf.length*.8)); target=Math.min(1,Math.pow(buf[k]/255,1.1)*1.12); }
       else if(on){ target=(0.16+0.5*Math.abs(Math.sin(t/430+i*.55)*Math.cos(t/910+i*.23))+0.22*Math.random()*(i<n*.35?1:.55))*(1-i/n*.4); }
-      else target=0.025+0.015*Math.sin(t/900+i*.4);
-      bars[i]+=(target-bars[i])*(real?.5:.16);
-      var bh=Math.max(2,bars[i]*h*.6), x=i*bw+bw*.2;
-      var g=cx.createLinearGradient(0,h,0,h-bh);
-      g.addColorStop(0,'rgba('+acc+',.04)'); g.addColorStop(1,'rgba('+acc+','+(on?.8:.22)+')');
-      cx.fillStyle=g; cx.fillRect(x,h-bh,bw*.6,bh);
+      else target=0.03+0.02*Math.sin(t/900+i*.4);
+      bars[i]+=(target-bars[i])*(target>bars[i]?(real?.6:.22):.13);
+      var bh=Math.max(3*dpr,bars[i]*top), x=i*bw+gap/2, y=h-bh;
+      var hue=Math.round((330+i/n*300+t/70)%360);   /* Regenbogen quer über das Fenster, wandert langsam */
+      /* weicher Schein hinter dem Balken */
+      cx.fillStyle=hsl(hue,60,on?.14:.04); barPath(x-gap*.35,y-5*dpr,bwid+gap*.7,bh+5*dpr,h,rad*1.4); cx.fill();
+      /* Balken: unten blass, oben kräftig mit hellem Ende */
+      var g=cx.createLinearGradient(0,h,0,y);
+      g.addColorStop(0,hsl(hue,48,on?.35:.14)); g.addColorStop(.6,hsl(hue,58,on?.9:.32)); g.addColorStop(1,hsl(hue,82,on?1:.38));
+      cx.fillStyle=g; barPath(x,y,bwid,bh,h,rad); cx.fill();
+      /* Spitze, die langsam nach unten sinkt */
+      peaks[i]=Math.max(bars[i],peaks[i]-(on?.004:.02));
+      if(on&&peaks[i]>.07){
+        var py=h-peaks[i]*top-8*dpr; cx.fillStyle=hsl(hue,88,.95);
+        barPath(x,py,bwid,3*dpr,py+3*dpr,1.5*dpr); cx.fill();
+      }
     }
   }
   requestAnimationFrame(frame);
