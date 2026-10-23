@@ -40,6 +40,7 @@
   --sidebar-w:246px;
   --rail-w:84px;
   --tabbar-h:66px;
+  --tabbar-h-phone:52px;
   --gutter:clamp(16px,3vw,32px);
 
   --sh-1:0 1px 0 var(--glass-hi) inset,0 12px 34px rgba(0,0,0,.5);
@@ -56,6 +57,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden;overs
 /* Seite seitlich fest: nichts darf breiter als der Bildschirm werden */
 html,body{max-width:100%}
 body{overflow-x:clip}
+/* Kein Zoom: Doppeltippen zoomt nicht, Seite bleibt fest */
+html,body{touch-action:pan-x pan-y;-ms-touch-action:pan-x pan-y}
+*{touch-action:manipulation}
+/* iPhone zoomt beim Tippen in ein Feld, wenn die Schrift kleiner als 16 px ist */
+input,select,textarea{font-size:16px!important}
 .bg-grid,.bg-glow{overflow:hidden}
 body{
   margin:0;font-family:var(--font);color:var(--tx-0);background:var(--bg-0);

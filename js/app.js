@@ -356,6 +356,11 @@
   function setTopH(){ document.documentElement.style.setProperty('--topbar-h', u.$('.topbar').offsetHeight+'px'); }
   window.addEventListener('resize',u.debounce(setTopH,100)); setTopH();
 
+  /* ---------- Kein Zoom (iOS ignoriert user-scalable=no) ---------- */
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+  document.addEventListener('touchmove',function(e){ if(e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+  /* Doppeltippen-Zoom verhindert touch-action:manipulation (theme.css) – schnelles Tippen auf Knöpfe bleibt möglich */
+
   /* ---------- Los ---------- */
   var start=location.hash.slice(1)||S.view;
   go(start,true);

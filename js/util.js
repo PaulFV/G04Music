@@ -4,7 +4,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.4.4';
+  G.VERSION = '0.4.6';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
