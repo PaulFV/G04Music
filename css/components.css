@@ -292,3 +292,13 @@ button.card:hover{border-color:var(--acc-line);background:var(--glass-bg-2)}
   .set-view .inst-platform span:last-child{grid-column:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
   .set-view .inst__action{grid-column:auto}
 }
+
+/* ---------- Aufklappbare Gruppe (wie die anderen Gruppen) ---------- */
+details.fold > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;margin:0 2px;padding:2px 0}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold > summary h3{flex:1;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-2);font-weight:700}
+.fold__chev{color:var(--tx-2);display:grid;transition:transform .25s var(--ease)}
+details.fold[open] .fold__chev{transform:rotate(180deg)}
+details.fold[open] > summary{margin-bottom:10px}
+details.fold > summary:hover h3,details.fold > summary:hover .fold__chev{color:var(--tx-0)}
+.set-foot{text-align:center;color:var(--tx-2);font-size:12px;padding:4px 0 8px}

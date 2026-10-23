@@ -107,6 +107,11 @@
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
       case 'npMore': npMore(); break;
       case 'pip': G.pip.toggle(); break;
+      case 'copyright': u.sheet('Copyright',
+          '<p><b>G04Musik</b> · Version '+G.VERSION+'</p>'+
+          '<p>© '+Math.max(2026,new Date().getFullYear())+' <b>PaulFV</b>. Alle Rechte vorbehalten.</p>'+
+          '<p>App, Name, Icon und Gestaltung sind urheberrechtlich geschützt. Weitergabe, Veränderung oder Veröffentlichung nur mit Erlaubnis von PaulFV.</p>'+
+          '<p style="color:var(--tx-2);font-size:13px">Eigene Songs und Musikvideos gehören ihren Urhebern. Radiosender über radio-browser.info, Videos über YouTube – es gelten deren Bedingungen.</p>'); break;
       case 'toList': if(P.cur) listPicker(P.cur); break;
       case 'plNew': nameSheet('Neue Liste','',function(n){ var l=G.lists.create(n); u.toast('Liste „'+l.name+'“ angelegt'); V.ui.listOpen=l.id; V.ui.musicTab='lists'; if(S.view!=='music') go('music'); else V.refresh(); }); break;
       case 'plImport': u.$('#pickList').click(); break;
@@ -325,6 +330,9 @@
   });
   u.$('#liveChip').addEventListener('click',function(){ act('toStage'); });
   u.$('#sideNow').addEventListener('click',function(){ if(P.cur) act('toStage'); });
+
+  /* Aufklappbare Gruppen merken, ob sie offen sind */
+  document.addEventListener('toggle',function(e){ if(e.target&&e.target.id==='instFold') u.ls.set('instOpen',e.target.open); },true);
 
   /* ---------- Blatt ---------- */
   u.$('#sheetClose').addEventListener('click',u.closeSheet);

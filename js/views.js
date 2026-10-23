@@ -302,9 +302,9 @@
     var plat=function(os,name,how,cur){ return '<div class="inst-platform'+(cur?' is-cur':'')+'"><span class="inst-platform__os">'+os+'</span><b>'+name+'</b><span>'+how+'</span></div>'; };
     var ios=G.player.IOS, android=/Android/i.test(navigator.userAgent), desk=!ios&&!android;
     var iconSrc=(document.querySelector('link[rel=apple-touch-icon]')||{}).href||'img/icon-180.png';
-    var installCard='<section class="panel glass inst-card">'+
-      '<div class="sec-h" style="margin-bottom:12px"><h3 style="display:flex;align-items:center;gap:10px">'+ic('download',22)+'Als App installieren</h3>'+
-        (standalone?'<span class="inst-ok">'+ic('starF',14)+' Installiert</span>':'')+'</div>'+
+    var instOpen=u.ls.get('instOpen',false);
+    var installCard='<details class="panel glass inst-card fold" id="instFold"'+(instOpen?' open':'')+'>'+
+      '<summary class="fold__head"><h3>Als App installieren</h3>'+(standalone?'<span class="inst-ok">'+ic('starF',12)+' Installiert</span>':'')+'<span class="fold__chev">'+ic('down',16)+'</span></summary>'+
       '<div class="inst">'+
         '<div class="inst__art"><img src="'+iconSrc+'" alt="G04Musik-Icon" width="72" height="72"></div>'+
         '<div class="inst__platforms">'+
@@ -315,7 +315,7 @@
         '<div class="inst__action">'+(standalone?'<p class="inst__note">Läuft als App – ohne Adressleiste, mit eigenem Icon.</p>'
           : (G.app&&G.app.canInstall()?'<button class="btn btn--solid" type="button" data-act="install">'+ic('download',16)+'Jetzt installieren</button>'
           : '<button class="btn" type="button" data-act="install">'+ic('info',16)+'So geht’s</button>'))+'</div>'+
-      '</div></section>';
+      '</div></details>';
     return group('Wiedergabe',[
         row('Visualizer','Spektrum auf der Bühne',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
@@ -332,9 +332,11 @@
       ])+
       installCard+
       group('Über',[
-        row('Version','G04Musik v'+G.VERSION,'<span class="set__val">© PaulFV</span>'),
+        row('Version','G04Musik v'+G.VERSION,'<span class="set__val">'+G.VERSION+'</span>'),
+        row('Copyright','© '+Math.max(2026,new Date().getFullYear())+' PaulFV · Alle Rechte vorbehalten','<span class="set__val">'+ic('chev',16)+'</span>','copyright'),
                 row('Datenschutz','Kein Konto, kein Tracking, alles bleibt auf dem Gerät','')
-      ]);
+      ])+
+      '<p class="set-foot">G04Musik · © '+Math.max(2026,new Date().getFullYear())+' PaulFV</p>';
   }
 
   var VIEWS={music:viewMusic,radio:viewRadio,yt:viewYT,settings:viewSettings};

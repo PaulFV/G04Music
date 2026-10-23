@@ -1,10 +1,11 @@
 /* ============================================================
-   G04Musik — Hilfen: DOM, Formate, Symbole, Meldungen, Blatt
+   G04Musik — © 2026 PaulFV
+   Hilfen: DOM, Formate, Symbole, Meldungen, Blatt
    ============================================================ */
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.5.1';
+  G.VERSION = '0.5.2';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
