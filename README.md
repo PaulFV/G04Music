@@ -1,4 +1,4 @@
-# G04Musik v0.6.5
+# G04Musik v0.6.6
 
 ![G04Musik](art/social-preview.png)
 
@@ -19,7 +19,8 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 | **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
 | **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen |
 | **YouTube** | Reiter **Suche**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen; ein eingefügter YouTube-Link landet in den Favoriten |
-| **Einstellungen** | **Sprache** Deutsch/English und **Hell/Dunkel** (auch per Knopf in der Kopfzeile), **Feedback & Ideen** (direkt an den Entwickler), **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
+| **Einstellungen** | **Sprache** Deutsch/English und **Hell/Dunkel** (auch per Knopf in der Kopfzeile), **Feedback & Ideen** (direkt an den Entwickler), **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Klangbalken, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
+| **Erster Start** | Bei leerer Bibliothek zeigt Musik einen Willkommens-Bereich mit drei großen Knöpfen: eigene Musik hinzufügen, Radio hören, YouTube durchsuchen |
 
 ### Eigene Dateien
 * **Musik:** MP3, M4A/AAC, FLAC, WAV, OGG, Opus (je nach Browser auch AIFF, WMA)
@@ -36,9 +37,9 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * **Import:** G04Musik-Dateien, M3U/M3U8, PLS, XSPF, CSV und TXT. Eigene Songs werden über Dateiname und Größe (sonst Titel und Künstler) in der Bibliothek wiedergefunden; fehlende werden angezeigt und tauchen auf, sobald die Datei hinzugefügt ist.
 
 ### Wiedergabe
-* **Bühne** mit echtem Spektrum (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt auf der Bühne,
+* **Abspielfenster** mit echten Klangbalken (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt im Abspielfenster,
   mit **Vollbild** und **Bild-in-Bild**.
-* **Antippen der Bühne** pausiert bzw. spielt weiter; pausiert steht ein großes Pause-Zeichen in der Mitte (Vollbild bei Videos über den Knopf oben rechts).
+* **Antippen des Abspielfensters** pausiert bzw. spielt weiter; pausiert steht ein großes Pause-Zeichen in der Mitte (Vollbild bei Videos über den Knopf oben rechts).
 * **Mini-Player** unten rechts in den Einstellungen – die Musik läuft weiter.
 * **Mini-Fenster (Bild-in-Bild):** bleibt über anderen Apps sichtbar – Musikvideos als Video, eigene Songs und Radio mit Cover, Titel und Fortschritt (Knopf in der Bedienzeile unter dem Bild; in Chrome/Android auch automatisch beim App-Wechsel). YouTube erlaubt das nicht.
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
@@ -46,16 +47,16 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
   **Als Nächstes spielen**.
 * **Kacheln oder Liste:** ein Knopf oben in der Kopfzeile wechselt die Ansicht für die ganze App, die Wahl wird gemerkt.
 * **Stern** oben rechts auf jeder Kachel (Songs, Videos, Radiosender, YouTube): Favorit an/aus, ohne abzuspielen.
-* **Lang drücken** (oder Rechtsklick) auf eine Kachel: Favorit, als Nächstes, Infos, löschen.
+* **„⋯“-Knopf** auf jeder Kachel und Zeile – oder **lang drücken** (Rechtsklick am Rechner): Favorit, als Nächstes, Zu Liste hinzufügen, Infos, löschen.
 * Tastatur am Rechner: Leertaste = Pause, N/P = weiter/zurück, F = Vollbild, M = Ton aus.
 
 ### Bildschirmgrößen
-* **Desktop** (ab 1200 px): volle Seitenleiste, Bühne und Bedienfeld nebeneinander.
+* **Desktop** (ab 1200 px): volle Seitenleiste, Abspielfenster und Bedienfeld nebeneinander.
 * **Tablet/iPad** (768–1199 px): schmale Leiste; **quer** geteilt – Player links, Inhalt rechts; **hochkant** Player oben mit Bild und Steuerung nebeneinander.
 * **Handy** (unter 768 px): untere Leiste mit Musik, Radio, YouTube, Mehr; Abspielfenster kompakt und fest oben; **quer** scrollt es mit.
 
 ### Gut zu wissen
-* **iPhone/iPad:** Dort ist das Spektrum nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
+* **iPhone/iPad:** Dort sind die Klangbalken nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
 * **YouTube-Suche:** ohne Schlüssel über freie Server (Piped/Invidious), mit eigenem Schlüssel (YouTube Data API v3, in den Einstellungen) direkt bei YouTube.
 * **YouTube** spielt nicht weiter, wenn der Bildschirm gesperrt ist (Vorgabe von YouTube). Manche Videos erlauben kein Einbetten.
 * **Radio-Sender** mit HLS (`.m3u8`) laufen über [hls.js](https://github.com/video-dev/hls.js), das bei Bedarf nachgeladen wird.
@@ -66,11 +67,11 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 ## Aufbau
 
 ```
-index.html            Rahmen, Bühne, Mini-Player, Blatt
+index.html            Rahmen, Abspielfenster, Mini-Player, Dialog
 manifest.webmanifest  Installation als App
 sw.js                 Service Worker (App-Dateien offline)
 css/  theme · layout · components · player · responsive · theme-light
-js/   util · i18n (Deutsch/English) · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · player · views · app
+js/   util · i18n (Deutsch/English) · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · playlists · player · pip (Mini-Fenster) · views · app
 img/                App-Icons (rote Kopfhörer mit Klangwelle)
 ```
 
@@ -81,7 +82,8 @@ img/                App-Icons (rote Kopfhörer mit Klangwelle)
   (Direkt per Doppelklick geht vieles auch, YouTube und der Offline-Modus brauchen aber eine richtige Adresse.)
 
 ## Nächste Schritte (Phase 2)
-Liedtexte (.lrc) mitlaufend, Crossfade, Playlisten selbst anlegen, Hell/Dunkel, Englisch, Play-Store-Version (TWA).
+Liedtexte (.lrc) mitlaufend, Crossfade, Play-Store-Version (TWA).
+(Eigene Listen, Hell/Dunkel und Englisch gibt es bereits.)
 
 ---
 

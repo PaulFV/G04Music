@@ -16,17 +16,21 @@
   --acc-dim:rgba(var(--acc-rgb),.14);
   --acc-line:rgba(var(--acc-rgb),.34);
   --on-acc:#FFFFFF;
+  /* Roter Knopf mit weißer Schrift: Verlauf so dunkel, dass die Schrift gut lesbar bleibt */
+  --btn-1:#E5243B;
+  --btn-2:#C2102A;
 
   --violet:#A78BFA;
   --violet-dim:rgba(167,139,250,.14);
   --gold:#FFC857;
+  --gold-hi:#FFC857;   /* Gold auf dunklem Grund (Stern auf Kacheln), bleibt in beiden Designs gleich */
   --live:#FF4D6D;
   --ok:#3DDC97;
 
   /* --- Text --- */
   --tx-0:#F3ECEF;
   --tx-1:#B3A4AB;
-  --tx-2:#7E6F77;
+  --tx-2:#9A8A92;
 
   /* --- Glas --- */
   --glass-bg:rgba(255,255,255,.035);
@@ -40,7 +44,7 @@
   --sidebar-w:246px;
   --rail-w:84px;
   --tabbar-h:66px;
-  --tabbar-h-phone:52px;
+  --tabbar-h-phone:58px;
   --gutter:clamp(16px,3vw,32px);
 
   --sh-1:0 1px 0 var(--glass-hi) inset,0 12px 34px rgba(0,0,0,.5);

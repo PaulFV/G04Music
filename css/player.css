@@ -63,7 +63,7 @@
 
 .ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .ctl .icon-btn{width:42px;height:42px}
-.play-btn{width:56px;height:56px;flex:none;border-radius:50%;border:0;display:grid;place-items:center;background:linear-gradient(180deg,var(--acc),var(--acc-2));color:var(--on-acc);box-shadow:0 0 26px rgba(var(--acc-rgb),.45);transition:transform .2s var(--ease)}
+.play-btn{width:56px;height:56px;flex:none;border-radius:50%;border:0;display:grid;place-items:center;background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-acc);box-shadow:0 0 26px rgba(var(--acc-rgb),.45);transition:transform .2s var(--ease)}
 .play-btn:active{transform:scale(.94)}
 .play-btn:disabled{opacity:.4;box-shadow:none}
 .vol{display:flex;align-items:center;gap:8px;flex:1;min-width:120px;color:var(--tx-2)}
@@ -93,7 +93,7 @@
 .qbtn{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--acc-line);background:var(--acc-dim);color:var(--acc);transition:transform .2s var(--ease),filter .2s}
 .qbtn:hover{filter:brightness(1.2)}
 .qbtn:active{transform:scale(.93)}
-.qbtn--main{background:linear-gradient(180deg,var(--acc),var(--acc-2));color:var(--on-acc);border-color:transparent;box-shadow:0 0 22px rgba(var(--acc-rgb),.4)}
+.qbtn--main{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-acc);border-color:transparent;box-shadow:0 0 22px rgba(var(--acc-rgb),.4)}
 
 .ctl .icon-btn:disabled,.play-btn:disabled{opacity:.35;pointer-events:none;box-shadow:none}
 .hero.is-idle .stage__viz{opacity:.6}

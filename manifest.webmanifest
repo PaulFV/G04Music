@@ -1,7 +1,7 @@
 {
   "name": "G04Musik",
   "short_name": "G04Musik",
-  "description": "Eigene Musik, Musikvideos, Radio und YouTube in einer App. Ohne Konto, alles bleibt auf dem Gerät.",
+  "description": "Eigene Musik, Musikvideos, Radio und YouTube in einer App. Ohne Konto, deine Musikdateien bleiben auf dem Gerät.",
   "lang": "de",
   "id": "./",
   "start_url": "./#start",

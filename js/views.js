@@ -48,6 +48,10 @@
     var logo = it.kind==='radio' && it.art;
     return '<div class="art '+(cls||'')+(logo?' art--logo':'')+'" style="'+u.artStyle(it)+'">'+u.artText(it)+'%BADGE%</div>';
   }
+  /* „⋯“: öffnet dasselbe Menü wie langes Drücken oder Rechtsklick (app.js: itemMenu) */
+  function moreBtn(cls,size){
+    return '<span class="'+cls+'" role="button" tabindex="0" data-morebtn="1" title="Mehr" aria-label="Mehr">'+ic('more',size)+'</span>';
+  }
   function tile(it,l,i){
     var wide = it.kind==='yt' || it.isVideo;
     var badge = it.kind==='radio' ? '<span class="pill pill--live">LIVE</span>'
@@ -58,8 +62,9 @@
     return '<button class="tile'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,wide?'art--wide':'').replace('%BADGE%',badge)+
       '<span class="tile__fav'+(S.isFav(it)?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" title="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-label="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+S.isFav(it)+'">'+ic(S.isFav(it)?'starF':'star',17,2.1)+'</span>'+
+      moreBtn('tile__more',17)+
       '<div class="tile__t">'+(on?eq():'')+esc(it.title)+'</div>'+
-      '<div class="tile__s">'+esc(it.sub||'')+((it.kind==='track'||it.kind==='yt')&&it.duration?' · '+u.fmt(it.duration):'')+'</div></button>';
+      '<div class="tile__s">'+esc(it.sub||'')+((it.kind==='track'||it.kind==='yt')&&it.duration?'<span class="tile__d"> · '+u.fmt(it.duration)+'</span>':'')+'</div></button>';
   }
   function lay(){ return S.settings.layout==='list' ? 'list' : 'grid'; }
   function grid(arr,l,wide){
@@ -77,7 +82,7 @@
     return '<button class="row lrow'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
       artBox(it,(it.kind==='yt'||it.isVideo)?'art--wide':'').replace('%BADGE%','')+
       '<span class="row__t"><b>'+(on?eq():'')+esc(it.title)+'</b><span>'+esc(it.sub||'')+'</span></span>'+
-      '<span class="lrow__end">'+tag+(dur?'<span class="row__d num">'+dur+'</span>':'')+'</span>'+
+      '<span class="lrow__end">'+tag+(dur?'<span class="row__d num">'+dur+'</span>':'')+moreBtn('row__more',18)+'</span>'+
       '<span class="tile__fav row__fav'+(fav?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" aria-label="'+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',16,2.1)+'</span></button>';
   }
   /* Umschalter Kacheln / Liste */
@@ -99,12 +104,12 @@
     reg(l,arr);
     return '<div class="list">'+arr.map(function(t,i){
       var on=isCur(t);
-      return '<button class="row'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'">'+
+      return '<button class="row'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" data-n="'+(t.track||i+1)+'">'+
         '<span class="row__n num">'+(on?eq():(t.track||i+1))+'</span>'+
         artBox(t,'').replace('%BADGE%','')+
         '<span class="row__t"><b>'+(S.isFav(t)?'<span style="color:var(--gold)">★</span> ':'')+esc(t.title)+'</b><span>'+esc(t.artist||'Unbekannt')+(t.album?' · '+esc(t.album):'')+'</span></span>'+
         '<span class="row__x">'+esc(t.album||(t.isVideo?'Video':'Single'))+'</span>'+
-        '<span class="row__d num">'+(t.duration?u.fmt(t.duration):'')+'</span></button>';
+        '<span class="row__d row__end"><span class="num">'+(t.duration?u.fmt(t.duration):'')+'</span>'+moreBtn('row__more',18)+'</span></button>';
     }).join('')+'</div>';
   }
   function empty(icon,title,text,btns){
@@ -115,7 +120,33 @@
   function canFolder(){ var i=document.createElement('input'); return 'webkitdirectory' in i && !G.player.IOS && !/Android/.test(navigator.userAgent); }
   function importBar(){
     var im=G.library.importing; if(!im) return '';
-    return '<div class="panel glass" style="display:flex;flex-direction:column;gap:8px"><div class="sec-h"><h3>Wird eingelesen …</h3><span class="num">'+im.done+' von '+im.total+'</span></div><div class="prog-line"><i style="width:'+(im.done/im.total*100)+'%"></i></div></div>';
+    return '<div class="panel glass" style="display:flex;flex-direction:column;gap:8px"><div class="sec-h"><h3>Wird eingelesen …</h3><span class="num" id="impNum">'+im.done+' von '+im.total+'</span></div><div class="prog-line"><i id="impFill" style="width:'+(im.done/im.total*100)+'%"></i></div></div>';
+  }
+  /* Während des Einlesens nur den Balken bewegen, nicht die ganze Ansicht neu zeichnen */
+  var importTimer=0;
+  V.importTick = function(){
+    var im=G.library.importing, fill=u.$('#impFill');
+    if(im&&fill){
+      fill.style.width=(im.done/im.total*100)+'%';
+      var n=u.$('#impNum'); if(n) n.textContent=im.done+' von '+im.total;
+      return;
+    }
+    /* Kein Balken sichtbar (z. B. anderer Bereich oder erster Aufruf): höchstens alle 400 ms neu zeichnen */
+    if(!importTimer) importTimer=setTimeout(function(){ importTimer=0; V.refresh(); },400);
+  };
+
+  /* Willkommen: erster Start mit leerer Bibliothek */
+  function welcome(){
+    var btn=function(cls,act,icon,t,s){ return '<button class="welcome__btn'+cls+'" type="button" data-act="'+act+'"><span class="welcome__ic">'+ic(icon,26)+'</span><span class="welcome__t"><b>'+t+'</b><small>'+s+'</small></span></button>'; };
+    return '<section class="panel glass welcome">'+
+      '<div class="welcome__h"><h2>Willkommen bei G04Musik</h2><p>Womit möchtest du anfangen?</p></div>'+
+      '<div class="welcome__grid">'+
+        btn(' welcome__btn--main','pickFiles','plus','Eigene Musik hinzufügen','Songs und Videos von diesem Gerät')+
+        btn('','welcomeRadio','radio','Radio hören','Tausende Sender, ganz ohne Dateien')+
+        btn('','welcomeYT','yt','YouTube durchsuchen','Suchen und direkt abspielen')+
+      '</div>'+
+      '<button class="welcome__skip" type="button" data-act="welcomeHide">Nicht mehr anzeigen</button>'+
+    '</section>';
   }
 
   /* Reiterleiste eines Bereichs: farbig, merkt ihre Position */
@@ -159,6 +190,7 @@
       '</section>';
     if(t==='lists') return importBar()+head+viewLists();
     if(t==='favs') return importBar()+head+favSection('track','mfav');
+    if(!L.tracks.length && !L.importing && !u.ls.get('welcomeDone',false)) return head+welcome();
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
 
     var q=ui.musicQuery.trim().toLowerCase();
@@ -328,7 +360,7 @@
         row('Design','Hell oder dunkel','<span class="seg2"><button type="button" class="seg2__b'+(!light?' is-on':'')+'" data-settheme="dark">'+ic('moon',15)+'<span>Dunkel</span></button><button type="button" class="seg2__b'+(light?' is-on':'')+'" data-settheme="light">'+ic('sun',15)+'<span>Hell</span></button></span>')
       ])+
       group('Wiedergabe',[
-        row('Visualizer','Spektrum auf der Bühne',sw('viz')),
+        row('Klangbalken','Bewegte Balken im Abspielfenster',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
@@ -350,13 +382,13 @@
         '<input class="fb__input" id="fbEmail" name="_replyto" type="email" maxlength="120" inputmode="email" autocomplete="email" placeholder="name@beispiel.de">'+
         '<input type="text" name="_honey" class="fb__honey" tabindex="-1" autocomplete="off" aria-hidden="true">'+
         '<div class="fb__row"><button type="submit" class="btn btn--solid" id="fbSend">'+ic('upload',16)+'Senden</button><span class="fb__status" id="fbStatus" aria-live="polite"></span></div>'+
-        '<p class="fb__hint">Beim Senden geht dein Text über formsubmit.co als E-Mail an mich. Mitgeschickt werden nur die optionale E-Mail-Adresse, die App-Version und die Sprache – keine Songs, Listen oder Favoriten.</p>'+
+        '<p class="fb__hint">Beim Senden geht dein Text über formsubmit.co als E-Mail an mich. Mitgeschickt werden außerdem die App-Version, die Sprache und dein Browser- und Gerätetyp – keine Songs, Listen oder Favoriten. Deine E-Mail-Adresse nur, wenn du sie einträgst.</p>'+
         '<p class="fb__hint">Oder als öffentliches Issue auf <a href="https://github.com/PaulFV/G04Music/issues" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>'+
       '</form>'])+
       fold('about','Version &amp; Copyright',[
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">'+G.VERSION+'</span>'),
         row('Copyright','© '+Math.max(2026,new Date().getFullYear())+' PaulFV · Alle Rechte vorbehalten','<span class="set__val">'+ic('chev',16)+'</span>','copyright'),
-                row('Datenschutz','Kein Konto, kein Tracking, alles bleibt auf dem Gerät','')
+                row('Datenschutz','Kein Konto, kein Tracking. Deine Musikdateien bleiben auf dem Gerät. Radio, YouTube und die Suche fragen dafür fremde Dienste an.','')
       ])+
       '<p class="set-foot">G04Musik · © '+Math.max(2026,new Date().getFullYear())+' PaulFV</p>';
   }
@@ -395,6 +427,21 @@
     V.revealActive();
     if(id){ var el=document.getElementById(id); if(el&&el.tagName==='INPUT'){ el.focus({preventScroll:true}); try{ el.setSelectionRange(pos,pos); }catch(e){} } }
     window.scrollTo(0,y);
+  };
+
+  /* „Läuft gerade“ umschalten, ohne alle Kacheln neu zu zeichnen (wichtig bei großen Bibliotheken).
+     Nur die Einträge, bei denen sich etwas ändert, werden angefasst. */
+  V.markPlaying = function(){
+    u.$$('#viewHost [data-l][data-i]').forEach(function(el){
+      var r=V.lookup(el.dataset.l,el.dataset.i), on=!!(r&&r.item&&isCur(r.item));
+      if(on===el.classList.contains('is-playing')) return;
+      el.classList.toggle('is-playing',on);
+      var num=el.querySelector('.row__n');
+      if(num){ if(on) num.innerHTML=eq(); else num.textContent=el.dataset.n||''; return; }
+      var host=el.querySelector('.tile__t, .row__t b'); if(!host) return;
+      var old=host.querySelector('.eq'); if(old) old.remove();
+      if(on) host.insertAdjacentHTML('afterbegin',eq());
+    });
   };
 
   /* Gewählten Reiter/Chip in seiner Leiste sichtbar halten, ohne die Seite zu bewegen */
@@ -441,7 +488,7 @@
     if(!c){
       /* Nichts läuft: gleiches Fenster wie beim Abspielen, Play startet passend zum Bereich */
       np.classList.remove('is-cover');
-      var hint = S.view==='radio' ? 'Tippe auf einen Sender oder Play.' : S.view==='yt' ? 'Suche ein Video oder tippe auf einen Treffer.' : 'Tippe auf einen Song oder Play.';
+      var hint = S.view==='radio' ? 'Tippe auf einen Sender oder Play.' : S.view==='yt' ? 'Suche ein Video oder tippe auf einen Treffer.' : (G.library.ready && !G.library.songs().length) ? 'Füge Musik hinzu oder wechsle zu Radio.' : 'Tippe auf einen Song oder Play.';
       var canStart = S.view==='music' ? G.library.songs().length>0 : S.view==='radio' ? !!(favsOf('radio').length || (ui.radioItems&&ui.radioItems.length)) : !!(favsOf('yt').length || S.yt.length || (ui.ytResults&&ui.ytResults.length));
       var dis=' disabled';
       np.innerHTML='<div class="np__head"><span class="np__ic">'+ic(S.view==='radio'?'radio':S.view==='yt'?'yt':'music',22)+'</span><div><small>'+greet()+'</small><b>Nichts läuft</b><span>'+hint+'</span></div></div>'+
@@ -528,7 +575,7 @@
     cx.clearRect(0,0,w,h);
     var n=bars.length, on=P.playing&&P.cur&&P.cur.kind!=='yt'&&S.settings.viz, real=on&&P.realViz();
     if(real){ if(!buf) buf=new Uint8Array(P.analyser.frequencyBinCount); P.analyser.getByteFrequencyData(buf); }
-    var acc=getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim()||'255,59,78';
+    var acc=getComputedStyle(cv).getPropertyValue('--acc-rgb').trim()||'255,59,78';
     var bw=w/n;
     for(var i=0;i<n;i++){
       var target;

@@ -10,14 +10,14 @@
   --bg-2:#EFE6EA;
   --tx-0:#1D1418;
   --tx-1:#5B4B53;
-  --tx-2:#86767E;
-  --acc:#E5243B;
-  --acc-2:#C2102A;
-  --acc-rgb:229,36,59;
-  --acc-dim:rgba(229,36,59,.10);
-  --acc-line:rgba(229,36,59,.38);
+  --tx-2:#6B5B63;
+  --acc:#C2102A;
+  --acc-2:#A50D23;
+  --acc-rgb:194,16,42;
+  --acc-dim:rgba(194,16,42,.09);
+  --acc-line:rgba(194,16,42,.38);
   --violet:#7C5CE0;
-  --gold:#C98A00;
+  --gold:#8A5A00;
   --ok:#14A06A;
   --glass-bg:rgba(255,255,255,.72);
   --glass-bg-2:rgba(255,255,255,.92);
@@ -26,7 +26,7 @@
   --sh-1:0 1px 0 rgba(255,255,255,.9) inset,0 8px 26px rgba(70,20,35,.10);
 }
 /* Die Bühne behält dunkle Schrift-Farben */
-:root[data-theme="light"] .stage{--tx-0:#F3ECEF;--tx-1:#C9BAC1;--tx-2:#8E7F87;color:var(--tx-0)}
+:root[data-theme="light"] .stage{--tx-0:#F3ECEF;--tx-1:#C9BAC1;--tx-2:#A99AA2;--acc:#FF3B4E;--acc-rgb:255,59,78;color:var(--tx-0)}
 
 :root[data-theme="light"] .bg-grid{opacity:.7}
 :root[data-theme="light"] .bg-glow{opacity:.55}

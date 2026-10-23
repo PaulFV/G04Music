@@ -45,13 +45,17 @@
   function stopAll(){ stopTrack(); stopRadio(); stopYT(); }
 
   /* ---------- Abspielen ---------- */
-  P.play = function(item,queue){
+  /* at (optional): Position in der Warteschlange. Ohne Angabe wird der erste gleiche Titel genommen.
+     Mit Angabe stimmt die Position auch, wenn ein Titel zweimal in der Warteschlange steht
+     („Als Nächstes“) – sonst springt es zurück und läuft im Kreis. */
+  P.play = function(item,queue,at){
     if(!item) return;
     if(P.cur && S.key(P.cur)===S.key(item) && !P.error){ P.toggle(); return; }
     stopAll();
     P.cur=item; P.error=''; P.loading=true; P.playing=false;
     P.queue = queue && queue.length ? queue.slice() : [item];
-    P.index = Math.max(0, P.queue.map(S.key).indexOf(S.key(item)));
+    P.index = (typeof at==='number' && at>=0 && at<P.queue.length && S.key(P.queue[at])===S.key(item))
+      ? at : Math.max(0, P.queue.map(S.key).indexOf(S.key(item)));
     S.addHistory(item);
     emit(); session();
 
@@ -107,7 +111,7 @@
 
   P.toggle = function(){
     if(!P.cur) return;
-    if(P.error){ var c=P.cur; P.cur=null; P.play(c,P.queue); return; }
+    if(P.error){ var c=P.cur, ix=P.index; P.cur=null; P.play(c,P.queue,ix); return; }
     if(P.cur.kind==='track'){ if(media.paused) media.play().catch(function(){}); else media.pause(); }
     else if(P.cur.kind==='radio'){
       if(radio.paused){ if(!radio.src&&!hls) playRadio(P.cur); else radio.play().catch(function(){}); }
@@ -130,14 +134,14 @@
     if(P.cur.kind==='yt' && P.cur.ytType==='list' && !auto){ G.yt.next(); return; }
     var i=pick(1);
     if(i==null){ if(auto){ P.playing=false; emit(); } else u.toast('Das war der letzte Titel.'); return; }
-    var q=P.queue; P.cur=null; P.play(q[i],q);
+    var q=P.queue; P.cur=null; P.play(q[i],q,i);
   };
   P.prev = function(){
     if(!P.cur) return;
     if(P.cur.kind==='track' && media.currentTime>4){ media.currentTime=0; return; }
     if(P.cur.kind==='yt' && P.cur.ytType==='list'){ G.yt.prev(); return; }
     var i=pick(-1); if(i==null) return;
-    var q=P.queue; P.cur=null; P.play(q[i],q);
+    var q=P.queue; P.cur=null; P.play(q[i],q,i);
   };
   P.stop = function(){ stopAll(); P.cur=null; P.playing=false; P.loading=false; P.error=''; emit(); session(); };
 

@@ -91,15 +91,20 @@ body.has-dock .main{padding-bottom:110px}
   .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
   .grid--wide{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tile{--tp:5px;gap:4px;border-radius:11px}
-  .tile > .tile__t{bottom:calc(var(--tp) + 17px);left:calc(var(--tp) + 6px);right:calc(var(--tp) + 6px)}
+  .tile > .tile__t{bottom:calc(var(--tp) + 20px);left:calc(var(--tp) + 6px);right:calc(var(--tp) + 6px)}
   .tile > .tile__s{bottom:calc(var(--tp) + 5px);left:calc(var(--tp) + 6px);right:calc(var(--tp) + 6px)}
   .tile .art{border-radius:8px;font-size:18px}
-  .tile__t{font-size:12px;line-height:1.25}
-  .tile__s{font-size:10.5px;margin-top:-3px}
-  .tile .tile__fav{top:8px;right:8px;width:24px;height:24px}
-  .tile .tile__fav svg{width:12px;height:12px}
-  .tile .pill{font-size:9px;padding:1px 5px;left:4px;top:4px}
-  .tile .dur{font-size:9.5px;right:4px;bottom:4px}
+  .tile__t{font-size:13px;line-height:1.25}
+  .tile__s{font-size:12px;margin-top:-3px}
+  .tile__d{display:none}   /* auf dem Handy ist die Kachel zu schmal: lieber der Künstler als die Länge */
+  /* Sterne und „⋯“ sind klein gezeichnet, die Tippfläche ist durch ::after größer (ca. 42 px) */
+  .tile .tile__fav{top:8px;right:8px;width:30px;height:30px}
+  .tile .tile__fav svg{width:15px;height:15px}
+  .tile .tile__more{top:8px;left:8px;width:30px;height:30px}
+  .tile .tile__more svg{width:15px;height:15px}
+  .tile .tile__fav::after,.tile .tile__more::after{content:"";position:absolute;inset:-6px}
+  .tile .art .pill{font-size:11px;padding:1px 6px;left:4px;top:36px}
+  .tile .dur{font-size:11px;right:4px;bottom:4px}
 
   .tab{padding:8px 12px;font-size:13.5px}
   .row{grid-template-columns:44px minmax(0,1fr) auto;gap:10px;padding:7px 6px}
@@ -112,8 +117,8 @@ body.has-dock .main{padding-bottom:110px}
     bottom:max(6px,calc(env(safe-area-inset-bottom) - 14px));
     height:var(--tabbar-h-phone);border-radius:18px;padding:4px;background:rgba(17,13,22,.86);
   }
-  .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid transparent;background:none;border-radius:14px;color:var(--tx-2);font-size:10px;line-height:1.1;min-width:0}
-  .tabbar button svg{width:19px;height:19px}
+  .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid transparent;background:none;border-radius:14px;color:var(--tx-1);font-size:12px;font-weight:600;line-height:1.1;min-width:0}
+  .tabbar button svg{width:21px;height:21px}
   .tabbar button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .tabbar button.is-active{color:var(--acc);background:var(--acc-dim);border-color:var(--acc-line)}
 
@@ -132,7 +137,7 @@ body.has-dock .main{padding-bottom:110px}
   .topbar__title{display:none}
   .hero{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
   .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;z-index:80;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:calc(6px + env(safe-area-inset-bottom));height:54px;border-radius:20px;padding:4px;background:rgba(17,13,22,.82)}
-  .tabbar button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;background:none;border-radius:16px;color:var(--tx-2);font-size:12px}
+  .tabbar button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;background:none;border-radius:16px;color:var(--tx-1);font-size:13px;font-weight:600}
   .tabbar button.is-active{color:var(--acc);background:var(--acc-dim);border-color:var(--acc-line)}
   .main{padding-bottom:80px}
   .pdock{bottom:calc(68px + env(safe-area-inset-bottom))}
@@ -166,7 +171,8 @@ body.has-dock .main{padding-bottom:110px}
   .seek{font-size:11px;gap:8px}
   .seek__bar{height:18px}
   .ctl--main{gap:8px;flex-wrap:nowrap}
-  .ctl--main .icon-btn{width:40px;height:40px}
+  /* 40 px hoch; wird es zu eng, werden die Knöpfe schmaler (nie unter 34 px breit) statt kleiner */
+  .ctl--main .icon-btn{width:40px;height:40px;flex:0 1 40px;min-width:34px}
   .ctl--main .play-btn{width:52px;height:52px}
   .np-fav.is-on{color:var(--gold);border-color:rgba(255,200,87,.5);background:rgba(255,200,87,.12)}
   .stage__cover{left:10px;right:10px;bottom:8px;gap:10px}
@@ -185,6 +191,6 @@ body.has-dock .main{padding-bottom:110px}
 
 /* Bedienzeile mit Mini-Fenster-Knopf: auf schmalen Handys etwas enger */
 @media (max-width:767px){ .ctl--main{gap:6px} }
-@media (max-width:400px){ .ctl--main .icon-btn{width:36px;height:36px} .ctl--main .play-btn{width:48px;height:48px} .ctl--main{gap:5px} }
-@media (max-width:340px){ .ctl--main .icon-btn{width:32px;height:32px} .ctl--main .play-btn{width:44px;height:44px} .ctl--main{gap:4px} }
+@media (max-width:400px){ .ctl--main .play-btn{width:48px;height:48px} .ctl--main{gap:4px} }
+@media (max-width:340px){ .ctl--main .icon-btn{min-width:32px} .ctl--main .play-btn{width:44px;height:44px} .ctl--main{gap:3px} }
 
