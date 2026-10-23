@@ -302,3 +302,28 @@ details.fold[open] .fold__chev{transform:rotate(180deg)}
 details.fold[open] > summary{margin-bottom:10px}
 details.fold > summary:hover h3,details.fold > summary:hover .fold__chev{color:var(--tx-0)}
 .set-foot{text-align:center;color:var(--tx-2);font-size:12px;padding:4px 0 8px}
+
+/* ---------- Sprache & Design ---------- */
+.lang-btn{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--tx-0)}
+.seg2{display:inline-flex;padding:3px;gap:2px;border-radius:11px;border:1px solid var(--glass-br);background:rgba(0,0,0,.2);flex:none}
+.seg2__b{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:8px;border:0;background:none;color:var(--tx-1);font-size:12.5px;font-weight:700}
+.seg2__b.is-on{background:var(--acc-dim);color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc-line)}
+:root[data-theme="light"] .seg2{background:rgba(60,20,35,.05)}
+@media (max-width:400px){ .topbar .live-chip{display:none} }
+@media (max-width:767px){ .topbar__actions{gap:6px} .topbar .lay-btn{width:34px;height:34px} }
+
+/* ---------- Feedback ---------- */
+.fb{display:flex;flex-direction:column;gap:8px;padding:2px 0 6px}
+.fb__intro{color:var(--tx-1);font-size:13.5px}
+.fb__label{font-size:12.5px;font-weight:600;color:var(--tx-1);margin-top:4px}
+.fb__text,.fb__input{width:100%;border-radius:12px;border:1px solid var(--glass-br);background:rgba(0,0,0,.28);color:var(--tx-0);padding:10px 12px;outline:0;font:inherit;resize:vertical}
+.fb__text{min-height:96px}
+.fb__text:focus,.fb__input:focus{border-color:var(--acc-line);box-shadow:0 0 0 3px var(--acc-dim)}
+.fb__text::placeholder,.fb__input::placeholder{color:var(--tx-2)}
+.fb__honey{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);pointer-events:none}
+.fb__row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+.fb__status{font-size:13px;color:var(--tx-1)}
+.fb__status--ok{color:var(--ok)}
+.fb__status--err{color:var(--live)}
+.fb__hint{font-size:12px;color:var(--tx-2)}
+:root[data-theme="light"] .fb__text,:root[data-theme="light"] .fb__input{background:#fff}

@@ -60,7 +60,7 @@
   },true);
 
   document.addEventListener('click',function(e){
-    var el=e.target.closest('[data-go],[data-rtab],[data-ytab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout],[data-plopen]');
+    var el=e.target.closest('[data-go],[data-rtab],[data-ytab],[data-l],[data-act],[data-mtab],[data-album],[data-cc],[data-rtag],[data-sw],[data-layout],[data-plopen],[data-setlang],[data-settheme]');
     if(!el) return;
     var d=el.dataset;
     if(d.go){ e.preventDefault(); go(d.go); return; }
@@ -71,6 +71,8 @@
     if(d.album!=null){ V.ui.album=d.album; V.render(); window.scrollTo(0,u.$('#viewHost').offsetTop-80); return; }
     if(d.cc!=null){ S.radioCountry=d.cc; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); return; }
     if(d.rtag!=null){ V.ui.radioTag=d.rtag; V.ui.radioItems=null; V.refresh(); return; }
+    if(d.setlang){ G.setLang(d.setlang); V.refresh(); V.renderNP(); V.renderStage(); V.renderDock(); return; }
+    if(d.settheme){ setTheme(d.settheme); return; }
     if(d.plopen){ V.ui.listOpen=d.plopen; V.ui.musicTab='lists'; V.refresh(); var vh=u.$('#viewHost'); window.scrollTo(0,Math.max(0,vh.offsetTop-80)); return; }
     if(d.layout){ if(S.settings.layout!==d.layout){ S.set('layout',d.layout); V.refresh(); } return; }
     if(d.sw){ S.set(d.sw,!S.settings[d.sw]); if(d.sw==='viz'&&S.settings.viz&&!P.IOS) u.toast('Der echte Visualizer startet mit dem nächsten Song.'); return; }
@@ -107,6 +109,8 @@
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
       case 'npMore': npMore(); break;
       case 'pip': G.pip.toggle(); break;
+      case 'lang': G.setLang(G.lang==='en'?'de':'en'); V.refresh(); V.renderNP(); V.renderStage(); V.renderDock(); u.toast(G.lang==='en'?'English':'Deutsch'); break;
+      case 'theme': setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light'); break;
       case 'copyright': u.sheet('Copyright',
           '<p><b>G04Musik</b> · Version '+G.VERSION+'</p>'+
           '<p>© '+Math.max(2026,new Date().getFullYear())+' <b>PaulFV</b>. Alle Rechte vorbehalten.</p>'+
@@ -247,7 +251,30 @@
   document.addEventListener('change',function(e){
     if(e.target.id==='radioCountry'){ S.radioCountry=e.target.value; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); }
   });
+  /* ---------- Feedback (wie G04Fit, über formsubmit.co) ---------- */
+  var FEEDBACK_ZIEL='https://formsubmit.co/ajax/fodorpaul@web.de';
+  function sendFeedback(form){
+    var status=u.$('#fbStatus'), btn=u.$('#fbSend');
+    function say(t,k){ status.textContent=t; status.className='fb__status'+(k?' fb__status--'+k:''); }
+    if(form.elements._honey.value) return;
+    var text=form.elements.message.value.trim(), email=form.elements._replyto.value.trim();
+    if(!text){ say('Bitte schreibe zuerst eine Nachricht.','err'); form.elements.message.focus(); return; }
+    if(email&&!form.elements._replyto.checkValidity()){ say('Bitte gib eine gültige E-Mail-Adresse an.','err'); return; }
+    if(navigator.onLine===false){ say('Keine Internetverbindung. Bitte versuche es später noch einmal.','err'); return; }
+    btn.disabled=true; say('Wird gesendet …');
+    fetch(FEEDBACK_ZIEL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({message:text,_replyto:email,_subject:'G04Musik — Feedback',_template:'table',App:'G04Musik '+G.VERSION,Sprache:G.lang,Geraet:navigator.userAgent})
+    }).then(function(res){
+      return res.json().catch(function(){ return null; }).then(function(data){
+        var refused=!data||data.success===false||data.success==='false';
+        if(!res.ok||refused) throw new Error('status '+res.status);
+      });
+    }).then(function(){ say('Danke! Deine Nachricht ist unterwegs.','ok'); form.reset(); })
+      .catch(function(){ say('Senden hat nicht geklappt. Bitte versuche es noch einmal oder schreibe an fodorpaul@web.de.','err'); })
+      .then(function(){ btn.disabled=false; });
+  }
   document.addEventListener('submit',function(e){
+    if(e.target.id==='fbForm'){ e.preventDefault(); sendFeedback(e.target); return; }
     if(e.target.id!=='ytForm') return;
     e.preventDefault();
     var inp=u.$('#ytInput'), val=inp.value.trim(), p=G.yt.parse(val);
@@ -386,6 +413,16 @@
   ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
   document.addEventListener('touchmove',function(e){ if(e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
   /* Doppeltippen-Zoom verhindert touch-action:manipulation (theme.css) – schnelles Tippen auf Knöpfe bleibt möglich */
+
+  /* ---------- Hell / Dunkel ---------- */
+  function setTheme(t){
+    var light=t==='light';
+    if(light) document.documentElement.setAttribute('data-theme','light'); else document.documentElement.removeAttribute('data-theme');
+    u.ls.set('theme',light?'light':'dark');
+    var m=document.querySelector('meta[name=theme-color]'); if(m) m.setAttribute('content',light?'#F7F2F4':'#07050A');
+    V.renderTopBtns(); if(S.view==='settings') V.refresh();
+  }
+  if(document.documentElement.getAttribute('data-theme')==='light'){ var tm=document.querySelector('meta[name=theme-color]'); if(tm) tm.setAttribute('content','#F7F2F4'); }
 
   /* ---------- Los ---------- */
   var start=location.hash.slice(1)||S.view;

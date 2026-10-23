@@ -1,0 +1,56 @@
+/* ============================================================
+   G04Musik — Heller Modus
+   Wird über <html data-theme="light"> eingeschaltet.
+   Die Bühne (Bild/Video) bleibt dunkel – wie ein Bildschirm.
+   ============================================================ */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg-0:#F7F2F4;
+  --bg-1:#FFFFFF;
+  --bg-2:#EFE6EA;
+  --tx-0:#1D1418;
+  --tx-1:#5B4B53;
+  --tx-2:#86767E;
+  --acc:#E5243B;
+  --acc-2:#C2102A;
+  --acc-rgb:229,36,59;
+  --acc-dim:rgba(229,36,59,.10);
+  --acc-line:rgba(229,36,59,.38);
+  --violet:#7C5CE0;
+  --gold:#C98A00;
+  --ok:#14A06A;
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-bg-2:rgba(255,255,255,.92);
+  --glass-br:rgba(60,20,35,.11);
+  --glass-hi:rgba(255,255,255,.95);
+  --sh-1:0 1px 0 rgba(255,255,255,.9) inset,0 8px 26px rgba(70,20,35,.10);
+}
+/* Die Bühne behält dunkle Schrift-Farben */
+:root[data-theme="light"] .stage{--tx-0:#F3ECEF;--tx-1:#C9BAC1;--tx-2:#8E7F87;color:var(--tx-0)}
+
+:root[data-theme="light"] .bg-grid{opacity:.7}
+:root[data-theme="light"] .bg-glow{opacity:.55}
+:root[data-theme="light"] .topbar{background:linear-gradient(180deg,rgba(247,242,244,.95),rgba(247,242,244,.6) 70%,transparent)}
+:root[data-theme="light"] .hero{background:rgba(255,255,255,.88)}
+:root[data-theme="light"] .tabs,
+:root[data-theme="light"] .seg{background:rgba(60,20,35,.05)}
+:root[data-theme="light"] .tab em{background:rgba(60,20,35,.08)}
+:root[data-theme="light"] .field,
+:root[data-theme="light"] .select{background:#fff}
+:root[data-theme="light"] .select select option{background:#fff;color:#1D1418}
+:root[data-theme="light"] .switch{background:rgba(60,20,35,.10)}
+:root[data-theme="light"] .switch::after{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+:root[data-theme="light"] .switch[aria-checked="true"]::after{background:var(--acc)}
+:root[data-theme="light"] .prog-line,
+:root[data-theme="light"] .np .seek__bar::before{background:rgba(60,20,35,.12)}
+:root[data-theme="light"] .sheet{background:rgba(255,255,255,.97)}
+:root[data-theme="light"] .toast{background:rgba(255,255,255,.97);color:var(--tx-0);box-shadow:0 8px 24px rgba(70,20,35,.18)}
+:root[data-theme="light"] .tabbar{background:rgba(255,255,255,.92)!important;box-shadow:0 8px 28px rgba(70,20,35,.14)}
+:root[data-theme="light"] .pdock{background:rgba(255,255,255,.94)}
+:root[data-theme="light"] .scrim{background:rgba(40,20,30,.35)}
+:root[data-theme="light"] .tile:hover{background:#fff}
+:root[data-theme="light"] .tab--c.is-active{color:var(--tx-0)}
+:root[data-theme="light"] .tab--c.is-active em{color:#fff}
+:root[data-theme="light"] .np__ic,
+:root[data-theme="light"] .now-chip__ic{background:#fff}
+:root[data-theme="light"] *::-webkit-scrollbar-thumb{background:rgba(60,20,35,.15);background-clip:content-box}

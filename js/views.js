@@ -83,6 +83,11 @@
   /* Umschalter Kacheln / Liste */
   /* Kacheln/Liste: ein Knopf in der Kopfzeile */
   function layoutToggle(){ return ''; }
+  V.renderTopBtns = function(){
+    var lb=u.$('#langBtn'); if(lb) lb.textContent = G.lang==='en' ? 'EN' : 'DE';
+    var tb=u.$('#themeBtn'); if(tb){ var light=document.documentElement.getAttribute('data-theme')==='light';
+      tb.innerHTML=ic(light?'moon':'sun',18); var l=light?'Dunklen Modus aktivieren':'Hellen Modus aktivieren'; tb.title=l; tb.setAttribute('aria-label',l); }
+  };
   V.renderLayBtn = function(){
     var btn=u.$('#layBtn'); if(!btn) return;
     var g=lay()==='grid', label=g?'Als Liste anzeigen':'Als Kacheln anzeigen';
@@ -319,7 +324,12 @@
           : (G.app&&G.app.canInstall()?'<button class="btn btn--solid" type="button" data-act="install">'+ic('download',16)+'Jetzt installieren</button>'
           : '<button class="btn" type="button" data-act="install">'+ic('info',16)+'So geht’s</button>'))+'</div>'+
       '</div></details>';
-    return group('Wiedergabe',[
+    var light=document.documentElement.getAttribute('data-theme')==='light';
+    return group('Allgemein',[
+        row('Sprache','Deutsch / English','<span class="seg2"><button type="button" class="seg2__b'+(G.lang!=='en'?' is-on':'')+'" data-setlang="de" data-noi18n>DE</button><button type="button" class="seg2__b'+(G.lang==='en'?' is-on':'')+'" data-setlang="en" data-noi18n>EN</button></span>'),
+        row('Design','Hell oder dunkel','<span class="seg2"><button type="button" class="seg2__b'+(!light?' is-on':'')+'" data-settheme="dark">'+ic('moon',15)+'<span>Dunkel</span></button><button type="button" class="seg2__b'+(light?' is-on':'')+'" data-settheme="light">'+ic('sun',15)+'<span>Hell</span></button></span>')
+      ])+
+      group('Wiedergabe',[
         row('Visualizer','Spektrum auf der Bühne',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
@@ -334,6 +344,17 @@
         row('Alles zurücksetzen','Favoriten, Verlauf, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
       ])+
       installCard+
+      fold('fb','Feedback &amp; Ideen',['<form id="fbForm" class="fb" novalidate>'+
+        '<p class="fb__intro">Fehler gefunden, eine Idee oder etwas, das dir fehlt? Schick es direkt an mich – ganz ohne Konto.</p>'+
+        '<label class="fb__label" for="fbMessage">Deine Nachricht*</label>'+
+        '<textarea class="fb__text" id="fbMessage" name="message" rows="4" maxlength="2000" placeholder="Was möchtest du mir mitteilen?"></textarea>'+
+        '<label class="fb__label" for="fbEmail">Deine E-Mail (optional, für eine Antwort)</label>'+
+        '<input class="fb__input" id="fbEmail" name="_replyto" type="email" maxlength="120" inputmode="email" autocomplete="email" placeholder="name@beispiel.de">'+
+        '<input type="text" name="_honey" class="fb__honey" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+        '<div class="fb__row"><button type="submit" class="btn btn--solid" id="fbSend">'+ic('upload',16)+'Senden</button><span class="fb__status" id="fbStatus" aria-live="polite"></span></div>'+
+        '<p class="fb__hint">Beim Senden geht dein Text über formsubmit.co als E-Mail an mich. Mitgeschickt werden nur die optionale E-Mail-Adresse, die App-Version und die Sprache – keine Songs, Listen oder Favoriten.</p>'+
+        '<p class="fb__hint">Oder als öffentliches Issue auf <a href="https://github.com/PaulFV/G04Music/issues" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>'+
+      '</form>'])+
       fold('about','Version &amp; Copyright',[
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">'+G.VERSION+'</span>'),
         row('Copyright','© '+Math.max(2026,new Date().getFullYear())+' PaulFV · Alle Rechte vorbehalten','<span class="set__val">'+ic('chev',16)+'</span>','copyright'),
@@ -363,7 +384,7 @@
     u.$('#hero').hidden=!hasHero; u.$('#content').classList.toggle('no-hero',!hasHero);
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
     u.$('#viewHost').classList.toggle('set-view',S.view==='settings');
-    V.renderNav(); V.renderLayBtn();
+    V.renderNav(); V.renderLayBtn(); V.renderTopBtns();
     if(!G.player.cur) V.renderNP();
   };
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */

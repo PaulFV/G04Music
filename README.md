@@ -1,4 +1,4 @@
-# G04Musik v0.5.3
+# G04Musik v0.6.1
 
 ![G04Musik](art/social-preview.png)
 
@@ -19,7 +19,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 | **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
 | **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen |
 | **YouTube** | Reiter **Suche**, **Gemerkt**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen, Links merken |
-| **Einstellungen** | **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
+| **Einstellungen** | **Sprache** Deutsch/English und **Hell/Dunkel** (auch per Knopf in der Kopfzeile), **Feedback & Ideen** (direkt an den Entwickler), **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Visualizer, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
 
 ### Eigene Dateien
 * **Musik:** MP3, M4A/AAC, FLAC, WAV, OGG, Opus (je nach Browser auch AIFF, WMA)
@@ -69,8 +69,8 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 index.html            Rahmen, Bühne, Mini-Player, Blatt
 manifest.webmanifest  Installation als App
 sw.js                 Service Worker (App-Dateien offline)
-css/  theme · layout · components · player · responsive
-js/   util · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · player · views · app
+css/  theme · layout · components · player · responsive · theme-light
+js/   util · i18n (Deutsch/English) · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · player · views · app
 img/                App-Icons (rote Kopfhörer mit Klangwelle)
 ```
 
