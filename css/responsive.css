@@ -88,16 +88,17 @@ body.has-dock .main{padding-bottom:110px}
   .vol{display:none}
 
   .panel{padding:12px;border-radius:var(--r-lg)}
-  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .grid--wide{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tile{padding:6px;gap:5px;border-radius:12px}
-  .tile .art{border-radius:8px;font-size:20px}
-  .tile__t{font-size:12.5px}
-  .tile__s{font-size:11px;margin-top:-4px}
-  .tile .tile__fav{top:9px;right:9px;width:26px;height:26px}
-  .tile .tile__fav svg{width:13px;height:13px}
-  .tile .pill{font-size:9.5px;padding:1px 6px;left:5px;top:5px}
-  .tile .dur{font-size:10px;right:5px;bottom:5px}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .grid--wide{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .tile{padding:4px;gap:4px;border-radius:10px}
+  .tile .art{border-radius:7px;font-size:16px}
+  .tile__t{font-size:11px;line-height:1.25}
+  .tile__s{font-size:9.5px;margin-top:-3px}
+  .tile .tile__fav{top:7px;right:7px;width:22px;height:22px}
+  .tile .tile__fav svg{width:11px;height:11px}
+  .tile .pill{font-size:8px;padding:1px 5px;left:4px;top:4px}
+  .tile .dur{font-size:9px;right:4px;bottom:4px}
+
   .tab{padding:8px 12px;font-size:13.5px}
   .row{grid-template-columns:44px minmax(0,1fr) auto;gap:10px;padding:7px 6px}
   .row__n,.row__x{display:none}
@@ -184,3 +185,6 @@ body.has-dock .main{padding-bottom:110px}
 @media (max-width:767px){ .ctl--main{gap:6px} }
 @media (max-width:400px){ .ctl--main .icon-btn{width:36px;height:36px} .ctl--main .play-btn{width:48px;height:48px} .ctl--main{gap:5px} }
 @media (max-width:340px){ .ctl--main .icon-btn{width:32px;height:32px} .ctl--main .play-btn{width:44px;height:44px} .ctl--main{gap:4px} }
+
+/* sehr schmale Handys (iPhone SE): 3 pro Reihe */
+@media (max-width:359px){ .grid{grid-template-columns:repeat(3,minmax(0,1fr))} .grid--wide{grid-template-columns:repeat(2,minmax(0,1fr))} }
