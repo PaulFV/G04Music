@@ -36,6 +36,7 @@
     }
     else if(what==='favs'){ V.refresh(); V.renderNP(); }
     else if(what==='lists'){ V.refresh(); }
+    else if(what==='meta'){ V.renderStage(); V.renderNP(); V.renderDock(); if(P.refreshSession) P.refreshSession(); }
     else if(what==='import'){ V.importTick(); }
     else if(what==='library'||what==='yt'){ V.refresh(); if(what==='library') V.renderNP(); }
     else if(what==='settings'){ V.renderNP(); if(S.view==='settings') V.refresh(); }
@@ -129,6 +130,8 @@
         })(); break;
       case 'favExport': exportSheet('fav:'+((el&&el.dataset.kind)||'track')); break;
       case 'npMore': npMore(); break;
+      case 'npInfo': if(P.cur&&P.cur.kind==='radio') u.sheet('Songinfos','<div class="np__info">'+V.radioInfo(P.cur)+'</div>'); break;
+      case 'npProxy': proxySheet(); break;
       case 'pip': G.pip.toggle(); break;
       case 'lang': G.setLang(G.lang==='en'?'de':'en'); V.refresh(); V.renderNP(); V.renderStage(); V.renderDock(); u.toast(G.lang==='en'?'English':'Deutsch'); break;
       case 'theme': setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light'); break;
@@ -195,14 +198,15 @@
   function npMore(){
     var c=P.cur; if(!c) return;
     var fav=S.isFav(c), rep={off:'aus',all:'alle',one:'ein Titel'}[S.settings.repeat];
-    u.sheet(c.title,
+    u.sheet(V.shown(c).title,
+      (c.kind==='radio'?'<button class="act" type="button" data-m="info">'+u.ic('info',18)+'Songinfos</button>':'')+
       '<button class="act" type="button" data-m="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>'+
       '<button class="act" type="button" data-m="list">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>'+
       '<button class="act" type="button" data-m="repeat">'+u.ic(S.settings.repeat==='one'?'repeat1':'repeat',18)+'<span>Wiederholen<small>jetzt: '+rep+'</small></span></button>'+
       '<button class="act" type="button" data-m="sleep">'+u.ic('moon',18)+'<span>Einschlaf-Timer<small>'+(P.sleepAt?'noch '+P.sleepLeft()+' min':'aus')+'</small></span></button>'+
       '<button class="act act--danger" type="button" data-m="stop">'+u.ic('trash',18)+'Wiedergabe beenden</button>',
       function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-m]'); if(!x) return; var m=x.dataset.m; u.closeSheet();
-        if(m==='pip') G.pip.toggle(); else if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
+        if(m==='info') act('npInfo'); else if(m==='pip') G.pip.toggle(); else if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
   }
   function ytKeySheet(){
     var cur=u.ls.get('ytKey','');
@@ -215,6 +219,23 @@
         if(x.dataset.k==='save'){ var v=u.$('#ytKeyIn').value.trim(); if(v) u.ls.set('ytKey',v); else u.ls.del('ytKey'); u.toast(v?'Schlüssel gespeichert':'Kein Schlüssel'); }
         else { u.ls.del('ytKey'); u.toast('Schlüssel entfernt'); }
         u.closeSheet(); V.refresh(); }); });
+  }
+  /* Adresse eines Titel-Servers (tools/nowplaying-worker.js) – für mehr Sender mit Songtitel */
+  function proxySheet(){
+    var cur=u.ls.get('npProxy','');
+    u.sheet('Songtitel-Server',
+      '<p>Optional. Ein kleiner Server liest bei Radiosendern den aktuellen Titel aus und gibt ihn an die App weiter. Ohne ihn zeigen nur Sender Titel an, die es dem Browser erlauben.</p>'+
+      '<p style="font-size:13px;color:var(--tx-2)">Wie du ihn einrichtest, steht in der README unter „Songtitel-Server“. Die Adresse sieht so aus: https://name.deinkonto.workers.dev</p>'+
+      '<label class="field">'+u.ic('link',18)+'<input id="npProxyIn" type="url" autocomplete="off" spellcheck="false" placeholder="https://…" value="'+u.esc(cur)+'"></label>'+
+      '<div class="btn-row" style="justify-content:flex-end">'+(cur?'<button class="btn btn--danger" type="button" data-k="del">Entfernen</button>':'')+'<button class="btn btn--solid" type="button" data-k="save">Speichern</button></div>',
+      function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-k]'); if(!x) return;
+        if(x.dataset.k==='save'){
+          var v=u.$('#npProxyIn').value.trim().replace(/\/+$/,'');
+          if(v&&!/^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)[^\s]*$/i.test(v)){ u.toast('Die Adresse muss mit https:// beginnen.',true); return; }
+          if(v) u.ls.set('npProxy',v); else u.ls.del('npProxy');
+          u.toast(v?'Adresse gespeichert':'Keine Adresse');
+        } else { u.ls.del('npProxy'); u.toast('Adresse entfernt'); }
+        u.closeSheet(); G.nowplaying.restart(); V.refresh(); }); });
   }
   function sleepSheet(){
     var opts=[15,30,45,60,90], cur=P.sleepLeft();

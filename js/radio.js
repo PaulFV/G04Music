@@ -34,7 +34,8 @@
       kind:'radio', id:st.stationuuid, title:(st.name||'Sender').trim(),
       sub:[tags.slice(0,2).join(', '), st.country||st.countrycode].filter(Boolean).join(' · '),
       art:fav, url:st.url_resolved||st.url, hls:!!st.hls, tags:tags.slice(0,4).join(', '),
-      country:st.countrycode||'', codec:st.codec||'', bitrate:st.bitrate||0
+      country:st.countrycode||'', codec:st.codec||'', bitrate:st.bitrate||0,
+      homepage:/^https?:\/\//i.test(st.homepage||'') ? st.homepage : ''
     };
   }
   function query(params){

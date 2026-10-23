@@ -388,3 +388,17 @@ details.fold > summary:hover h3,details.fold > summary:hover .fold__chev{color:v
   .welcome__btn{flex-direction:row;text-align:left;gap:14px;padding:14px}
 }
 @media (hover:none){ .welcome__btn:hover{transform:none} }
+
+/* ---------- Radio: Songinfos ---------- */
+.np__info{border-top:1px solid var(--glass-br);padding-top:12px;display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:var(--tx-1);min-width:0}
+.np__info > div{overflow-wrap:anywhere}
+.np__info b{color:var(--tx-0);font-weight:600;margin-right:4px}
+.info-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.info-links .btn{text-decoration:none}
+/* Infos zum Ausklappen (Bedienfeld am Rechner) */
+details.np__fold > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600;font-size:13.5px;color:var(--tx-1);padding:2px 0}
+details.np__fold > summary::-webkit-details-marker{display:none}
+details.np__fold > summary:hover{color:var(--tx-0)}
+details.np__fold[open] .fold__chev{transform:rotate(180deg)}
+details.np__fold[open] > summary{margin-bottom:8px}
+.np__infobody{display:flex;flex-direction:column;gap:5px}

@@ -59,8 +59,9 @@
     S.addHistory(item);
     emit(); session();
 
+    G.nowplaying.stop(true);
     if(item.kind==='track') playTrack(item);
-    else if(item.kind==='radio') playRadio(item);
+    else if(item.kind==='radio'){ playRadio(item); G.nowplaying.start(item); }
     else if(item.kind==='yt') playYT(item);
   };
 
@@ -143,7 +144,7 @@
     var i=pick(-1); if(i==null) return;
     var q=P.queue; P.cur=null; P.play(q[i],q,i);
   };
-  P.stop = function(){ stopAll(); P.cur=null; P.playing=false; P.loading=false; P.error=''; emit(); session(); };
+  P.stop = function(){ stopAll(); G.nowplaying.stop(true); P.cur=null; P.playing=false; P.loading=false; P.error=''; emit(); session(); };
 
   P.seekTo = function(frac){
     if(!P.cur) return;
@@ -213,18 +214,23 @@
     if(!('mediaSession' in navigator)) return;
     var ms=navigator.mediaSession, c=P.cur;
     if(!c){ ms.metadata=null; ms.playbackState='none'; return; }
+    /* Radio mit bekanntem Titel: Lied auf dem Sperrbildschirm, Sender als Album */
+    var np = c.kind==='radio' && G.nowplaying.meta && G.nowplaying.meta.title ? G.nowplaying.meta : null;
+    var cover = np && np.info && np.info.cover;
     var art=[];
-    if(c.art) art.push({src:c.art,sizes:'512x512'});
+    if(cover) art.push({src:cover,sizes:'600x600'});
+    else if(c.art) art.push({src:c.art,sizes:'512x512'});
     art.push({src:'img/icon-512.png?v=6',sizes:'512x512',type:'image/png'});
     try{
       ms.metadata=new MediaMetadata({
-        title:c.title,
-        artist: c.kind==='radio'?'Radio · '+(c.sub||''):(c.artist||c.sub||''),
-        album: c.album || (c.kind==='yt'?'YouTube':c.kind==='radio'?'G04Musik Radio':''),
+        title: np ? np.title : c.title,
+        artist: np ? (np.artist||c.title) : c.kind==='radio'?'Radio · '+(c.sub||''):(c.artist||c.sub||''),
+        album: np ? ((np.info&&np.info.album)||c.title) : c.album || (c.kind==='yt'?'YouTube':c.kind==='radio'?'G04Musik Radio':''),
         artwork:art
       });
     }catch(e){}
   }
+  P.refreshSession = session;
   if('mediaSession' in navigator){
     var A=function(n,f){ try{ navigator.mediaSession.setActionHandler(n,f); }catch(e){} };
     A('play',function(){ if(!P.playing) P.toggle(); });

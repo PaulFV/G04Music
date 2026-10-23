@@ -23,6 +23,7 @@
       sleepDefault: 30,
       repeat: 'off',      /* off | all | one */
       shuffle: false,
+      songInfo: true,     /* Radio: Cover, Album, Jahr über Apple (iTunes) holen */
       layout: 'grid'     /* grid | list */
     }, u.ls.get('settings', {})),
     listeners: []
@@ -39,7 +40,7 @@
   function slim(it){
     var o={kind:it.kind,id:it.id,title:it.title,sub:it.sub||''};
     if(it.kind!=='track') o.art=it.art||'';
-    if(it.kind==='radio'){ o.url=it.url; o.hls=!!it.hls; o.tags=it.tags||''; o.country=it.country||''; }
+    if(it.kind==='radio'){ o.url=it.url; o.hls=!!it.hls; o.tags=it.tags||''; o.country=it.country||''; o.codec=it.codec||''; o.bitrate=it.bitrate||0; o.homepage=it.homepage||''; }
     if(it.kind==='yt'){ o.ytType=it.ytType; o.ytId=it.ytId; }
     return o;
   }

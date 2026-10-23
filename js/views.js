@@ -365,13 +365,17 @@
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
         row('Zufall','Reihenfolge mischen',sw('shuffle')),
-        row('YouTube-Suchschlüssel','Optional, für zuverlässigere Suche','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey')
+        row('Songinfos zu Radio','Cover, Album und Jahr über Apple (iTunes) laden',sw('songInfo'))
       ])+
       fold('lib','Bibliothek',[
         row('Eigene Titel',L.songs().length+' Songs · '+L.videos().length+' Musikvideos','<span class="set__val num" id="storeUse">'+u.bytes(L.totalSize())+'</span>'),
         row('Dateien hinzufügen','Musik und Musikvideos von diesem Gerät','<span class="set__val">'+ic('chev',16)+'</span>','pickFiles'),
         row('Bibliothek leeren','Entfernt alle eigenen Titel von diesem Gerät','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','clearLib'),
         row('Alles zurücksetzen','Favoriten, Verlauf, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
+      ])+
+      fold('adv','Erweitert',[
+        row('YouTube-Suchschlüssel','Nur nötig, wenn die YouTube-Suche nicht klappt','<span class="set__val">'+(u.ls.get('ytKey','')?'gespeichert':'keiner')+'</span>','ytKey'),
+        row('Songtitel-Server','Zeigt bei mehr Radiosendern Künstler und Titel','<span class="set__val">'+(G.nowplaying.hasProxy()?'an':'aus')+'</span>','npProxy')
       ])+
       installCard+
       fold('fb','Feedback &amp; Ideen',['<form id="fbForm" class="fb" novalidate>'+
@@ -388,7 +392,7 @@
       fold('about','Version &amp; Copyright',[
         row('Version','G04Musik v'+G.VERSION,'<span class="set__val">'+G.VERSION+'</span>'),
         row('Copyright','© '+Math.max(2026,new Date().getFullYear())+' PaulFV · Alle Rechte vorbehalten','<span class="set__val">'+ic('chev',16)+'</span>','copyright'),
-                row('Datenschutz','Kein Konto, kein Tracking. Deine Musikdateien bleiben auf dem Gerät. Radio, YouTube und die Suche fragen dafür fremde Dienste an.','')
+                row('Datenschutz','Kein Konto, kein Tracking. Deine Musikdateien bleiben auf dem Gerät. Radio, YouTube, die Suche und Songinfos fragen dafür fremde Dienste an.','')
       ])+
       '<p class="set-foot">G04Musik · © '+Math.max(2026,new Date().getFullYear())+' PaulFV</p>';
   }
@@ -454,6 +458,34 @@
     });
   };
 
+  /* ---------- Was angezeigt wird: bei Radio mit bekanntem Titel das Lied, sonst der Sender ---------- */
+  V.shown = function(c){
+    var m = c && c.kind==='radio' && G.nowplaying.meta;
+    if(m && m.title) return { song:true, m:m, title:m.title, artist:m.artist||'', sub:(m.artist?m.artist+' · ':'')+c.title, art:(m.info&&m.info.cover)||'' };
+    return { song:false, m:null, title:c?c.title:'', artist:'', sub:c?(c.sub||''):'', art:'' };
+  };
+  function coverStyle(url){ return 'background-image:url(&quot;'+esc(url)+'&quot;)'; }
+
+  /* Infos zum Sender und, wenn bekannt, zum Lied (Bedienfeld am Rechner und Blatt „Songinfos“) */
+  V.radioInfo = function(c){
+    var N=G.nowplaying, sh=V.shown(c), m=sh.m, inf=m&&m.info, h='', line=function(k,v){ return v? '<div><b>'+k+'</b> '+esc(v)+'</div>' : ''; };
+    if(sh.song){
+      h+=line('Titel',m.title)+line('Künstler',m.artist);
+      if(inf){ h+=line('Album',inf.album)+line('Jahr',inf.year)+line('Genre',inf.genre)+line('Länge',inf.seconds?u.fmt(inf.seconds):''); }
+      else if(S.settings.songInfo===false) h+='<div>Songinfos sind in den Einstellungen aus.</div>';
+    } else if(N.state==='loading') h+='<div>Songtitel wird gesucht …</div>';
+    else if(N.state==='none' || N.state==='idle') h+='<div>'+(c.hls?'Dieser Sender (HLS) meldet keinen Songtitel.':'Dieser Sender meldet gerade keinen Songtitel.')+'</div>';
+    var q=(c.tags||'').split(',').map(function(x){return x.trim();}).filter(Boolean).slice(0,3).join(', ');
+    var qual=[c.bitrate?c.bitrate+' kbit/s':'', (c.codec||'').toUpperCase()].filter(Boolean).join(' ');
+    var sender=[q, c.country, qual].filter(Boolean).join(' · ');
+    h+=line('Radiosender',c.title+(sender?' · '+sender:''));
+    var links='';
+    if(sh.song) links+='<a class="btn btn--sm btn--ghost" href="'+esc(G.yt.resultsUrl((m.artist+' '+m.title).trim()))+'" target="_blank" rel="noopener">'+ic('yt',15)+'Auf YouTube suchen</a>';
+    if(inf&&inf.url) links+='<a class="btn btn--sm btn--ghost" href="'+esc(inf.url)+'" target="_blank" rel="noopener">'+ic('music',15)+'Bei Apple Music</a>';
+    if(c.homepage) links+='<a class="btn btn--sm btn--ghost" href="'+esc(c.homepage)+'" target="_blank" rel="noopener">'+ic('link',15)+'Webseite des Senders</a>';
+    return h+(links?'<div class="info-links">'+links+'</div>':'');
+  };
+
   /* ---------- Bühne ---------- */
   var KIND={track:'Meine Musik',radio:'Radio',yt:'YouTube'};
   V.renderStage = function(){
@@ -471,14 +503,15 @@
     u.$('#stageTools').hidden=!c||(!isVid&&!isYT);
     u.$('#stageBusy').hidden=!(c&&P.loading&&!isYT&&!P.error);
     u.$('#stageErr').hidden=!P.error; u.$('#stageErrText').textContent=P.error||'';
-    u.$('#stageBg').style.backgroundImage = c&&c.art&&c.kind!=='radio' ? 'url("'+c.art+'")' : (c? u.grad(c.title) : 'none');
+    var sh = c ? V.shown(c) : null;
+    u.$('#stageBg').style.backgroundImage = sh&&sh.art ? 'url("'+sh.art+'")' : c&&c.art&&c.kind!=='radio' ? 'url("'+c.art+'")' : (c? u.grad(c.title) : 'none');
     u.$('#stageBg').style.opacity = c? '.5':'0';
     u.$('#stageBadges').innerHTML = !c? '' : c.kind==='radio'? '<span class="pill pill--live">LIVE</span>' : isYT? '' : c.isVideo? '<span class="pill">Musikvideo</span>' : '<span class="pill">'+esc(c.year?'Eigener Song · '+c.year:'Eigener Song')+'</span>';
     if(c&&!isYT){
-      var art=u.$('#stageArt'); art.className='cover'+(c.kind==='radio'&&c.art?' art--logo':'');
-      art.setAttribute('style',u.artStyle(c).replace(/&quot;/g,'"')); art.textContent=c.art?'':u.initials(c.title);
-      u.$('#stageKind').textContent=c.isVideo?'Musikvideo':KIND[c.kind];
-      u.$('#stageTitle').textContent=c.title; u.$('#stageSub').textContent=c.sub||'';
+      var art=u.$('#stageArt'); art.className='cover'+(c.kind==='radio'&&c.art&&!sh.art?' art--logo':'');
+      art.setAttribute('style',(sh.art?coverStyle(sh.art):u.artStyle(c)).replace(/&quot;/g,'"')); art.textContent=(c.art||sh.art)?'':u.initials(c.title);
+      u.$('#stageKind').textContent=sh.song?'Radio · '+c.title:c.isVideo?'Musikvideo':KIND[c.kind];
+      u.$('#stageTitle').textContent=sh.title; u.$('#stageSub').textContent=sh.song?sh.artist:(c.sub||'');
     }
   };
 
@@ -506,11 +539,11 @@
       return;
     }
     np.classList.toggle('is-cover',c.kind!=='yt'&&!c.isVideo);
-    var live=P.isLive(), d=P.duration(), t=P.time(), fav=S.isFav(c);
+    var live=P.isLive(), d=P.duration(), t=P.time(), fav=S.isFav(c), sh=V.shown(c);
     var nxt = P.queue.length>1 && !(c.kind==='yt'&&c.ytType==='list') ? P.queue[(P.index+1)%P.queue.length] : null;
     var rep = st.repeat==='one'?'repeat1':'repeat';
     np.innerHTML=
-      '<div class="np__head"><span class="np__ic">'+ic(c.kind==='radio'?'radio':c.kind==='yt'?'yt':c.isVideo?'video':'music',22)+'</span><div><small>'+(P.error?'Fehler':P.loading?'Lädt …':P.playing?'Jetzt läuft':'Angehalten')+'</small><b>'+esc(c.title)+'</b><span>'+esc(c.sub||'')+'</span></div></div>'+
+      '<div class="np__head"><span class="np__ic">'+ic(c.kind==='radio'?'radio':c.kind==='yt'?'yt':c.isVideo?'video':'music',22)+'</span><div><small>'+(P.error?'Fehler':P.loading?'Lädt …':P.playing?'Jetzt läuft':'Angehalten')+'</small><b>'+esc(sh.title)+'</b><span>'+esc(sh.sub)+'</span></div></div>'+
       '<div class="seek"><span class="num js-time" style="min-width:38px">'+(live?'LIVE':u.fmt(t))+'</span><div class="seek__bar js-seek'+(live?' is-live':'')+'" role="slider" aria-label="Position" tabindex="0"><i class="js-bar" style="width:'+(d?Math.min(100,t/d*100):0)+'%"></i></div><span class="num js-dur" style="min-width:38px;text-align:right">'+(live?'':u.fmt(d))+'</span></div>'+
       '<div class="ctl ctl--main"><button class="icon-btn'+(st.shuffle?' is-on':'')+'" type="button" data-act="shuffle" title="Zufall" aria-label="Zufall" aria-pressed="'+st.shuffle+'">'+ic('shuffle',18)+'</button>'+
       '<button class="icon-btn" type="button" data-act="prev" title="Zurück" aria-label="Zurück">'+ic('prev',18)+'</button>'+
@@ -526,6 +559,9 @@
       '<button class="icon-btn'+(P.sleepAt?' is-on':'')+'" type="button" data-act="sleep" title="Einschlaf-Timer" aria-label="Einschlaf-Timer">'+ic('moon',18)+'</button>'+(P.sleepAt?'<span class="sleep-tag num">'+P.sleepLeft()+' min</span>':'')+
       '<label class="vol" title="Lautstärke">'+ic(st.volume>0?'vol':'mute',18)+'<input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></label>'+
       '<button class="icon-btn" type="button" data-act="stop" title="Beenden" aria-label="Beenden"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+      (c.kind==='radio'?'<details class="np__info np__fold np-desk" data-fold="npinfo"'+(u.ls.get('fold.npinfo',false)?' open':'')+'>'+
+        '<summary><span>'+(sh.song?'Songinfos':'Senderinfos')+'</span><span class="fold__chev">'+ic('down',16)+'</span></summary>'+
+        '<div class="np__infobody">'+V.radioInfo(c)+'</div></details>':'')+
       (nxt?'<div class="np__next np-desk">Danach: <b>'+esc(nxt.title)+'</b></div>':'');
   };
   function greet(){ var h=new Date().getHours(); return h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend'; }
@@ -537,19 +573,19 @@
     var show = !!c && V.dockWanted;
     d.hidden=!show; document.body.classList.toggle('has-dock',show);
     if(show){
-      var dur=P.duration(), t=P.time();
-      d.innerHTML='<div class="cover'+(c.kind==='radio'&&c.art?' art--logo':'')+'" style="'+u.artStyle(c)+'">'+u.artText(c)+'</div>'+
-        '<button class="pdock__meta" type="button" data-act="toStage"><b>'+esc(c.title)+'</b><span>'+(P.error?'Fehler – antippen':esc(c.sub||''))+'</span></button>'+
+      var dur=P.duration(), t=P.time(), sh=V.shown(c);
+      d.innerHTML='<div class="cover'+(c.kind==='radio'&&c.art&&!sh.art?' art--logo':'')+'" style="'+(sh.art?coverStyle(sh.art):u.artStyle(c))+'">'+(sh.art?'':u.artText(c))+'</div>'+
+        '<button class="pdock__meta" type="button" data-act="toStage"><b>'+esc(sh.title)+'</b><span>'+(P.error?'Fehler – antippen':esc(sh.sub))+'</span></button>'+
         '<button class="icon-btn" type="button" data-act="next" aria-label="Weiter">'+ic('next',16)+'</button>'+
         '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',19)+'</button>'+
         (P.isLive()?'':'<span class="pdock__prog"><i class="js-bar" style="width:'+(dur?t/dur*100:0)+'%"></i></span>');
     }
     /* Kopfzeile und Seitenleiste */
     var lc=u.$('#liveChip'); lc.classList.toggle('is-on',!!(c&&P.playing));
-    lc.querySelector('span').textContent = c? c.title : 'Nichts läuft';
+    lc.querySelector('span').textContent = c? V.shown(c).title : 'Nichts läuft';
     var sn=u.$('#sideNow');
     sn.className='now-chip'+(c&&P.playing?' is-live':'');
-    sn.innerHTML='<span class="now-chip__ic" style="'+(c&&c.art?'background-image:url(&quot;'+esc(c.art)+'&quot;)':'')+'">'+(c&&c.art?'':ic(c?(c.kind==='radio'?'radio':c.kind==='yt'?'yt':'music'):'music',17))+'</span><span class="now-chip__meta"><b>'+(c?esc(c.title):'Nichts läuft')+'</b><span>'+(c?(P.playing?'spielt':'angehalten'):'bereit')+'</span></span>';
+    sn.innerHTML='<span class="now-chip__ic" style="'+(c&&c.art?'background-image:url(&quot;'+esc(c.art)+'&quot;)':'')+'">'+(c&&c.art?'':ic(c?(c.kind==='radio'?'radio':c.kind==='yt'?'yt':'music'):'music',17))+'</span><span class="now-chip__meta"><b>'+(c?esc(V.shown(c).title):'Nichts läuft')+'</b><span>'+(c?(P.playing?'spielt':'angehalten'):'bereit')+'</span></span>';
   };
 
   /* Laufende Zeit ohne alles neu zu zeichnen */

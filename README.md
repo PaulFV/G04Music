@@ -1,4 +1,4 @@
-# G04Musik v0.6.6
+# G04Musik v0.6.7
 
 ![G04Musik](art/social-preview.png)
 
@@ -17,7 +17,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 |:--|:--|
 | **Abspielfenster** | Steht fest oben in Musik, Radio und YouTube – der Inhalt scrollt darunter. Auf dem Handy kompakt, Zusatzknöpfe hinter „⋯“ |
 | **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
-| **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen |
+| **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen. Zeigt **Künstler, Titel, Cover, Album und Jahr** des laufenden Lieds, wenn der Sender den Titel meldet (aufklappbare Infos, auf dem Handy über „⋯“ → Songinfos) |
 | **YouTube** | Reiter **Suche**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen; ein eingefügter YouTube-Link landet in den Favoriten |
 | **Einstellungen** | **Sprache** Deutsch/English und **Hell/Dunkel** (auch per Knopf in der Kopfzeile), **Feedback & Ideen** (direkt an den Entwickler), **Als App installieren** (wie in G04TV: Wege für iPhone/iPad, Android, Computer, „Jetzt installieren“), Klangbalken, Bildschirm an, Einschlaf-Timer, Wiederholen, Zufall, Bibliothek |
 | **Erster Start** | Bei leerer Bibliothek zeigt Musik einen Willkommens-Bereich mit drei großen Knöpfen: eigene Musik hinzufügen, Radio hören, YouTube durchsuchen |
@@ -59,7 +59,8 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * **iPhone/iPad:** Dort sind die Klangbalken nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
 * **YouTube-Suche:** ohne Schlüssel über freie Server (Piped/Invidious), mit eigenem Schlüssel (YouTube Data API v3, in den Einstellungen) direkt bei YouTube.
 * **YouTube** spielt nicht weiter, wenn der Bildschirm gesperrt ist (Vorgabe von YouTube). Manche Videos erlauben kein Einbetten.
-* **Radio-Sender** mit HLS (`.m3u8`) laufen über [hls.js](https://github.com/video-dev/hls.js), das bei Bedarf nachgeladen wird.
+* **Radio-Sender** mit HLS (`.m3u8`) laufen über [hls.js](https://github.com/video-dev/hls.js), das bei Bedarf nachgeladen wird. Bei HLS-Sendern gibt es keinen Songtitel.
+* **Songtitel im Radio:** Ein Browser darf den Titel bei den meisten Sendern nicht selbst aus dem Stream lesen. Darum gibt es den kleinen **Songtitel-Server** (unten, optional). Ohne ihn zeigen nur die Sender einen Titel, die es erlauben, bei den anderen siehst du Sendername, Genre, Land und Qualität. Cover, Album und Jahr kommen von Apples iTunes-Suche und lassen sich in den Einstellungen abschalten.
 * Auf HTTPS werden nur Sender mit HTTPS-Stream angezeigt (Browser blockieren sonst den Ton).
 
 ---
@@ -74,6 +75,19 @@ css/  theme · layout · components · player · responsive · theme-light
 js/   util · i18n (Deutsch/English) · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · playlists · player · pip (Mini-Fenster) · views · app
 img/                App-Icons (rote Kopfhörer mit Klangwelle)
 ```
+
+## Songtitel-Server (optional)
+
+Ein kleines Skript bei Cloudflare (kostenlos), das den Titel eines Radiosenders aus dem Stream liest und der App gibt. Getestet mit 30 deutschen Top-Sendern: bei etwa der Hälfte kommt ein Titel oder eine Sendungsinfo an.
+
+1. Konto auf [dash.cloudflare.com](https://dash.cloudflare.com) anlegen (kostenlos).
+2. **Workers & Pages** → **Create** → **Create Worker** → Namen vergeben (z. B. `g04musik-titel`) → **Deploy**.
+3. **Edit code**: den ganzen Inhalt durch [`tools/nowplaying-worker.js`](tools/nowplaying-worker.js) ersetzen → **Deploy**.
+4. Die Adresse des Workers kopieren (`https://g04musik-titel.<dein-name>.workers.dev`).
+5. In G04Musik: **Einstellungen → Erweitert → Songtitel-Server** und die Adresse einfügen.
+   Für alle Benutzer der App: die Adresse in `js/nowplaying.js` bei `DEFAULT_PROXY` eintragen.
+
+Der Worker erlaubt nur Aufrufe von `https://paulfv.github.io` und von `localhost` (Liste `ALLOWED_ORIGINS` oben im Skript). Er speichert nichts.
 
 ## Starten
 

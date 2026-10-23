@@ -49,6 +49,22 @@
     'Füge Musik hinzu oder wechsle zu Radio.':'Add music or switch to Radio.',
     'Tipp: Halte einen Titel gedrückt oder tippe auf ⋯ für mehr Möglichkeiten.':'Tip: press and hold a track or tap ⋯ for more options.',
 
+    /* Radio: Songtitel und Infos */
+    'Songinfos':'Song info', 'Songinfos zu Radio':'Song info for radio',
+    'Cover, Album und Jahr über Apple (iTunes) laden':'Load cover, album and year from Apple (iTunes)',
+    'Titel':'Title', 'Künstler':'Artist', 'Jahr':'Year', 'Länge':'Length', 'Radiosender':'Station',
+    'Songtitel wird gesucht …':'Looking for the song title …',
+    'Dieser Sender meldet gerade keinen Songtitel.':'This station is not reporting a song title right now.',
+    'Dieser Sender (HLS) meldet keinen Songtitel.':'This station (HLS) does not report a song title.',
+    'Songinfos sind in den Einstellungen aus.':'Song info is switched off in Settings.',
+    'Auf YouTube suchen':'Search on YouTube', 'Bei Apple Music':'On Apple Music', 'Webseite des Senders':'Station website',
+    'Senderinfos':'Station info', 'Erweitert':'Advanced', 'Nur nötig, wenn die YouTube-Suche nicht klappt':'Only needed if YouTube search does not work',
+    'Songtitel-Server':'Song title server', 'Zeigt bei mehr Radiosendern Künstler und Titel':'Shows artist and title for more radio stations',
+    'Optional. Ein kleiner Server liest bei Radiosendern den aktuellen Titel aus und gibt ihn an die App weiter. Ohne ihn zeigen nur Sender Titel an, die es dem Browser erlauben.':'Optional. A small server reads the current title from radio stations and passes it to the app. Without it, only stations that allow the browser to read it show titles.',
+    'Wie du ihn einrichtest, steht in der README unter „Songtitel-Server“. Die Adresse sieht so aus: https://name.deinkonto.workers.dev':'How to set it up is explained in the README under "Songtitel-Server". The address looks like: https://name.yourname.workers.dev',
+    'Adresse gespeichert':'Address saved', 'Keine Adresse':'No address', 'Adresse entfernt':'Address removed',
+    'Die Adresse muss mit https:// beginnen.':'The address must start with https://',
+
     /* Reiter */
     'Songs':'Songs', 'Alben':'Albums', 'Videos':'Videos', 'Listen':'Lists', 'Favoriten':'Favourites',
     'Sender':'Stations', 'Zuletzt':'Recent', 'Suche':'Search', 'Gemerkt':'Saved', 'Verlauf':'History',
@@ -153,7 +169,7 @@
     'Jetzt installieren':'Install now', 'So geht’s':'How to',
     'Läuft als App – ohne Adressleiste, mit eigenem Icon.':'Running as an app – no address bar, with its own icon.',
     'Version & Copyright':'Version & copyright', 'Version':'Version', 'Copyright':'Copyright',
-    'Datenschutz':'Privacy', 'Kein Konto, kein Tracking. Deine Musikdateien bleiben auf dem Gerät. Radio, YouTube und die Suche fragen dafür fremde Dienste an.':'No account, no tracking. Your music files stay on the device. Radio, YouTube and search use outside services for this.',
+    'Datenschutz':'Privacy', 'Kein Konto, kein Tracking. Deine Musikdateien bleiben auf dem Gerät. Radio, YouTube, die Suche und Songinfos fragen dafür fremde Dienste an.':'No account, no tracking. Your music files stay on the device. Radio, YouTube, search and song info use outside services for this.',
     'Bibliothek leeren?':'Clear library?', 'Leeren':'Clear', 'Alles zurücksetzen?':'Reset everything?', 'Zurücksetzen':'Reset',
     'Alle eigenen Songs und Musikvideos werden von diesem Gerät entfernt. Die Originaldateien bleiben, wo sie waren.':'All your songs and music videos will be removed from this device. The original files stay where they are.',
     'Favoriten, Verlauf, YouTube-Liste und Einstellungen werden gelöscht. Deine Bibliothek bleibt.':'Favourites, history, YouTube list and settings will be deleted. Your library stays.',
