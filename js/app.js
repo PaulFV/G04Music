@@ -36,6 +36,7 @@
     }
     else if(what==='favs'){ V.refresh(); V.renderNP(); }
     else if(what==='lists'){ V.refresh(); }
+    else if(what==='vol'){ V.syncVol(); }
     else if(what==='meta'){ V.renderStage(); V.renderNP(); V.renderDock(); if(P.refreshSession) P.refreshSession(); }
     else if(what==='import'){ V.importTick(); }
     else if(what==='library'||what==='yt'){ V.refresh(); if(what==='library') V.renderNP(); }
@@ -106,6 +107,7 @@
       case 'welcomeHide': u.ls.set('welcomeDone',true); V.refresh(); break;
       case 'pickFolder': u.$('#pickFolder').click(); break;
       case 'toggle': P.toggle(); break;
+      case 'mute': P.toggleMute(); u.toast(P.muted?'Ton aus':'Ton an'); break;
       case 'next': P.next(); break;
       case 'prev': P.prev(); break;
       case 'stop': P.stop(); break;
@@ -200,14 +202,18 @@
   function npMore(){
     var c=P.cur; if(!c) return;
     var fav=S.isFav(c), rep={off:'aus',all:'alle',one:'ein Titel'}[S.settings.repeat];
+    var volBlock='<div class="vol-card"><button class="icon-btn" type="button" data-act="mute" data-volicon="20"></button>'+
+      (P.IOS?'<span class="vol-card__note">Lautstärke: mit den Tasten am Gerät</span>'
+        :'<input id="volRange2" type="range" min="0" max="100" step="1" value="'+Math.round(S.settings.volume*100)+'" aria-label="Lautstärke"><span class="num" id="volPct"></span>')+'</div>';
     u.sheet(V.shown(c).title,
+      volBlock+
       (c.kind==='radio'?'<button class="act" type="button" data-m="info">'+u.ic('info',18)+'Songinfos</button>':'')+
       '<button class="act" type="button" data-m="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>'+
       '<button class="act" type="button" data-m="list">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>'+
       '<button class="act" type="button" data-m="repeat">'+u.ic(S.settings.repeat==='one'?'repeat1':'repeat',18)+'<span>Wiederholen<small>jetzt: '+rep+'</small></span></button>'+
       '<button class="act" type="button" data-m="sleep">'+u.ic('moon',18)+'<span>Einschlaf-Timer<small>'+(P.sleepAt?'noch '+P.sleepLeft()+' min':'aus')+'</small></span></button>'+
       '<button class="act act--danger" type="button" data-m="stop">'+u.ic('trash',18)+'Wiedergabe beenden</button>',
-      function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-m]'); if(!x) return; var m=x.dataset.m; u.closeSheet();
+      function(b){ V.syncVol(); b.addEventListener('click',function(e){ var x=e.target.closest('[data-m]'); if(!x) return; var m=x.dataset.m; u.closeSheet();
         if(m==='info') act('npInfo'); else if(m==='pip') G.pip.toggle(); else if(m==='fav') act('fav'); else if(m==='list') act('toList'); else if(m==='repeat') act('repeat'); else if(m==='sleep') act('sleep'); else act('stop'); }); });
   }
   function ytKeySheet(){
@@ -291,7 +297,7 @@
     var t=e.target;
     if(t.id==='musicSearch') musicSearch(t.value);
     else if(t.id==='radioSearch') radioSearch(t.value);
-    else if(t.id==='volRange') P.setVolume(t.value/100);
+    else if(t.id==='volRange'||t.id==='volRange2') P.setVolume(t.value/100);
   });
   document.addEventListener('change',function(e){
     if(e.target.id==='radioCountry'){ S.radioCountry=e.target.value; S.save('radioCountry'); V.ui.radioItems=null; V.refresh(); }
@@ -390,6 +396,7 @@
     else if(m.webkitEnterFullscreen&&!m.hidden) m.webkitEnterFullscreen(); /* iPhone */
   });
   u.$('#stagePip').addEventListener('click',function(){ G.pip.toggle(); });
+  u.$('#stageMute').addEventListener('click',function(){ P.toggleMute(); u.toast(P.muted?'Ton aus':'Ton an'); });
   u.$('#stageRetry').addEventListener('click',function(){ P.toggle(); });
   /* Tippen auf das Abspielfenster: Pause / weiter */
   u.$('#stage').addEventListener('click',function(e){
@@ -419,7 +426,7 @@
     else if(e.key==='n'||e.key==='N') P.next();
     else if(e.key==='p'||e.key==='P') P.prev();
     else if(e.key==='f'||e.key==='F') u.$('#stageFull').click();
-    else if(e.key==='m'||e.key==='M'){ P.setVolume(S.settings.volume>0?0:0.9); V.renderNP(); }
+    else if(e.key==='m'||e.key==='M'){ P.toggleMute(); u.toast(P.muted?'Ton aus':'Ton an'); }
   });
 
   /* ---------- Installieren ---------- */

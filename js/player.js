@@ -16,7 +16,7 @@
 
   var P = G.player = {
     cur:null, queue:[], index:-1, playing:false, loading:false, error:'',
-    sleepAt:0, analyser:null
+    sleepAt:0, analyser:null, muted:false
   };
 
   function emit(){ S.emit('player'); }
@@ -117,7 +117,7 @@
     var el=new Audio(); el.preload='none';
     el._cors=!!cors; el._viz=!!cors;
     if(cors) el.crossOrigin='anonymous';
-    el.volume=vol(); radio=el; bind(el,'radio');
+    el.volume=vol(); el.muted=P.muted; radio=el; bind(el,'radio');
     return el;
   }
   /* plain: ohne CORS (zweiter Versuch, wenn der Sender CORS nicht erlaubt: dann ohne echtes Spektrum) */
@@ -145,6 +145,7 @@
 
   function playYT(item){
     G.yt.mount(u.$('#ytHost'),item,vol());
+    if(P.muted) setTimeout(function(){ if(P.cur===item&&P.muted) G.yt.mute(); },1200);
     P.loading=false; P.playing=true; emit();
   }
 
@@ -200,8 +201,15 @@
   P.isLive = function(){ return P.cur && P.cur.kind==='radio'; };
   P.setVolume = function(v){
     v=Math.max(0,Math.min(1,v)); S.settings.volume=v; S.save('settings');
-    media.volume=v; radio.volume=v; G.yt.volume(v); media.muted=radio.muted=false;
+    media.volume=v; radio.volume=v; G.yt.volume(v);
+    P.muted=false; applyMute(); S.emit('vol');
   };
+  /* Ton aus: gilt für Musik, Radio und YouTube; ein neuer Titel bleibt stumm, bis man den Ton wieder einschaltet */
+  function applyMute(){
+    media.muted=P.muted; if(radio) radio.muted=P.muted;
+    if(P.muted) G.yt.mute(); else G.yt.unmute();
+  }
+  P.toggleMute = function(){ P.muted=!P.muted; applyMute(); S.emit('vol'); };
   P.mediaEl = function(){ return media; };
 
   /* ---------- Ereignisse der Elemente ---------- */

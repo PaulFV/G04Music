@@ -1,4 +1,4 @@
-# G04Musik v0.6.10
+# G04Musik v0.6.11
 
 ![G04Musik](art/social-preview.png)
 
@@ -48,7 +48,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * **Kacheln oder Liste:** ein Knopf oben in der Kopfzeile wechselt die Ansicht für die ganze App, die Wahl wird gemerkt.
 * **Stern** oben rechts auf jeder Kachel (Songs, Videos, Radiosender, YouTube): Favorit an/aus, ohne abzuspielen.
 * **„⋯“-Knopf** auf jeder Kachel und Zeile – oder **lang drücken** (Rechtsklick am Rechner): Favorit, als Nächstes, Zu Liste hinzufügen, Infos, löschen.
-* Tastatur am Rechner: Leertaste = Pause, N/P = weiter/zurück, F = Vollbild, M = Ton aus.
+* Tastatur am Rechner: Leertaste = Pause, N/P = weiter/zurück, F = Vollbild, M = Ton aus/an. Lautstärke und Ton aus: Lautsprecher-Knopf oben rechts im Abspielfenster, Regler am Rechner unter den Knöpfen, am Handy unter „⋯“.
 
 ### Bildschirmgrößen
 * **Desktop** (ab 1200 px): volle Seitenleiste, Abspielfenster und Bedienfeld nebeneinander.

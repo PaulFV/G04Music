@@ -509,7 +509,7 @@
     u.$('#stageCover').hidden=!c||isYT;
     u.$('#stagePip').hidden=true;
     u.$('#stageFull').hidden=!(isVid||isYT);
-    u.$('#stageTools').hidden=!c||(!isVid&&!isYT);
+    u.$('#stageTools').hidden=!c;
     u.$('#stageBusy').hidden=!(c&&P.loading&&!isYT&&!P.error);
     u.$('#stageErr').hidden=!P.error; u.$('#stageErrText').textContent=P.error||'';
     var sh = c ? V.shown(c) : null;
@@ -568,12 +568,24 @@
       '<button class="icon-btn" type="button" data-act="toList" title="Zu Liste hinzufügen" aria-label="Zu Liste hinzufügen">'+ic('listAdd',18)+'</button>'+
       (G.pip&&G.pip.supported()?'<button class="icon-btn" type="button" data-act="pip" title="Mini-Fenster: bleibt über anderen Apps sichtbar" aria-label="Mini-Fenster">'+ic('pip',18)+'</button>':'')+
       '<button class="icon-btn'+(P.sleepAt?' is-on':'')+'" type="button" data-act="sleep" title="Einschlaf-Timer" aria-label="Einschlaf-Timer">'+ic('moon',18)+'</button>'+(P.sleepAt?'<span class="sleep-tag num">'+P.sleepLeft()+' min</span>':'')+
-      '<label class="vol" title="Lautstärke">'+ic(st.volume>0?'vol':'mute',18)+'<input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></label>'+
+      '<div class="vol" title="Lautstärke"><button class="icon-btn vol__btn" type="button" data-act="mute" data-volicon="18"></button><input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></div>'+
       '<button class="icon-btn" type="button" data-act="stop" title="Beenden" aria-label="Beenden"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
       (c.kind==='radio'?'<details class="np__info np__fold np-desk" data-fold="npinfo"'+(u.ls.get('fold.npinfo',false)?' open':'')+'>'+
         '<summary><span>'+(sh.song?'Songinfos':'Senderinfos')+'</span><span class="fold__chev">'+ic('down',16)+'</span></summary>'+
         '<div class="np__infobody">'+V.radioInfo(c)+'</div></details>':'')+
       (nxt?'<div class="np__next np-desk">Danach: <b>'+esc(nxt.title)+'</b></div>':'');
+    V.syncVol();
+  };
+
+  /* Ton-Knöpfe (Symbol, Beschriftung) und Regler dem aktuellen Stand anpassen */
+  V.syncVol = function(){
+    var P=G.player, off=P.muted||S.settings.volume===0, label=off?'Ton einschalten':'Ton ausschalten', pct=Math.round(S.settings.volume*100);
+    u.$$('[data-volicon]').forEach(function(b){
+      b.innerHTML=ic(off?'mute':'vol',+b.dataset.volicon||18);
+      b.setAttribute('aria-label',label); b.title=label; b.classList.toggle('is-on',off);
+    });
+    ['volRange','volRange2'].forEach(function(id){ var r=document.getElementById(id); if(r&&document.activeElement!==r) r.value=pct; });
+    var t=document.getElementById('volPct'); if(t) t.textContent=pct+' %';
   };
   function greet(){ var h=new Date().getHours(); return h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend'; }
 

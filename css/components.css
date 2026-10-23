@@ -402,3 +402,10 @@ details.np__fold > summary:hover{color:var(--tx-0)}
 details.np__fold[open] .fold__chev{transform:rotate(180deg)}
 details.np__fold[open] > summary{margin-bottom:8px}
 .np__infobody{display:flex;flex-direction:column;gap:5px}
+
+/* ---------- Lautstärke: Ton-Knopf und Regler ---------- */
+.ctl .vol .vol__btn{width:36px;height:36px}
+.vol-card{display:flex;align-items:center;gap:12px;padding:6px 4px 10px}
+.vol-card input[type=range]{flex:1;min-width:0;accent-color:var(--acc)}
+.vol-card .num{min-width:44px;text-align:right;color:var(--tx-1);font-size:13px}
+.vol-card__note{color:var(--tx-1);font-size:13.5px}

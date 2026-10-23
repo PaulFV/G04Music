@@ -21,12 +21,12 @@
 <link rel="icon" type="image/svg+xml" href="img/icon.svg?v=6">
 <link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png?v=6">
 
-<link rel="stylesheet" href="css/theme.css?v=0.6.10">
-<link rel="stylesheet" href="css/layout.css?v=0.6.10">
-<link rel="stylesheet" href="css/components.css?v=0.6.10">
-<link rel="stylesheet" href="css/player.css?v=0.6.10">
-<link rel="stylesheet" href="css/responsive.css?v=0.6.10">
-<link rel="stylesheet" href="css/theme-light.css?v=0.6.10">
+<link rel="stylesheet" href="css/theme.css?v=0.6.11">
+<link rel="stylesheet" href="css/layout.css?v=0.6.11">
+<link rel="stylesheet" href="css/components.css?v=0.6.11">
+<link rel="stylesheet" href="css/player.css?v=0.6.11">
+<link rel="stylesheet" href="css/responsive.css?v=0.6.11">
+<link rel="stylesheet" href="css/theme-light.css?v=0.6.11">
 <script>
   /* Hell/Dunkel und Sprache so früh wie möglich setzen – sonst blitzt kurz das Falsche auf */
   try{ if(localStorage.getItem('g04musik.theme')==='"light"'){ document.documentElement.setAttribute('data-theme','light'); } }catch(e){}
@@ -82,6 +82,7 @@
           <div class="stage__yt" id="ytHost"></div>
 
           <div class="stage__tools" id="stageTools">
+            <button class="icon-btn" id="stageMute" type="button" title="Ton ausschalten" aria-label="Ton ausschalten" data-volicon="17"></button>
             <button class="icon-btn" id="stagePip" type="button" title="Mini-Fenster (bleibt über anderen Apps sichtbar)" aria-label="Mini-Fenster" hidden>
               <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1" fill="currentColor"/></svg>
             </button>
@@ -152,19 +153,19 @@
 <input type="file" id="pickList" accept=".json,.m3u,.m3u8,.pls,.xspf,.csv,.txt,application/json,audio/x-mpegurl,audio/mpegurl,audio/x-scpls,application/xspf+xml,text/csv,text/plain" hidden>
 
 <!-- Skripte klassisch geladen, damit auch file:// funktioniert -->
-<script src="js/util.js?v=0.6.10"></script>
-<script src="js/i18n.js?v=0.6.10"></script>
-<script src="js/db.js?v=0.6.10"></script>
-<script src="js/id3.js?v=0.6.10"></script>
-<script src="js/store.js?v=0.6.10"></script>
-<script src="js/library.js?v=0.6.10"></script>
-<script src="js/radio.js?v=0.6.10"></script>
-<script src="js/nowplaying.js?v=0.6.10"></script>
-<script src="js/youtube.js?v=0.6.10"></script>
-<script src="js/playlists.js?v=0.6.10"></script>
-<script src="js/player.js?v=0.6.10"></script>
-<script src="js/pip.js?v=0.6.10"></script>
-<script src="js/views.js?v=0.6.10"></script>
-<script src="js/app.js?v=0.6.10"></script>
+<script src="js/util.js?v=0.6.11"></script>
+<script src="js/i18n.js?v=0.6.11"></script>
+<script src="js/db.js?v=0.6.11"></script>
+<script src="js/id3.js?v=0.6.11"></script>
+<script src="js/store.js?v=0.6.11"></script>
+<script src="js/library.js?v=0.6.11"></script>
+<script src="js/radio.js?v=0.6.11"></script>
+<script src="js/nowplaying.js?v=0.6.11"></script>
+<script src="js/youtube.js?v=0.6.11"></script>
+<script src="js/playlists.js?v=0.6.11"></script>
+<script src="js/player.js?v=0.6.11"></script>
+<script src="js/pip.js?v=0.6.11"></script>
+<script src="js/views.js?v=0.6.11"></script>
+<script src="js/app.js?v=0.6.11"></script>
 </body>
 </html>

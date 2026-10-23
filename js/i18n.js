@@ -49,6 +49,8 @@
     'Füge Musik hinzu oder wechsle zu Radio.':'Add music or switch to Radio.',
     'Tipp: Halte einen Titel gedrückt oder tippe auf ⋯ für mehr Möglichkeiten.':'Tip: press and hold a track or tap ⋯ for more options.',
 
+    'Ton ausschalten':'Mute', 'Ton einschalten':'Unmute', 'Ton aus':'Sound off', 'Ton an':'Sound on',
+    'Lautstärke: mit den Tasten am Gerät':'Volume: use the buttons on your device',
     'Verkleinern':'Minimise', 'Großes Abspielfenster':'Large player',
     /* Radio: Songtitel und Infos */
     'Songinfos':'Song info', 'Songinfos zu Radio':'Song info for radio',

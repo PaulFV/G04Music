@@ -142,6 +142,8 @@
     prev:function(){ send('previousVideo'); },
     seek:function(t){ send('seekTo',[t,true]); },
     volume:function(v){ send('setVolume',[Math.round(v*100)]); },
+    mute:function(){ send('mute'); },
+    unmute:function(){ send('unMute'); },
     active:function(){ return !!frame; }
   };
 })();
