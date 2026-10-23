@@ -1,4 +1,4 @@
-# G04Musik v0.4.8
+# G04Musik v0.4.9
 
 ![G04Musik](art/social-preview.png)
 
@@ -32,8 +32,8 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * **Listen mit Namen** anlegen; Songs, Musikvideos, Radiosender und YouTube-Videos hinzufügen (lang drücken → „Zu Liste hinzufügen“ oder beim Abspielen das Listen-Symbol).
 * In der Liste: abspielen, gemischt abspielen, umbenennen, löschen; Einträge verschieben oder entfernen (lang drücken).
 * **Favoriten je Bereich:** Musik, Radio und YouTube haben jeweils eigene Favoriten (eigener Reiter), jede Favoritenliste lässt sich einzeln exportieren.
-* **Export:** einzelne Liste oder Favoriten als G04Musik-Datei (`.g04musik.json`) oder **M3U** (für VLC & Co.); „Alles exportieren“ sichert Favoriten und alle Listen in einer Datei. Auf dem Handy über „Teilen“.
-* **Import:** G04Musik-Dateien und M3U-Listen. Eigene Songs werden über Dateiname und Größe (sonst Titel und Künstler) in der Bibliothek wiedergefunden; fehlende werden angezeigt und tauchen auf, sobald die Datei hinzugefügt ist.
+* **Export:** einzelne Liste oder Favoriten als G04Musik-Datei (`.g04musik.json`), **M3U8**, **M3U**, **XSPF** (VLC), **PLS**, **CSV** (Excel/Google Tabellen) oder **TXT**; „Alles exportieren“ sichert Favoriten und alle Listen in einer Datei. Auf dem Handy über „Teilen“.
+* **Import:** G04Musik-Dateien, M3U/M3U8, PLS, XSPF, CSV und TXT. Eigene Songs werden über Dateiname und Größe (sonst Titel und Künstler) in der Bibliothek wiedergefunden; fehlende werden angezeigt und tauchen auf, sobald die Datei hinzugefügt ist.
 
 ### Wiedergabe
 * **Bühne** mit echtem Spektrum (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt auf der Bühne,

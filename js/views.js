@@ -226,7 +226,7 @@
         var n = l.id===PL.FAV_ID ? resolve(S.favs).length : l.items.length;
         return '<button class="tile" type="button" data-plopen="'+esc(l.id)+'">'+listArt(l)+'<div class="tile__t">'+esc(l.name)+'</div><div class="tile__s">'+n+' Einträge</div></button>';
       }).join('')+'</div>'+
-      '<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Import: G04Musik-Dateien (.json) und M3U-Listen. Eigene Songs werden über den Dateinamen in deiner Bibliothek wiedergefunden.</p>'+
+      '<p style="color:var(--tx-2);font-size:12.5px;padding:0 4px">Import: G04Musik (.json), M3U/M3U8, PLS, XSPF, CSV und TXT. Eigene Songs werden über den Dateinamen in deiner Bibliothek wiedergefunden.</p>'+
       '</section>';
   }
 
