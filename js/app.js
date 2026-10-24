@@ -218,6 +218,20 @@
     var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
     PL.exportFile(id, 'json').then(function(ok){ if(!ok) u.toast('Fehler beim Erstellen der Datei',true); });
   }
+  /* Song teilen: Als temporäre Liste exportieren und sofort teilen */
+  function shareSong(it){
+    var PL=G.lists;
+    var tempList = { name: it.title, items: [it.kind==='track' ? { kind: 'track', id: it.id, title: it.title, fileName: it.fileName||'', size: it.size||0, artist: it.artist||'', album: it.album||'', duration: it.duration||0, isVideo: !!it.isVideo } : it.kind==='radio' ? { kind: 'radio', id: it.id, title: it.title, url: it.url, hls: !!it.hls, art: it.art||'' } : { kind: 'yt', id: it.id, title: it.title, ytType: it.ytType, ytId: it.ytId, art: it.art||'', duration: it.duration||0 }] };
+    var json = PL.toJSON([tempList]);
+    var blob = new Blob([json], {type: 'application/json'});
+    var file = new File([blob], it.title+'.g04musik.json', {type: 'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]}) && /iP(hone|ad|od)|Android/.test(navigator.userAgent)){
+      navigator.share({files:[file], title: 'Song: '+it.title}).catch(function(e){ if(e&&e.name!=='AbortError') u.toast('Fehler beim Teilen',true); });
+    } else {
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name;
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    }
+  }
   /* Share-Link mit QR-Code */
   function shareLink(id){
     var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
@@ -299,6 +313,7 @@
     if(P.cur && S.key(P.cur)!==S.key(it)) h+='<button class="act" type="button" data-x="nextUp">'+u.ic('queue',18)+'Als Nächstes spielen</button>';
     h+='<button class="act" type="button" data-x="fav">'+u.ic(fav?'starF':'star',18)+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'</button>';
     h+='<button class="act" type="button" data-x="toList">'+u.ic('listAdd',18)+'Zu Liste hinzufügen</button>';
+    h+='<button class="act" type="button" data-x="shareSong">'+u.ic('share',18)+'Teilen</button>';
     var inList = el.dataset.l==='pl' && V.ui.listOpen && V.ui.listOpen!==G.lists.FAV_ID;
     if(inList){
       h+='<div class="btn-row"><button class="btn btn--ghost btn--sm" type="button" data-x="up">'+u.ic('up',16)+'Nach oben</button><button class="btn btn--ghost btn--sm" type="button" data-x="down">'+u.ic('down',16)+'Nach unten</button></div>';
@@ -315,6 +330,7 @@
         else if(k==='nextUp'){ P.queue.splice(P.index+1,0,it); u.toast('Kommt als Nächstes'); V.renderNP(); }
         else if(k==='fav') u.toast(S.toggleFav(it)?'Zu Favoriten hinzugefügt':'Aus Favoriten entfernt');
         else if(k==='toList') listPicker(it);
+        else if(k==='shareSong') shareSong(it);
         else if(k==='up'||k==='down'||k==='unlist'){
           var l=G.lists.get(V.ui.listOpen), ix=l?rawIndex(l,it):-1; if(ix<0) return;
           if(k==='unlist'){ G.lists.removeAt(l.id,ix); u.toast('Aus der Liste entfernt'); }
