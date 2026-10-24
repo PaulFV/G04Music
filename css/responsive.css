@@ -17,10 +17,21 @@ body.has-dock .main{padding-bottom:110px}
 .stage:fullscreen{border-radius:0;border:0}
 .stage:-webkit-full-screen{border-radius:0;border:0}
 
-/* ---------- Großer Desktop ---------- */
+/* ---------- Großer Desktop (≥1600px): Split-View mit Bühne links ---------- */
 @media (min-width:1600px){
-  .hero{grid-template-columns:minmax(0,1.9fr) minmax(320px,1fr)}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(176px,1fr))}
+  .content:not(.no-hero){display:grid;grid-template-columns:minmax(380px,1fr) minmax(0,1.5fr);align-items:start;gap:24px;padding:16px}
+  .content:not(.no-hero) .hero{position:sticky;top:84px;grid-template-columns:1fr;max-height:calc(100dvh - 100px);overflow-y:auto;background:none}
+  .hero{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .hero .stage{width:100%;max-width:100%}
+  .np{padding:8px 4px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+}
+
+/* ---------- Desktop (1200–1599px): Bühne oben, Content darunter, optimiert ---------- */
+@media (min-width:1200px) and (max-width:1599px){
+  .hero{grid-template-columns:1fr;max-width:100%;gap:12px}
+  .hero .stage{width:100%;max-width:100%;max-height:50vh;aspect-ratio:16/9}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 }
 
 /* ---------- Kleiner Desktop: Bühne untereinander ab hier zu eng ---------- */
