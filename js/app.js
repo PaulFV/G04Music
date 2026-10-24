@@ -15,7 +15,20 @@
     V.render(); updateDock();
     if(!keepScroll) window.scrollTo(0,0);
   }
-  window.addEventListener('hashchange',function(){ var h=location.hash.slice(1); if(h&&h!==S.view) go(h); });
+  window.addEventListener('hashchange',function(){
+    var h=location.hash.slice(1);
+    if(h.indexOf('share/')===0){ importShareLink(h.slice(6)); return; }
+    if(h&&h!==S.view) go(h);
+  });
+  /* Share-Link importieren */
+  function importShareLink(dataStr){
+    try{
+      var r=G.lists.fromShareUrl(dataStr);
+      var msg=[]; if(r.lists) msg.push(r.lists+(r.lists===1?' Liste':' Listen')); if(r.favs) msg.push(r.favs+' Favoriten');
+      u.toast((msg.length?msg.join(' und ')+' importiert':'Nichts Neues gefunden')+(r.missing?' · '+r.missing+' Songs fehlen auf diesem Gerät':''));
+      V.ui.listOpen=null; V.ui.musicTab='lists'; go('music');
+    }catch(err){ u.toast(err.message||'Ungültiger Share-Link',true); go('music'); }
+  }
 
   /* ---------- Mini-Player: sichtbar, wenn die Bühne nicht zu sehen ist ---------- */
   var heroVisible=true;
@@ -153,6 +166,7 @@
         var r=V.lookup('pl',0); if(r&&r.list.length){ S.set('shuffle',a==='plShuffle'); P.play(a==='plShuffle'? r.list[Math.floor(Math.random()*r.list.length)] : r.list[0], r.list); } break;
       case 'plExport': exportSheet(V.ui.listOpen); break;
       case 'plShare': shareList(V.ui.listOpen); break;
+      case 'plShareLink': shareLink(V.ui.listOpen); break;
       case 'plRename': var lr=G.lists.get(V.ui.listOpen); if(lr) nameSheet('Liste umbenennen',lr.name,function(n){ G.lists.rename(lr.id,n); u.toast('Umbenannt'); }); break;
       case 'plDelete': var ld=G.lists.get(V.ui.listOpen); if(ld) u.confirm('Liste löschen?','„'+ld.name+'“ wird gelöscht. Die Songs selbst bleiben in deiner Bibliothek.','Löschen',function(){ G.lists.remove(ld.id); V.ui.listOpen=null; u.toast('Liste gelöscht'); }); break;
       case 'ytClear': V.ui.ytQuery=''; V.ui.ytResults=null; V.ui.ytErr=''; V.ui.ytBusy=false; V.refresh(); break;
@@ -197,6 +211,16 @@
   function shareList(id){
     var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
     PL.exportFile(id, 'json').then(function(ok){ if(!ok) u.toast('Fehler beim Erstellen der Datei',true); });
+  }
+  /* Share-Link mit QR-Code */
+  function shareLink(id){
+    var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
+    var url = PL.toShareUrl(l);
+    var body = '<div style="text-align:center;padding:20px"><div id="qrCode" style="display:inline-block;margin-bottom:20px"></div><p>Link zum Teilen:</p><input type="text" readonly value="'+u.esc(location.origin+location.pathname+'#share/'+url.slice(5))+'" style="width:100%;padding:8px;font-size:12px;margin-bottom:10px" id="shareLink"><button type="button" data-copy-link class="btn btn--sm" style="width:100%">Link kopieren</button></div>';
+    u.sheet('„'+l.name+'" teilen · Link & QR-Code',body,function(b){
+      new QRCode(u.$('#qrCode',b),{ text: location.origin+location.pathname+'#share/'+url.slice(5), width: 200, height: 200, colorDark: 'var(--txt)', colorLight: 'var(--bg)' });
+      u.$('[data-copy-link]',b).addEventListener('click',function(){ var el=u.$('#shareLink',b); el.select(); document.execCommand('copy'); u.toast('Link kopiert'); });
+    });
   }
   /* Position eines angezeigten Eintrags in der gespeicherten Liste */
   function rawIndex(l,it){

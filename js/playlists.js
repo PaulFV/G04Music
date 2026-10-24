@@ -293,4 +293,18 @@
     if (favIn) favIn.map(fix).filter(Boolean).forEach(function(x){ if (!S.isFav(x)) { S.toggleFav(x); favs++; } });
     return { lists: made, tracks: tracks, missing: missing, favs: favs };
   };
+  /* ---------- Share-Links (Base64 + QR-Code) ---------- */
+  PL.toShareUrl = function(l){
+    var json = PL.toJSON([l]);
+    var compressed = btoa(json);
+    return 'data:' + compressed;
+  };
+  PL.fromShareUrl = function(dataStr){
+    try {
+      var json = atob(dataStr.replace(/^data:/, ''));
+      return PL.importText(json, 'share.json');
+    } catch (e) {
+      throw new Error('Ungültiger Share-Link.');
+    }
+  };
 })();
