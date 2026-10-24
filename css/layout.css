@@ -69,11 +69,11 @@
 
 /* Inhalt: Bühne + Ansicht */
 .content{
-  display:flex;flex-direction:column;gap:18px;
+  display:flex;flex-direction:column;gap:12px;
   padding:0 var(--gutter);
   padding-right:max(var(--gutter),env(safe-area-inset-right));
 }
-.view-host{min-width:0;display:flex;flex-direction:column;gap:18px}
+.view-host{min-width:0;display:flex;flex-direction:column;gap:12px;flex:1}
 .view-host > *{animation:viewIn .38s var(--ease)}
 @keyframes viewIn{from{opacity:.35;transform:translateY(6px)}}
 
