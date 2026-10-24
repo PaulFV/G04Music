@@ -30,22 +30,30 @@ body.has-dock .main{padding-bottom:110px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
 }
 
-/* ---------- Großer Desktop (1400–1599px): Stage groß oben ---------- */
-@media (min-width:1400px) and (max-width:1599px){
-  .hero{grid-template-columns:1fr;gap:12px;padding:12px}
-  .hero .stage{width:100%;height:420px;aspect-ratio:16/9}
+/* ---------- Desktop (1200+px): Split-View mit großer Stage links ---------- */
+@media (min-width:1200px) and (max-width:1399px){
+  .content{padding:0}
+  .content:not(.no-hero){display:grid;grid-template-columns:minmax(420px,52%) minmax(0,1fr);align-items:start;gap:16px;padding:16px}
+  .content:not(.no-hero) .hero{position:sticky;top:84px;grid-template-columns:1fr;max-height:calc(100dvh - 100px);overflow-y:auto;background:none}
+  .hero{grid-template-columns:1fr;gap:10px;padding:0}
+  .hero .stage{width:100%;height:450px;aspect-ratio:16/9}
   .np{gap:6px;padding:6px 2px;font-size:13px}
   .np__head{display:block}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .panel{padding:14px;gap:12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
 }
 
-/* ---------- Desktop (1200–1399px): Stage groß oben ---------- */
-@media (min-width:1200px) and (max-width:1399px){
-  .hero{grid-template-columns:1fr;gap:12px;padding:12px}
-  .hero .stage{width:100%;height:360px;aspect-ratio:16/9}
+/* ---------- Großer Desktop (1400–1599px): Stage noch breiter ---------- */
+@media (min-width:1400px) and (max-width:1599px){
+  .content{padding:0}
+  .content:not(.no-hero){display:grid;grid-template-columns:minmax(480px,54%) minmax(0,1fr);align-items:start;gap:16px;padding:16px}
+  .content:not(.no-hero) .hero{position:sticky;top:84px;grid-template-columns:1fr;max-height:calc(100dvh - 100px);overflow-y:auto;background:none}
+  .hero{grid-template-columns:1fr;gap:10px;padding:0}
+  .hero .stage{width:100%;height:450px;aspect-ratio:16/9}
   .np{gap:6px;padding:6px 2px;font-size:13px}
   .np__head{display:block}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .panel{padding:14px;gap:12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
 }
 
 /* ---------- Kleiner Desktop: Bühne untereinander ab hier zu eng ---------- */
