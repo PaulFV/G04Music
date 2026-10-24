@@ -25,8 +25,14 @@
     try{
       var r=G.lists.fromShareUrl(dataStr);
       var msg=[]; if(r.lists) msg.push(r.lists+(r.lists===1?' Liste':' Listen')); if(r.favs) msg.push(r.favs+' Favoriten');
-      u.toast((msg.length?msg.join(' und ')+' importiert':'Nichts Neues gefunden')+(r.missing?' · '+r.missing+' Songs fehlen auf diesem Gerät':''));
-      V.ui.listOpen=null; V.ui.musicTab='lists'; go('music');
+      var summary = msg.length ? msg.join(' und ') : 'Nichts Neues';
+      if(r.missing) summary += ' · '+r.missing+' Songs fehlen';
+      u.confirm('Importieren?', summary, 'Ja', function(){
+        u.toast('✓ Importiert');
+        V.ui.listOpen=null; V.ui.musicTab='lists'; go('music');
+      }, function(){
+        go('music');
+      });
     }catch(err){ u.toast(err.message||'Ungültiger Share-Link',true); go('music'); }
   }
 
