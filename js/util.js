@@ -76,6 +76,7 @@
     listAdd:'<path d="M4 6h11M4 12h11M4 18h7"/><path d="M18 14v7M14.5 17.5h7"/>',
     download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
     upload:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
+    share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M15.8 6.2l-7.6 5.6M15.8 17.8l-7.6-5.6"/>',
     edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     up:'<path d="M6 15l6-6 6 6"/>',
     down:'<path d="M6 9l6 6 6-6"/>',

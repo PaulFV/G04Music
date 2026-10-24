@@ -152,6 +152,7 @@
       case 'plPlay': case 'plShuffle':
         var r=V.lookup('pl',0); if(r&&r.list.length){ S.set('shuffle',a==='plShuffle'); P.play(a==='plShuffle'? r.list[Math.floor(Math.random()*r.list.length)] : r.list[0], r.list); } break;
       case 'plExport': exportSheet(V.ui.listOpen); break;
+      case 'plShare': shareList(V.ui.listOpen); break;
       case 'plRename': var lr=G.lists.get(V.ui.listOpen); if(lr) nameSheet('Liste umbenennen',lr.name,function(n){ G.lists.rename(lr.id,n); u.toast('Umbenannt'); }); break;
       case 'plDelete': var ld=G.lists.get(V.ui.listOpen); if(ld) u.confirm('Liste löschen?','„'+ld.name+'“ wird gelöscht. Die Songs selbst bleiben in deiner Bibliothek.','Löschen',function(){ G.lists.remove(ld.id); V.ui.listOpen=null; u.toast('Liste gelöscht'); }); break;
       case 'ytClear': V.ui.ytQuery=''; V.ui.ytResults=null; V.ui.ytErr=''; V.ui.ytBusy=false; V.refresh(); break;
@@ -180,17 +181,22 @@
   }
   function exportSheet(id){
     var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
-    var opt=function(k,icon,name,desc){ return '<button class="act" type="button" data-ex="'+k+'">'+u.ic(icon,18)+'<span>'+name+'<small>'+desc+'</small></span></button>'; };
-    u.sheet('„'+l.name+'“ exportieren',
+    var opt=function(k,icon,name,desc){ return '<button class=”act” type=”button” data-ex=”'+k+'”>'+u.ic(icon,18)+'<span>'+name+'<small>'+desc+'</small></span></button>'; };
+    u.sheet('„'+l.name+'” exportieren',
       opt('json','upload','G04Musik-Datei (.json)','Zum Sichern oder für ein anderes Gerät mit G04Musik – alles bleibt erhalten')+
       opt('m3u8','lists','M3U8','Für die meisten Player (VLC, Winamp, Handy-Apps), Umlaute sicher')+
       opt('m3u','lists','M3U','Ältere Variante von M3U8 für sehr alte Player')+
       opt('xspf','lists','XSPF','Für VLC & Co. – mit Titel, Künstler, Album und Länge')+
       opt('pls','radio','PLS','Älteres Format, gut für Radiosender und Internetradio-Programme')+
       opt('csv','rows','CSV-Tabelle','Zum Öffnen in Excel oder Google Tabellen')+
-      opt('txt','file','Textliste (.txt)','„Künstler – Titel“ zum Verschicken oder Ausdrucken')+
-      '<p style="font-size:12.5px;color:var(--tx-2)">Sender und YouTube werden mit Adresse gespeichert, eigene Songs mit dem Dateinamen – die Musikdateien selbst sind nicht enthalten.</p>',
+      opt('txt','file','Textliste (.txt)','„Künstler – Titel” zum Verschicken oder Ausdrucken')+
+      '<p style=”font-size:12.5px;color:var(--tx-2)”>Sender und YouTube werden mit Adresse gespeichert, eigene Songs mit dem Dateinamen – die Musikdateien selbst sind nicht enthalten.</p>',
       function(b){ b.addEventListener('click',function(e){ var x=e.target.closest('[data-ex]'); if(!x) return; u.closeSheet(); PL.exportFile(id,x.dataset.ex).then(function(ok){ if(ok) u.toast('Als '+x.dataset.ex.toUpperCase()+' exportiert'); }); }); });
+  }
+  /* Teilen: Liste als G04Musik-JSON exportieren und sofort teilen (WhatsApp, Email, etc.) */
+  function shareList(id){
+    var PL=G.lists, l = String(id).indexOf('fav:')===0 ? PL.favList(id.slice(4)) : id===PL.FAV_ID ? PL.favList() : PL.get(id); if(!l) return;
+    PL.exportFile(id, 'json').then(function(ok){ if(!ok) u.toast('Fehler beim Erstellen der Datei',true); });
   }
   /* Position eines angezeigten Eintrags in der gespeicherten Liste */
   function rawIndex(l,it){

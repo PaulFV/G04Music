@@ -244,6 +244,7 @@
           btn('plBack','chev','Alle Listen',' qbtn--back')+
           (items.length? btn('plPlay','play','Abspielen',' qbtn--main')+btn('plShuffle','shuffle','Gemischt abspielen') : '')+
           btn('plExport','upload','Exportieren')+
+          (items.length? btn('plShare','share','Teilen') : '')+
           (fav?'':btn('plRename','edit','Umbenennen')+btn('plDelete','trash','Liste löschen',' qbtn--danger'))+
         '</div>'+
         (items.length? '<div class="list">'+reg('pl',items).map(function(it,i){ return lrow(it,'pl',i); }).join('')+'</div>'
