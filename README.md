@@ -1,4 +1,4 @@
-# G04Musik v0.7.0
+# G04Musik v0.7.1
 
 ![G04Musik](art/social-preview.png)
 
@@ -30,7 +30,8 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * Ganze **Ordner** auf einmal (Desktop-Browser). Gespeichert wird in der **IndexedDB** des Browsers.
 
 ### Vom DS-Server (Synology DiskStation)
-Musik → Songs → **DS-Server** (oder Einstellungen → Bibliothek). Zwei Wege:
+Musik → Songs → **DS-Server** (oder Einstellungen → Bibliothek). Drei Wege:
+* **Über die DS file-App:** öffnet die Dateiauswahl des Geräts – dort DS file wählen, anmelden, Dateien antippen. Keine Einrichtung an der DiskStation nötig (iPhone/iPad: in der Dateiauswahl „Durchsuchen“ → ggf. ⋯ → „Bearbeiten“ → DS file einschalten).
 * **Audio Station:** alle Titel der Musikbibliothek mit Künstler und Album, durchsuchen, einzeln oder alle auswählen.
 * **DS File (Ordner):** freigegebene Ordner durchblättern, einzelne Dateien oder einen **ganzen Ordner samt Unterordnern** importieren.
 

@@ -297,6 +297,14 @@
       '</details>';
     u.sheet('Vom DS-Server importieren',
       '<p>Musik von deiner Synology DiskStation in die App holen. Die Titel werden auf dieses Gerät geladen und laufen danach auch ohne Verbindung.</p>'+
+      '<button class="act ds-pick" type="button" data-ds="picker">'+u.ic('file',18)+'<span>Über die DS file-App auswählen<small>Öffnet die Dateiauswahl deines Geräts. Dort DS file wählen, anmelden und Dateien antippen – ohne Einrichtung an der DiskStation.</small></span>'+u.ic('chev',16)+'</button>'+
+      '<details class="fold ds-help"><summary><h3>DS file in der Dateiauswahl finden</h3><span class="fold__chev">'+u.ic('down',16)+'</span></summary>'+
+      '<ol class="ds-steps">'+
+      '<li><b>iPhone / iPad:</b> In der Dateiauswahl auf „Durchsuchen“ tippen. Steht DS file nicht unter „Orte“: oben rechts auf ⋯ → „Bearbeiten“ und DS file einschalten. Die App fragt dann nach Code oder Face ID.</li>'+
+      '<li><b>Android:</b> In der Dateiauswahl links das Menü ☰ öffnen und DS file wählen. Taucht es dort nicht auf, unterstützt deine DS file-Version das nicht – dann unten direkt mit der DiskStation verbinden.</li>'+
+      '<li><b>Computer:</b> Den Musik-Ordner der DiskStation als Netzlaufwerk verbinden und dann über <b>Dateien</b> oder <b>Ordner</b> hinzufügen.</li>'+
+      '</ol></details>'+
+      '<p class="ds-or">oder direkt mit der DiskStation verbinden</p>'+
       '<div class="seg2 ds-mode"><button type="button" class="seg2__b'+(dsState.mode==='audio'?' is-on':'')+'" data-dm="audio">'+u.ic('music',15)+'<span>Audio Station</span></button><button type="button" class="seg2__b'+(dsState.mode==='files'?' is-on':'')+'" data-dm="files">'+u.ic('folder',15)+'<span>DS File (Ordner)</span></button></div>'+
       '<form id="dsForm" style="display:flex;flex-direction:column;gap:10px" autocomplete="on">'+
       '<label class="field">'+u.ic('nas',18)+'<input id="dsUrl" type="url" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://name.synology.me:5001" value="'+u.esc(c.url||'')+'"></label>'+
@@ -308,6 +316,7 @@
       '</form>'+help+
       '<p class="ds-note">Das Passwort wird nicht gespeichert. Die App merkt sich nur Adresse und Benutzername.</p>',
       function(b){
+        b.addEventListener('click',function(e){ var pk=e.target.closest('[data-ds="picker"]'); if(!pk) return; u.closeSheet(); u.$('#pickFiles').click(); });
         b.addEventListener('click',function(e){ var x=e.target.closest('[data-dm]'); if(!x) return;
           dsState.mode=x.dataset.dm; u.$$('[data-dm]',b).forEach(function(y){ y.classList.toggle('is-on',y===x); }); });
         u.$('#dsForm',b).addEventListener('submit',function(e){

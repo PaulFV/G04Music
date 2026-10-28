@@ -429,3 +429,6 @@ details.np__fold[open] > summary{margin-bottom:8px}
 .ds-foot{position:sticky;bottom:-18px;margin:0 -16px -18px;padding:10px 16px 14px;background:rgba(17,13,22,.96);border-top:1px solid var(--glass-br);justify-content:space-between;align-items:center}
 .ds-count{color:var(--tx-2);font-size:13px}
 :root[data-theme="light"] .ds-foot{background:rgba(255,255,255,.96)}
+.ds-pick{border-color:var(--acc-line)}
+.ds-pick > span{flex:1}
+.ds-or{text-align:center;color:var(--tx-2);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:4px 0 0!important}

@@ -13,6 +13,14 @@
   var D = {
 
     /* DS-Server (Synology) */
+    'Über die DS file-App auswählen':'Choose via the DS file app',
+    'Öffnet die Dateiauswahl deines Geräts. Dort DS file wählen, anmelden und Dateien antippen – ohne Einrichtung an der DiskStation.':'Opens your device’s file picker. Choose DS file there, sign in and tap files – no setup on the DiskStation needed.',
+    'DS file in der Dateiauswahl finden':'Finding DS file in the file picker',
+    'iPhone / iPad:':'iPhone / iPad:', 'Android:':'Android:', 'Computer:':'Computer:',
+    ' In der Dateiauswahl auf „Durchsuchen“ tippen. Steht DS file nicht unter „Orte“: oben rechts auf ⋯ → „Bearbeiten“ und DS file einschalten. Die App fragt dann nach Code oder Face ID.':' In the file picker tap “Browse”. If DS file is not listed under “Locations”: tap ⋯ at the top right → “Edit” and turn DS file on. The app then asks for your code or Face ID.',
+    ' In der Dateiauswahl links das Menü ☰ öffnen und DS file wählen. Taucht es dort nicht auf, unterstützt deine DS file-Version das nicht – dann unten direkt mit der DiskStation verbinden.':' In the file picker open the ☰ menu on the left and choose DS file. If it does not appear there, your DS file version does not support it – then connect directly to the DiskStation below.',
+    ' Den Musik-Ordner der DiskStation als Netzlaufwerk verbinden und dann über ':' Connect the DiskStation’s music folder as a network drive and then add it via ',
+    'oder direkt mit der DiskStation verbinden':'or connect directly to the DiskStation',
     'DS-Server':'DS server', 'Vom DS-Server importieren':'Import from DS server', 'Synology Audio Station oder DS File':'Synology Audio Station or DS File',
     'Musik von deiner Synology DiskStation in die App holen. Die Titel werden auf dieses Gerät geladen und laufen danach auch ohne Verbindung.':'Bring music from your Synology DiskStation into the app. Tracks are downloaded to this device and then play without a connection.',
     'Audio Station':'Audio Station', 'DS File (Ordner)':'DS File (folders)', 'DS File':'DS File',
