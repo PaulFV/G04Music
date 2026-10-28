@@ -177,6 +177,7 @@
       case 'plDelete': var ld=G.lists.get(V.ui.listOpen); if(ld) u.confirm('Liste löschen?','„'+ld.name+'“ wird gelöscht. Die Songs selbst bleiben in deiner Bibliothek.','Löschen',function(){ G.lists.remove(ld.id); V.ui.listOpen=null; u.toast('Liste gelöscht'); }); break;
       case 'ytClear': V.ui.ytQuery=''; V.ui.ytResults=null; V.ui.ytErr=''; V.ui.ytBusy=false; V.refresh(); break;
       case 'ytKey': ytKeySheet(); break;
+      case 'dsServer': dsSheet(); break;
     }
   }
 
@@ -277,6 +278,172 @@
         if(x.dataset.k==='save'){ var v=u.$('#ytKeyIn').value.trim(); if(v) u.ls.set('ytKey',v); else u.ls.del('ytKey'); u.toast(v?'Schlüssel gespeichert':'Kein Schlüssel'); }
         else { u.ls.del('ytKey'); u.toast('Schlüssel entfernt'); }
         u.closeSheet(); V.refresh(); }); });
+  }
+
+  /* ---------- DS-Server (Synology): Audio Station oder DS File ---------- */
+  var dsState={ mode:'audio', songs:null, q:'', sel:{}, path:'', items:null, busy:'' };
+  function dsSheet(){
+    var DS=G.ds, c=DS.cfg(); dsState.mode=c.mode||'audio';
+    if(DS.connected(dsState.mode)) return dsState.mode==='audio'? dsSongsSheet() : dsFilesSheet();
+    var help='<details class="fold ds-help"><summary><h3>So richtest du deine DiskStation ein</h3><span class="fold__chev">'+u.ic('down',16)+'</span></summary>'+
+      '<ol class="ds-steps">'+
+      '<li>Die DiskStation muss über <b>https</b> erreichbar sein, z. B. <code>https://name.synology.me:5001</code> (Systemsteuerung → Externer Zugriff → DDNS, Zertifikat von Let’s Encrypt).</li>'+
+      '<li>Browser erlauben den Zugriff aus einer Web-App nur, wenn die DiskStation es freigibt. Dafür in DSM: <b>Systemsteuerung → Anmeldeportal → Erweitert → Reverse Proxy → Erstellen</b>.</li>'+
+      '<li>Quelle: HTTPS, deine Adresse, ein freier Port (z. B. <code>5443</code>). Ziel: HTTP, <code>localhost</code>, Port <code>5000</code>.</li>'+
+      '<li>Reiter <b>Benutzerdefinierte Kopfzeile → Erstellen</b>: Name <code>Access-Control-Allow-Origin</code>, Wert <code>'+u.esc(location.origin)+'</code>. Speichern.</li>'+
+      '<li>Hier in der App dann die Adresse mit diesem Port eintragen, z. B. <code>https://name.synology.me:5443</code>.</li>'+
+      '</ol>'+
+      '<p class="ds-note">Ohne Einrichtung geht es auch so: Den Musik-Ordner der DiskStation als Netzlaufwerk verbinden (Windows: Explorer → „Netzlaufwerk verbinden“, Mac: Finder → „Mit Server verbinden“, iPhone/iPad: Dateien-App → „Mit Server verbinden“) und dann hier über <b>Dateien</b> oder <b>Ordner</b> hinzufügen.</p>'+
+      '</details>';
+    u.sheet('Vom DS-Server importieren',
+      '<p>Musik von deiner Synology DiskStation in die App holen. Die Titel werden auf dieses Gerät geladen und laufen danach auch ohne Verbindung.</p>'+
+      '<div class="seg2 ds-mode"><button type="button" class="seg2__b'+(dsState.mode==='audio'?' is-on':'')+'" data-dm="audio">'+u.ic('music',15)+'<span>Audio Station</span></button><button type="button" class="seg2__b'+(dsState.mode==='files'?' is-on':'')+'" data-dm="files">'+u.ic('folder',15)+'<span>DS File (Ordner)</span></button></div>'+
+      '<form id="dsForm" style="display:flex;flex-direction:column;gap:10px" autocomplete="on">'+
+      '<label class="field">'+u.ic('nas',18)+'<input id="dsUrl" type="url" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://name.synology.me:5001" value="'+u.esc(c.url||'')+'"></label>'+
+      '<label class="field">'+u.ic('edit',18)+'<input id="dsUser" type="text" autocomplete="username" spellcheck="false" placeholder="Benutzername" value="'+u.esc(c.user||'')+'"></label>'+
+      '<label class="field">'+u.ic('info',18)+'<input id="dsPass" type="password" autocomplete="current-password" placeholder="Passwort"></label>'+
+      '<label class="field" id="dsOtpRow" hidden>'+u.ic('clock',18)+'<input id="dsOtp" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Bestätigungscode (2-Faktor)"></label>'+
+      '<p class="ds-err" id="dsErr" hidden></p>'+
+      '<div class="btn-row" style="justify-content:flex-end"><button class="btn btn--solid" type="submit" id="dsGo">'+u.ic('nas',17)+'Verbinden</button></div>'+
+      '</form>'+help+
+      '<p class="ds-note">Das Passwort wird nicht gespeichert. Die App merkt sich nur Adresse und Benutzername.</p>',
+      function(b){
+        b.addEventListener('click',function(e){ var x=e.target.closest('[data-dm]'); if(!x) return;
+          dsState.mode=x.dataset.dm; u.$$('[data-dm]',b).forEach(function(y){ y.classList.toggle('is-on',y===x); }); });
+        u.$('#dsForm',b).addEventListener('submit',function(e){
+          e.preventDefault();
+          var url=u.$('#dsUrl').value, user=u.$('#dsUser').value.trim(), pass=u.$('#dsPass').value, otp=u.$('#dsOtp').value.trim();
+          var er=u.$('#dsErr'), go=u.$('#dsGo');
+          if(!url.trim()||!user||!pass){ er.hidden=false; er.textContent='Bitte Adresse, Benutzername und Passwort eingeben.'; return; }
+          er.hidden=true; go.disabled=true; go.lastChild.textContent='Verbinde …';
+          G.ds.connect(url,user,pass,otp,dsState.mode).then(function(){
+            G.ds.saveCfg({url:G.ds.normUrl(url),user:user,mode:dsState.mode});
+            dsState.songs=null; dsState.items=null; dsState.sel={}; dsState.q=''; dsState.path='';
+            dsState.mode==='audio'? dsSongsSheet() : dsFilesSheet();
+          }).catch(function(x){
+            go.disabled=false; go.lastChild.textContent='Verbinden';
+            if(x.code==='API403'||x.code==='API404'){ u.$('#dsOtpRow').hidden=false; u.$('#dsOtp').focus(); }
+            er.hidden=false;
+            er.innerHTML=u.esc(x.message)+(x.code==='NET'?'<br><small>Stimmt die Adresse? Wenn ja, fehlt meist die Freigabe für Web-Apps (siehe „So richtest du deine DiskStation ein“). Bei einem eigenen Zertifikat die Adresse einmal im Browser öffnen und bestätigen.</small>':'');
+            if(x.code==='NET'){ var h=b.querySelector('.ds-help'); if(h) h.open=true; }
+          });
+        });
+      });
+  }
+  function dsHead(){
+    var c=G.ds.cfg();
+    return '<div class="ds-bar"><span class="ds-bar__t">'+u.ic('nas',16)+'<span>'+u.esc((c.url||'').replace(/^https?:\/\//,''))+' · '+u.esc(c.user||'')+'</span></span>'+
+      '<span class="btn-row"><button class="btn btn--sm" type="button" data-ds="switch">'+(dsState.mode==='audio'?u.ic('folder',15)+'DS File':u.ic('music',15)+'Audio Station')+'</button>'+
+      '<button class="btn btn--sm" type="button" data-ds="logout">Trennen</button></span></div>';
+  }
+  function dsSelBar(n,size,label){
+    return '<div class="btn-row ds-foot"><span class="ds-count num">'+n+' ausgewählt'+(size?' · '+u.bytes(size):'')+'</span>'+
+      '<button class="btn btn--solid" type="button" data-ds="import"'+(n?'':' disabled')+'>'+u.ic('download',17)+(label||'Importieren')+'</button></div>';
+  }
+  function dsRow(key,t,s,on,extra){
+    return '<button class="act ds-row'+(on?' is-on':'')+'" type="button" data-dk="'+u.esc(key)+'">'+u.ic(on?'check':'box',18)+'<span>'+u.esc(t)+'<small>'+s+'</small></span>'+(extra||'')+'</button>';
+  }
+  function dsBusy(msg){ u.sheet('Vom DS-Server importieren', dsHead()+'<div class="empty"><span class="empty__ic">'+u.ic('nas',26)+'</span><b>'+u.esc(msg)+'</b></div>', dsBind); }
+  function dsBind(b){
+    b.addEventListener('click',function(e){
+      var x=e.target.closest('[data-ds]'); if(!x) return;
+      if(x.dataset.ds==='logout'){ G.ds.logout(); dsState.songs=null; dsState.items=null; dsState.sel={}; u.closeSheet(); u.toast('Verbindung getrennt'); }
+      if(x.dataset.ds==='switch'){ var c=G.ds.cfg(); c.mode=dsState.mode==='audio'?'files':'audio'; G.ds.saveCfg(c); dsState.sel={}; dsSheet(); }
+    });
+  }
+  function dsFail(x){
+    if(x.code==='API106'||x.code==='API119'){ G.ds.sid={}; u.toast('Sitzung abgelaufen – bitte neu verbinden.',true); dsSheet(); return; }
+    u.toast(x.message||'Fehler bei der DiskStation.',true);
+  }
+
+  /* Audio Station: alle Titel, durchsuchen, auswählen */
+  function dsSongsSheet(){
+    if(!dsState.songs){
+      dsBusy('Titel werden geladen …');
+      G.ds.songs(function(n,tot){ var e=document.querySelector('.sheet__body .empty b'); if(e) e.textContent='Titel werden geladen … '+n+' von '+tot; })
+        .then(function(list){ dsState.songs=list; dsSongsSheet(); }).catch(dsFail);
+      return;
+    }
+    var L=dsState.songs, q=dsState.q.toLowerCase();
+    var hit=L.filter(function(s){ return !q || (s.title+' '+s.artist+' '+s.album).toLowerCase().indexOf(q)>=0; });
+    var MAX=250, shown=hit.slice(0,MAX);
+    var selN=0, selSize=0; L.forEach(function(s){ if(dsState.sel[s.id]){ selN++; selSize+=s.size||0; } });
+    var allOn=hit.length&&hit.every(function(s){ return dsState.sel[s.id]; });
+    u.sheet('Audio Station',
+      dsHead()+
+      '<label class="field field--sm">'+u.ic('search',17)+'<input id="dsQ" type="search" placeholder="Titel, Künstler oder Album" value="'+u.esc(dsState.q)+'" autocomplete="off"></label>'+
+      '<div class="btn-row" style="justify-content:space-between;align-items:center"><span class="ds-count">'+hit.length+' von '+L.length+' Titeln</span>'+
+      (hit.length?'<button class="btn btn--sm" type="button" data-ds="all">'+(allOn?'Keine auswählen':'Alle '+hit.length+' auswählen')+'</button>':'')+'</div>'+
+      '<div class="pick-list ds-list">'+(shown.length? shown.map(function(s){
+        var have=G.library.has(s.name,s.size);
+        return dsRow(s.id,s.title,u.esc([s.artist||'Unbekannt',s.album].filter(Boolean).join(' · '))+(s.duration?' · '+u.fmt(s.duration):'')+(have?' · schon in der App':''),!!dsState.sel[s.id]);
+      }).join('') : '<p class="ds-note">Keine Titel gefunden.</p>')+
+      (hit.length>MAX?'<p class="ds-note">'+(hit.length-MAX)+' weitere – Suche eingrenzen oder „Alle auswählen“.</p>':'')+'</div>'+
+      dsSelBar(selN,selSize),
+      function(b){
+        dsBind(b);
+        var qi=u.$('#dsQ',b), tmr=0;
+        qi.addEventListener('input',function(){ clearTimeout(tmr); tmr=setTimeout(function(){ dsState.q=qi.value; dsSongsSheet(); var n=u.$('#dsQ'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },250); });
+        b.addEventListener('click',function(e){
+          var r=e.target.closest('[data-dk]'), a=e.target.closest('[data-ds]');
+          if(r){ var id=r.dataset.dk; if(dsState.sel[id]) delete dsState.sel[id]; else dsState.sel[id]=1; var sc=b.scrollTop; dsSongsSheet(); var nb=u.$('#sheetBody'); if(nb) nb.scrollTop=sc; return; }
+          if(!a) return;
+          if(a.dataset.ds==='all'){ hit.forEach(function(s){ if(allOn) delete dsState.sel[s.id]; else dsState.sel[s.id]=1; }); dsSongsSheet(); }
+          if(a.dataset.ds==='import'){ var pick=L.filter(function(s){ return dsState.sel[s.id]; }); dsState.sel={}; dsRun(pick, G.ds.getSong); }
+        });
+      });
+  }
+
+  /* DS File: Ordner durchblättern, Dateien oder ganze Ordner wählen */
+  function dsFilesSheet(){
+    if(!dsState.items){
+      dsBusy('Ordner wird geöffnet …');
+      (dsState.path? G.ds.list(dsState.path) : G.ds.shares()).then(function(items){ dsState.items=items; dsFilesSheet(); }).catch(function(x){
+        if(dsState.path){ dsState.path=dsState.path.replace(/\/[^\/]*$/,''); dsState.items=null; }
+        dsFail(x); });
+      return;
+    }
+    var items=dsState.items, files=items.filter(function(x){ return !x.dir; }), dirs=items.filter(function(x){ return x.dir; });
+    var selN=0, selSize=0; Object.keys(dsState.sel).forEach(function(k){ selN++; selSize+=dsState.sel[k].size||0; });
+    var crumbs=dsState.path? dsState.path.split('/').filter(Boolean) : [];
+    var path='<div class="ds-path"><button class="btn btn--sm" type="button" data-dp="">'+u.ic('nas',15)+'DiskStation</button>'+
+      crumbs.map(function(c,i){ return u.ic('chev',14)+'<button class="btn btn--sm" type="button" data-dp="/'+u.esc(crumbs.slice(0,i+1).join('/'))+'">'+u.esc(c)+'</button>'; }).join('')+'</div>';
+    var allOn=files.length&&files.every(function(f){ return dsState.sel[f.path]; });
+    u.sheet('DS File',
+      dsHead()+path+
+      (dsState.path?'<div class="btn-row" style="justify-content:space-between;align-items:center">'+
+        '<button class="btn btn--sm" type="button" data-ds="walk">'+u.ic('download',15)+'Ganzen Ordner importieren</button>'+
+        (files.length?'<button class="btn btn--sm" type="button" data-ds="all">'+(allOn?'Keine':'Alle '+files.length)+'</button>':'')+'</div>':'')+
+      '<div class="pick-list ds-list">'+
+        dirs.map(function(d){ return '<button class="act" type="button" data-dp="'+u.esc(d.path)+'">'+u.ic('folder',18)+'<span>'+u.esc(d.name)+'</span>'+u.ic('chev',16)+'</button>'; }).join('')+
+        files.map(function(f){ return dsRow(f.path,f.name,u.bytes(f.size)+(G.library.has(f.name,f.size)?' · schon in der App':''),!!dsState.sel[f.path]); }).join('')+
+        (!items.length?'<p class="ds-note">Hier liegen keine Musik- oder Videodateien.</p>':'')+
+      '</div>'+dsSelBar(selN,selSize),
+      function(b){
+        dsBind(b);
+        b.addEventListener('click',function(e){
+          var p=e.target.closest('[data-dp]'), r=e.target.closest('[data-dk]'), a=e.target.closest('[data-ds]');
+          if(p){ dsState.path=p.dataset.dp; dsState.items=null; dsFilesSheet(); return; }
+          if(r){ var k=r.dataset.dk; if(dsState.sel[k]) delete dsState.sel[k]; else dsState.sel[k]=files.filter(function(f){ return f.path===k; })[0]; var sc=b.scrollTop; dsFilesSheet(); var nb=u.$('#sheetBody'); if(nb) nb.scrollTop=sc; return; }
+          if(!a) return;
+          if(a.dataset.ds==='all'){ files.forEach(function(f){ if(allOn) delete dsState.sel[f.path]; else dsState.sel[f.path]=f; }); dsFilesSheet(); }
+          if(a.dataset.ds==='import'){ var pick=Object.keys(dsState.sel).map(function(k){ return dsState.sel[k]; }); dsState.sel={}; dsRun(pick, G.ds.getFile); }
+          if(a.dataset.ds==='walk'){
+            var folder=dsState.path; dsBusy('Ordner wird durchsucht …');
+            G.ds.walk(folder,function(n,d){ var e2=document.querySelector('.sheet__body .empty b'); if(e2) e2.textContent='Ordner wird durchsucht … '+n+' Dateien in '+d+' Ordnern'; })
+              .then(function(list){ if(!list.length){ u.toast('In diesem Ordner liegen keine Musik- oder Videodateien.',true); dsFilesSheet(); return; } dsRun(list, G.ds.getFile); })
+              .catch(dsFail);
+          }
+        });
+      });
+  }
+  function dsRun(list, getter){
+    if(!list.length) return;
+    u.closeSheet();
+    if(S.view!=='music') go('music');
+    G.library.importRemote(list.map(function(x){ return Object.assign({},x,{name:x.name,size:x.size}); }), getter).then(function(n){
+      if(n&&S.view==='music'){ V.ui.musicTab=G.library.songs().length?'songs':'videos'; V.refresh(); }
+    });
   }
   /* Adresse eines Titel-Servers (tools/nowplaying-worker.js) – für mehr Sender mit Songtitel */
   function proxySheet(){

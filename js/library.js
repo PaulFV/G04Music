@@ -72,45 +72,59 @@
 
   L.importing = null; /* {done,total} während des Einlesens */
 
+  /* Eine Datei einlesen und speichern. Ergebnis: 'added' | 'dup' | 'bad' */
+  function addOne(f, known){
+    if(known[f.name+'|'+f.size]) return Promise.resolve('dup');
+    var isVid=L.isVideoFile(f), state='added';
+    return G.tags.read(f).then(function(t){
+      return probe(f,isVid).then(function(p){
+        if(!p.playable) state='bad';
+        var meta={
+          id:u.uid(), title:t.title||f.name, artist:t.artist, album:isVid?'':t.album, track:t.track, year:t.year,
+          duration:p.duration||0, isVideo:isVid&&p.hasVideo!==false, size:f.size, type:f.type||'', fileName:f.name,
+          added:Date.now(), cover:t.cover||p.thumb||null, playable:p.playable, source:f.g04source||''
+        };
+        return G.db.putTrack(meta,f).then(function(){ known[f.name+'|'+f.size]=1; L.tracks.push(toItem(meta)); return state; });
+      });
+    });
+  }
+  function knownMap(){ var k={}; L.tracks.forEach(function(t){ k[t.fileName+'|'+t.size]=1; }); return k; }
+  L.has = function(name,size){ return L.tracks.some(function(t){ return t.fileName===name && t.size===size; }); };
+  function report(r){
+    var msg = r.added? r.added+' Titel hinzugefügt' : 'Nichts Neues hinzugefügt';
+    if(r.dup) msg+=' · '+r.dup+' schon vorhanden';
+    if(r.failed) msg+=' · '+r.failed+' nicht geladen';
+    u.toast(msg, !r.added && !!r.failed);
+    if(r.bad) setTimeout(function(){ u.toast(r.bad+(r.bad===1?' Datei kann':' Dateien können')+' dieser Browser vermutlich nicht abspielen (z. B. AVI, WMV oder MKV mit seltenem Format).',true); },700);
+  }
+
   L.importFiles = function(fileList){
     var files=Array.prototype.slice.call(fileList||[]).filter(L.isMedia);
     var skipped=(fileList?fileList.length:0)-files.length;
     if(!files.length){ u.toast(skipped? 'Keine Musik- oder Videodateien gefunden.' : 'Nichts ausgewählt.', !!skipped); return Promise.resolve(0); }
+    return L.importRemote(files.map(function(f){ return {name:f.name,size:f.size,file:f}; }), function(x){ return Promise.resolve(x.file); });
+  };
+
+  /* Liste von {name,size,...} nacheinander holen (getFile liefert ein File) und einlesen.
+     Wird für eigene Dateien und für Titel vom DS-Server benutzt. */
+  L.importRemote = function(items, getFile){
     if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(function(){});
-
-    var known={}; L.tracks.forEach(function(t){ known[t.fileName+'|'+t.size]=1; });
-    var added=0, dup=0, bad=0, i=0;
-    L.importing={done:0,total:files.length}; G.store.emit('import');
-
+    var known=knownMap(), r={added:0,dup:0,bad:0,failed:0}, i=0, stop=false;
+    L.importing={done:0,total:items.length}; G.store.emit('import');
     function next(){
-      if(i>=files.length) return Promise.resolve();
-      var f=files[i++];
-      if(known[f.name+'|'+f.size]){ dup++; L.importing.done++; G.store.emit('import'); return next(); }
-      var isVid=L.isVideoFile(f);
-      return G.tags.read(f).then(function(t){
-        return probe(f,isVid).then(function(p){
-          if(!p.playable) bad++;
-          var meta={
-            id:u.uid(), title:t.title||f.name, artist:t.artist, album:isVid?'':t.album, track:t.track, year:t.year,
-            duration:p.duration||0, isVideo:isVid&&p.hasVideo!==false, size:f.size, type:f.type||'', fileName:f.name,
-            added:Date.now(), cover:t.cover||p.thumb||null, playable:p.playable
-          };
-          return G.db.putTrack(meta,f).then(function(){
-            known[f.name+'|'+f.size]=1; L.tracks.push(toItem(meta)); added++;
-          });
-        });
+      if(i>=items.length||stop) return Promise.resolve();
+      var x=items[i++];
+      if(x.size && known[x.name+'|'+x.size]){ r.dup++; L.importing.done++; G.store.emit('import'); return next(); }
+      return Promise.resolve().then(function(){ return getFile(x); }).then(function(f){
+        return addOne(f, known).then(function(st){ r[st]++; if(st==='bad') r.added++; });
       }).catch(function(e){
-        console.warn('Import',f.name,e); bad++;
-        if(e&&e.name==='QuotaExceededError'){ i=files.length; u.toast('Der Speicher ist voll. Lösche Titel oder gib in den Einstellungen mehr frei.',true); }
+        console.warn('Import',x.name,e);
+        if(e&&e.name==='QuotaExceededError'){ stop=true; u.toast('Der Speicher ist voll. Lösche Titel oder gib in den Einstellungen mehr frei.',true); }
+        else r.failed++;
       }).then(function(){ L.importing.done++; G.store.emit('import'); return next(); });
     }
     return next().then(function(){
-      sort(); L.importing=null; G.store.emit('library');
-      var msg = added? added+(added===1?' Titel':' Titel')+' hinzugefügt' : 'Nichts Neues hinzugefügt';
-      if(dup) msg+=' · '+dup+' schon vorhanden';
-      u.toast(msg);
-      if(bad) setTimeout(function(){ u.toast(bad+(bad===1?' Datei kann':' Dateien können')+' dieser Browser vermutlich nicht abspielen (z. B. AVI, WMV oder MKV mit seltenem Format).',true); },700);
-      return added;
+      sort(); L.importing=null; G.store.emit('library'); report(r); return r.added;
     });
   };
 

@@ -5,7 +5,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.6.14';
+  G.VERSION = '0.7.0';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
@@ -87,6 +87,9 @@
     more:'<circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/>',
     queue:'<path d="M4 6h12M4 12h12M4 18h8"/><path d="M17 15l4 3-4 3z" fill="currentColor"/>',
     expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+    nas:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 11h7"/><circle cx="9" cy="16.5" r="1" fill="currentColor"/><circle cx="12.5" cy="16.5" r="1" fill="currentColor"/>',
+    check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    box:'<rect x="4.5" y="4.5" width="15" height="15" rx="3.5"/>',
     shrink:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'
   };
   u.ic = function(n,s,w){ return '<svg viewBox="0 0 24 24" width="'+(s||20)+'" height="'+(s||20)+'" fill="none" stroke="currentColor" stroke-width="'+(w||1.9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(I[n]||'')+'</svg>'; };

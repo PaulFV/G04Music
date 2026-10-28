@@ -1,4 +1,4 @@
-# G04Musik v0.6.14
+# G04Musik v0.7.0
 
 ![G04Musik](art/social-preview.png)
 
@@ -28,6 +28,23 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 * Titel, Künstler, Album, Nummer und **Cover** werden aus den Tags gelesen (ID3 bei MP3, iTunes-Tags bei M4A/MP4). Ohne Tags
   hilft der Dateiname („Künstler - Titel.mp3“). Videos bekommen automatisch ein Vorschaubild.
 * Ganze **Ordner** auf einmal (Desktop-Browser). Gespeichert wird in der **IndexedDB** des Browsers.
+
+### Vom DS-Server (Synology DiskStation)
+Musik → Songs → **DS-Server** (oder Einstellungen → Bibliothek). Zwei Wege:
+* **Audio Station:** alle Titel der Musikbibliothek mit Künstler und Album, durchsuchen, einzeln oder alle auswählen.
+* **DS File (Ordner):** freigegebene Ordner durchblättern, einzelne Dateien oder einen **ganzen Ordner samt Unterordnern** importieren.
+
+Die Titel werden auf das Gerät geladen und laufen danach ohne Verbindung. Schon vorhandene Titel werden übersprungen.
+Anmeldung mit Benutzername und Passwort, auch mit 2-Faktor-Code. Das Passwort wird nicht gespeichert, nur Adresse und Benutzername.
+
+**Einrichtung auf der DiskStation (einmalig):** Browser erlauben einer Web-App den Zugriff nur, wenn die DiskStation es freigibt.
+1. DiskStation über **https** erreichbar machen (z. B. `https://name.synology.me`, DDNS + Let’s-Encrypt-Zertifikat).
+2. DSM → Systemsteuerung → Anmeldeportal → Erweitert → **Reverse Proxy** → Erstellen:
+   Quelle HTTPS, deine Adresse, freier Port (z. B. `5443`) → Ziel HTTP, `localhost`, Port `5000`.
+3. Reiter **Benutzerdefinierte Kopfzeile** → Erstellen: `Access-Control-Allow-Origin` = `https://paulfv.github.io`.
+4. In der App `https://name.synology.me:5443` eintragen.
+
+Ohne Einrichtung: den Musik-Ordner als Netzlaufwerk verbinden (Windows-Explorer, Mac-Finder, iPhone/iPad-Dateien-App „Mit Server verbinden“) und über **Dateien** / **Ordner** hinzufügen.
 
 ### Eigene Listen und Favoriten
 * **Listen mit Namen** anlegen; Songs, Musikvideos, Radiosender und YouTube-Videos hinzufügen (lang drücken → „Zu Liste hinzufügen“ oder beim Abspielen das Listen-Symbol).

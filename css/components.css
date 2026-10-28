@@ -409,3 +409,23 @@ details.np__fold[open] > summary{margin-bottom:8px}
 .vol-card input[type=range]{flex:1;min-width:0;accent-color:var(--acc)}
 .vol-card .num{min-width:44px;text-align:right;color:var(--tx-1);font-size:13px}
 .vol-card__note{color:var(--tx-1);font-size:13.5px}
+
+/* ---------- DS-Server ---------- */
+.ds-mode{align-self:stretch;display:flex}
+.ds-mode .seg2__b{flex:1;justify-content:center}
+.ds-err{color:var(--live);font-size:13.5px;padding:0 4px}
+.ds-err small{color:var(--tx-2);font-size:12.5px}
+.ds-note{color:var(--tx-2);font-size:12.5px;padding:0 4px;line-height:1.45}
+.ds-help{border:1px solid var(--glass-br);border-radius:12px;padding:10px 12px;background:var(--glass-bg)}
+.ds-steps{margin:10px 0 8px 18px;display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--tx-1);line-height:1.45}
+.ds-steps code,.ds-note code{font-size:12px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:5px;word-break:break-all}
+.ds-bar{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.ds-bar__t{display:flex;align-items:center;gap:6px;color:var(--tx-2);font-size:12.5px;min-width:0}
+.ds-bar__t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ds-path{display:flex;align-items:center;gap:4px;flex-wrap:wrap;color:var(--tx-2)}
+.ds-list{max-height:none}
+.ds-row.is-on{border-color:var(--acc-line);background:var(--acc-dim)}
+.ds-row.is-on > svg{color:var(--acc)}
+.ds-foot{position:sticky;bottom:-18px;margin:0 -16px -18px;padding:10px 16px 14px;background:rgba(17,13,22,.96);border-top:1px solid var(--glass-br);justify-content:space-between;align-items:center}
+.ds-count{color:var(--tx-2);font-size:13px}
+:root[data-theme="light"] .ds-foot{background:rgba(255,255,255,.96)}

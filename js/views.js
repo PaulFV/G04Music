@@ -116,6 +116,7 @@
     return '<div class="empty"><span class="empty__ic">'+ic(icon,26)+'</span><b>'+title+'</b><p>'+text+'</p>'+(btns?'<div class="btn-row" style="justify-content:center">'+btns+'</div>':'')+'</div>';
   }
   var BTN_FILES='<button class="btn btn--solid" type="button" data-act="pickFiles">'+ic('plus',17)+'Dateien hinzufügen</button>';
+  var BTN_DS='<button class="btn" type="button" data-act="dsServer">'+ic('nas',17)+'DS-Server</button>';
   var BTN_FOLDER='<button class="btn" type="button" data-act="pickFolder">'+ic('folder',17)+'Ordner</button>';
   function canFolder(){ var i=document.createElement('input'); return 'webkitdirectory' in i && !G.player.IOS && !/Android/.test(navigator.userAgent); }
   function importBar(){
@@ -186,12 +187,13 @@
     var head='<section class="panel glass filters">'+tabs+
       (search?'<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
       '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
-      (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+'</div>':'')+
+      (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+
+      '<button class="btn btn--icon" type="button" data-act="dsServer" title="Vom DS-Server importieren" aria-label="Vom DS-Server importieren">'+ic('nas',18)+'<span>DS-Server</span></button></div>':'')+
       '</section>';
     if(t==='lists') return importBar()+head+viewLists();
     if(t==='favs') return importBar()+head+favSection('track','mfav');
     if(!L.tracks.length && !L.importing && !u.ls.get('welcomeDone',false)) return head+welcome();
-    if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES)+'</section>';
+    if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät oder hole sie von deiner Synology DiskStation. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES+BTN_DS)+'</section>';
 
     var q=ui.musicQuery.trim().toLowerCase();
     var match=function(x){ return !q || (x.title+' '+(x.artist||'')+' '+(x.album||'')).toLowerCase().indexOf(q)>=0; };
@@ -372,6 +374,7 @@
       fold('lib','Bibliothek',[
         row('Eigene Titel',L.songs().length+' Songs · '+L.videos().length+' Musikvideos','<span class="set__val num" id="storeUse">'+u.bytes(L.totalSize())+'</span>'),
         row('Dateien hinzufügen','Musik und Musikvideos von diesem Gerät','<span class="set__val">'+ic('chev',16)+'</span>','pickFiles'),
+        row('Vom DS-Server importieren','Synology Audio Station oder DS File','<span class="set__val">'+(G.ds.cfg().url?ic('nas',16):ic('chev',16))+'</span>','dsServer'),
         row('Bibliothek leeren','Entfernt alle eigenen Titel von diesem Gerät','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','clearLib'),
         row('Alles zurücksetzen','Favoriten, Verlauf, Einstellungen','<span class="set__val" style="color:var(--live)">'+ic('trash',16)+'</span>','resetAll')
       ])+
