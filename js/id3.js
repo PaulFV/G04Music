@@ -55,6 +55,8 @@
       if(id==='TIT2'||id==='TT2') out.title=clean(decode(d.subarray(1),enc));
       else if(id==='TPE1'||id==='TP1') out.artist=clean(decode(d.subarray(1),enc));
       else if(id==='TALB'||id==='TAL') out.album=clean(decode(d.subarray(1),enc));
+      else if(id==='TPE2'||id==='TP2') out.albumArtist=clean(decode(d.subarray(1),enc));
+      else if(id==='TPOS'||id==='TPA') out.disc=parseInt(clean(decode(d.subarray(1),enc)),10)||0;
       else if(id==='TRCK'||id==='TRK') out.track=parseInt(clean(decode(d.subarray(1),enc)),10)||0;
       else if(id==='TYER'||id==='TDRC'||id==='TYE') out.year=clean(decode(d.subarray(1),enc)).slice(0,4);
       else if((id==='APIC'||id==='PIC')&&!out.cover){
@@ -88,7 +90,7 @@
           else if(type==='trkn') out.track=(data[2]<<8|data[3])||0;
           else {
             var s=new TextDecoder('utf-8').decode(data).trim();
-            if(type==='©nam') out.title=s; else if(type==='©ART') out.artist=s; else if(type==='aART'&&!out.artist) out.artist=s; else if(type==='©alb') out.album=s;
+            if(type==='©nam') out.title=s; else if(type==='©ART') out.artist=s; else if(type==='aART'){ out.albumArtist=s; if(!out.artist) out.artist=s; } else if(type==='©alb') out.album=s;
           }
         }
         p+=size;
@@ -123,7 +125,7 @@
       }).catch(function(){ return {}; }).then(function(t){
         return {
           title:t.title||name.title, artist:t.artist||name.artist||'', album:t.album||'',
-          track:t.track||0, year:t.year||'', cover:t.cover||null
+          track:t.track||0, year:t.year||'', cover:t.cover||null, albumArtist:t.albumArtist||'', disc:t.disc||0
         };
       });
     }

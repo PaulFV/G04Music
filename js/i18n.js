@@ -122,7 +122,7 @@
     'Kein Treffer':'No match', 'Versuch es mit einem anderen Wort.':'Try another word.',
     'Noch keine Songs':'No songs yet', 'Füge Musikdateien hinzu.':'Add music files.',
     'Noch keine Musikvideos':'No music videos yet', 'Füge MP4-, WebM-, MOV- oder MKV-Dateien hinzu.':'Add MP4, WebM, MOV or MKV files.',
-    'Alle Alben':'All albums', 'Singles':'Singles', 'Verschiedene':'Various', 'Unbekannter Künstler':'Unknown artist', 'Unbekannt':'Unknown',
+    'Alle Alben':'All albums', 'Singles':'Singles', 'Verschiedene':'Various', 'Verschiedene Künstler':'Various artists', 'Unbekannter Künstler':'Unknown artist', 'Unbekannt':'Unknown',
     'Wird eingelesen …':'Importing …', 'Single':'Single', 'Video':'Video',
 
     /* Listen */

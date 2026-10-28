@@ -32,12 +32,42 @@
   L.get = function(id){ for(var i=0;i<L.tracks.length;i++) if(L.tracks[i].id===id) return L.tracks[i]; return null; };
   L.songs = function(){ return L.tracks.filter(function(t){ return !t.isVideo; }); };
   L.videos = function(){ return L.tracks.filter(function(t){ return t.isVideo; }); };
+  /* Alben: gleicher Albumname = ein Album, auch wenn Künstler leicht abweichen
+     (feat., Groß-/Kleinschreibung, Leerzeichen, „CD 1/2“). Nur wenn ein Album-Interpret
+     gesetzt ist und sich unterscheidet, bleiben gleichnamige Alben getrennt. */
+  function normAlbum(a){
+    return String(a||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[\(\[]\s*(disc|disk|cd)\s*\d+\s*[\)\]]/g,'').replace(/\b(disc|disk|cd)\s*\d+$/,'')
+      .replace(/[’'`´"“”„]/g,'').replace(/\s*[-–—:]\s*$/,'').replace(/\s+/g,' ').trim();
+  }
+  function mainArtist(a){ return String(a||'').split(/\s+(feat\.?|ft\.?|featuring|x|&|und|and|vs\.?)\s+|,|;/i)[0].trim(); }
   L.albums = function(){
     var map={}, out=[];
     L.songs().forEach(function(t){
-      var k=(t.album||'Singles')+'\u0001'+(t.album?(t.artist||''):'');
-      if(!map[k]){ map[k]={key:k,title:t.album||'Singles',artist:t.album?(t.artist||''):'Verschiedene',tracks:[],art:''}; out.push(map[k]); }
+      var n=normAlbum(t.album);
+      var k=n? n+'\u0001'+normAlbum(t.albumArtist||'') : '\u0002singles';
+      if(!map[k]){ map[k]={key:k,title:t.album||'Singles',artist:'',tracks:[],art:''}; out.push(map[k]); }
       map[k].tracks.push(t); if(!map[k].art&&t.art) map[k].art=t.art;
+    });
+    /* Gleichnamige Alben ohne Album-Interpret zu dem mit Interpret legen, wenn es genau eines gibt */
+    var byName={};
+    out.forEach(function(a){ var n=a.key.split('\u0001')[0]; (byName[n]=byName[n]||[]).push(a); });
+    Object.keys(byName).forEach(function(n){
+      var g=byName[n], bare=g.filter(function(a){ return /\u0001$/.test(a.key); }), named=g.filter(function(a){ return !/\u0001$/.test(a.key); });
+      if(bare.length&&named.length===1){ named[0].tracks=named[0].tracks.concat(bare[0].tracks); if(!named[0].art) named[0].art=bare[0].art; bare[0].tracks=[]; }
+    });
+    out=out.filter(function(a){ return a.tracks.length; });
+    out.forEach(function(a){
+      if(a.key==='\u0002singles'){ a.artist='Verschiedene'; return; }
+      a.tracks.sort(function(x,y){ return (x.disc||1)-(y.disc||1) || (x.track||999)-(y.track||999) || x.title.localeCompare(y.title,'de'); });
+      /* Titel: die häufigste Schreibweise des Albumnamens */
+      var tc={}, bt='', btn=0; a.tracks.forEach(function(t){ tc[t.album]=(tc[t.album]||0)+1; if(tc[t.album]>btn){ btn=tc[t.album]; bt=t.album; } });
+      a.title=String(bt).replace(/\s*[\(\[]\s*(disc|disk|cd)\s*\d+\s*[\)\]]/i,'').trim()||a.title;
+      var aa=a.tracks.filter(function(t){ return t.albumArtist; })[0];
+      if(aa){ a.artist=aa.albumArtist; return; }
+      var cnt={}, best='', bn=0;
+      a.tracks.forEach(function(t){ var m=mainArtist(t.artist), k=m.toLowerCase(); if(!m) return; cnt[k]=(cnt[k]||0)+1; if(cnt[k]>bn){ bn=cnt[k]; best=m; } });
+      a.artist = bn>=a.tracks.length*0.5 ? best : (best?'Verschiedene Künstler':'');
     });
     return out;
   };
@@ -81,6 +111,7 @@
         if(!p.playable) state='bad';
         var meta={
           id:u.uid(), title:t.title||f.name, artist:t.artist, album:isVid?'':t.album, track:t.track, year:t.year,
+          albumArtist:t.albumArtist||'', disc:t.disc||0,
           duration:p.duration||0, isVideo:isVid&&p.hasVideo!==false, size:f.size, type:f.type||'', fileName:f.name,
           added:Date.now(), cover:t.cover||p.thumb||null, playable:p.playable, source:f.g04source||''
         };
