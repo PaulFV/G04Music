@@ -5,7 +5,7 @@
 (function(){
   'use strict';
   var G = window.G = window.G || {};
-  G.VERSION = '0.6.11';
+  G.VERSION = '0.6.12';
 
   var u = G.u = {};
   u.$ = function(s,r){ return (r||document).querySelector(s); };
@@ -121,7 +121,10 @@
   u.sheet = function(title,html,onMount){
     lastFocus=document.activeElement;
     u.$('#sheetTitle').textContent=title;
-    u.$('#sheetBody').innerHTML=html;
+    /* Frisches Element: sonst bleiben Klick-Handler früherer Blätter hängen
+       und z. B. „Zu Liste hinzufügen“ fügt alte Einträge mit hinzu */
+    var ob=u.$('#sheetBody'), nb=ob.cloneNode(false); ob.parentNode.replaceChild(nb,ob);
+    nb.innerHTML=html;
     u.$('#scrim').hidden=false; u.$('#sheet').hidden=false;
     if(onMount) onMount(u.$('#sheetBody'));
     var f=u.$('#sheetBody input,#sheetBody button'); if(f) setTimeout(function(){ try{f.focus({preventScroll:true});}catch(e){} },60);
