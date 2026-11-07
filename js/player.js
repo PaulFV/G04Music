@@ -21,7 +21,7 @@
 
   function emit(){ S.emit('player'); }
   function vol(){ return S.settings.volume; }
-  function setError(msg){ P.error=msg; P.loading=false; P.playing=false; emit(); }
+  function setError(msg){ want=false; P.interrupted=false; P.error=msg; P.loading=false; P.playing=false; emit(); }
 
   /* ---------- Web Audio für die Klangbalken ----------
      Eigene Dateien immer; Radio, wenn der Sender das Auslesen erlaubt (CORS) – sonst bleiben
@@ -75,6 +75,7 @@
      („Als Nächstes“) – sonst springt es zurück und läuft im Kreis. */
   P.play = function(item,queue,at){
     if(!item) return;
+    want=true; tries=0;
     if(P.cur && S.key(P.cur)===S.key(item) && !P.error){ P.toggle(); return; }
     stopAll();
     P.cur=item; P.error=''; P.loading=true; P.playing=false;
@@ -151,13 +152,14 @@
 
   P.toggle = function(){
     if(!P.cur) return;
+    tries=0; clearTimeout(retryT); P.interrupted=false;
     if(P.error){ var c=P.cur, ix=P.index; P.cur=null; P.play(c,P.queue,ix); return; }
-    if(P.cur.kind==='track'){ if(media.paused) media.play().catch(function(){}); else media.pause(); }
+    if(P.cur.kind==='track'){ if(media.paused){ want=true; media.play().catch(function(){}); } else { want=false; media.pause(); } }
     else if(P.cur.kind==='radio'){
-      if(radio.paused){ if(!radio.src&&!hls) playRadio(P.cur); else radio.play().catch(function(){}); }
-      else { radio.pause(); }
+      if(radio.paused){ want=true; if(!radio.src&&!hls) playRadio(P.cur); else resume('user'); }
+      else { want=false; radio.pause(); }
     }
-    else { if(G.yt.state.playing) G.yt.pause(); else G.yt.play(); P.playing=!G.yt.state.playing; emit(); }
+    else { want=!G.yt.state.playing; if(G.yt.state.playing) G.yt.pause(); else G.yt.play(); P.playing=!G.yt.state.playing; emit(); }
   };
   P.pause = function(){ if(P.playing) P.toggle(); };
 
@@ -173,7 +175,7 @@
     if(!P.cur) return;
     if(P.cur.kind==='yt' && P.cur.ytType==='list' && !auto){ G.yt.next(); return; }
     var i=pick(1);
-    if(i==null){ if(auto){ P.playing=false; emit(); } else u.toast('Das war der letzte Titel.'); return; }
+    if(i==null){ if(auto){ want=false; P.playing=false; emit(); } else u.toast('Das war der letzte Titel.'); return; }
     var q=P.queue; P.cur=null; P.play(q[i],q,i);
   };
   P.prev = function(){
@@ -183,7 +185,7 @@
     var i=pick(-1); if(i==null) return;
     var q=P.queue; P.cur=null; P.play(q[i],q,i);
   };
-  P.stop = function(){ stopAll(); G.nowplaying.stop(true); P.cur=null; P.playing=false; P.loading=false; P.error=''; emit(); session(); };
+  P.stop = function(){ want=false; P.interrupted=false; stopAll(); G.nowplaying.stop(true); P.cur=null; P.playing=false; P.loading=false; P.error=''; emit(); session(); };
 
   P.seekTo = function(frac){
     if(!P.cur) return;
@@ -216,8 +218,8 @@
   function bind(el,kind){
     /* Nur das aktuelle Element zählt (ein früheres Radio-Element darf nichts mehr ändern) */
     var mine=function(){ return P.cur&&P.cur.kind===kind&&(kind!=='radio'||el===radio); };
-    el.addEventListener('playing',function(){ if(mine()){ el._ok=true; P.loading=false; P.playing=true; P.error=''; if(kind==='radio') hookRadio(el); emit(); wake(); } });
-    el.addEventListener('pause',function(){ if(mine()){ P.playing=false; emit(); wake(); } });
+    el.addEventListener('playing',function(){ if(mine()){ el._ok=true; P.loading=false; P.playing=true; P.error=''; P.interrupted=false; tries=0; lastT=-1; stuck=0; if(kind==='radio') hookRadio(el); emit(); wake(); } });
+    el.addEventListener('pause',function(){ el._pausedAt=Date.now(); if(mine()){ P.playing=false; emit(); wake(); var nud=el._nudge; el._nudge=false; if(want&&!nud&&!el.ended&&!P.loading&&el.getAttribute('src')) interrupted(); } });
     el.addEventListener('waiting',function(){ if(mine()){ P.loading=true; emit(); } });
     el.addEventListener('canplay',function(){ if(mine()&&P.loading){ P.loading=false; emit(); } });
     el.addEventListener('error',function(){
@@ -249,6 +251,67 @@
     var was=P.playing; P.playing=st.playing; P.loading=false;
     if(was!==P.playing) { emit(); wake(); }
   });
+
+
+  /* ---------- Wiedergabe-Wächter ----------
+     Hält das System die Wiedergabe an (andere App übernimmt den Ton, Anruf, eine andere App
+     wird geschlossen, iOS beendet die Audio-Sitzung), ist das keine Pause von dir: Die App
+     merkt sich, dass weiterlaufen soll, und setzt fort, sobald es wieder geht. */
+  var want=false, tries=0, retryT=0, lastT=-1, stuck=0;
+  P.interrupted=false;
+  function curEl(){ return !P.cur ? null : P.cur.kind==='track' ? media : P.cur.kind==='radio' ? radio : null; }
+  function resume(why){
+    clearTimeout(retryT);
+    var el=curEl();
+    if(!want||!el||P.playing||P.error) return;
+    if(actx&&actx.state!=='running') actx.resume().catch(function(){});
+    var item=P.cur;
+    /* Live-Radio nach längerer Pause neu verbinden, sonst kommt alter Puffer oder Stille */
+    if(item.kind==='radio' && el._pausedAt && Date.now()-el._pausedAt>8000 && !hls && el.getAttribute('src')){
+      try{ el.src=item.url; }catch(e){}
+    }
+    var pr; try{ pr=el.play(); }catch(e){}
+    if(pr&&pr.catch) pr.catch(function(e){
+      if(P.cur!==item||!want) return;
+      /* Element gesperrt (z. B. Radio-Element nach Senderwechsel): neu starten */
+      if(item.kind==='radio' && e && e.name!=='NotAllowedError' && e.name!=='AbortError'){ stopRadio(); playRadio(item); return; }
+      schedule();
+    });
+  }
+  function schedule(){
+    clearTimeout(retryT);
+    /* Im Hintergrund nur auf iPhone/iPad selbst nachfassen (iOS lässt eine Web-App keinen
+       laufenden Anruf o. Ä. unterbrechen). Sonst geht es beim Zurückkehren in die App weiter
+       oder über Play auf dem Sperrbildschirm. */
+    var bg=document.visibilityState==='hidden';
+    if(bg && !IOS) return;
+    var wait=[800,2500,6000,15000][tries++];
+    if(wait==null) return;
+    retryT=setTimeout(function(){ resume('retry'); }, wait);
+  }
+  function interrupted(){ P.interrupted=true; P.interruptedAt=Date.now(); emit(); schedule(); }
+  function back(){ if(want&&!P.playing){ tries=0; resume('back'); } }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') back();
+  });
+  window.addEventListener('pageshow',back);
+  window.addEventListener('focus',back);
+  /* Läuft angeblich, aber die Zeit steht (iOS: Audio-Sitzung weg, Stream hängt): anstupsen */
+  setInterval(function(){
+    var el=curEl();
+    if(!want||!P.playing||!el||el.paused||P.loading){ lastT=-1; stuck=0; return; }
+    var t=el.currentTime;
+    if(t===lastT && el.readyState>=2){
+      if(++stuck>=3){
+        stuck=0; lastT=-1;
+        if(P.cur.kind==='radio') el._pausedAt=Date.now()-10000;
+        el._nudge=true; try{ el.pause(); }catch(e){} P.playing=false; resume('stuck');
+      }
+    } else stuck=0;
+    lastT=t;
+  },2000);
+  /* Klangbalken-Audio vom System angehalten: wieder anwerfen, sonst bleibt es still */
+  setInterval(function(){ if(want&&actx&&actx.state!=='running'&&actx.state!=='closed') actx.resume().catch(function(){}); },3000);
 
   /* ---------- Bildschirm an lassen (Videos) ---------- */
   var lock=null;
@@ -284,7 +347,7 @@
   if('mediaSession' in navigator){
     var A=function(n,f){ try{ navigator.mediaSession.setActionHandler(n,f); }catch(e){} };
     A('play',function(){ if(!P.playing) P.toggle(); });
-    A('pause',function(){ if(P.playing) P.toggle(); });
+    A('pause',function(){ if(P.playing) P.toggle(); else { want=false; P.interrupted=false; clearTimeout(retryT); } });
     A('nexttrack',function(){ P.next(); });
     A('previoustrack',function(){ P.prev(); });
     A('seekto',function(d){ var du=P.duration(); if(du&&d.seekTime!=null) P.seekTo(d.seekTime/du); });
