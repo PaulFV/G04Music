@@ -20,7 +20,7 @@
     {id:'settings', n:'Einstellungen', short:'Mehr', i:'gear'}
   ];
   var TITLES = {
-    music:['Musik','Eigene Songs, Alben, Videos und Listen'],
+    music:['Deine Musik','Dein Sound. Dein Moment.'],
     radio:['Radio','Sender aus aller Welt, live'],
     yt:['YouTube','Suchen, merken, abspielen'],
     settings:['Einstellungen','Wiedergabe, Bibliothek, Über']
@@ -32,9 +32,12 @@
 
   /* Status je Bereich */
   var ui = { listOpen:null, ytQuery:'', ytResults:null, ytBusy:false, ytErr:'',
-    musicTab:u.ls.get('musicTab','songs'), radioTab:u.ls.get('radioTab','stations'), ytTab:u.ls.get('ytTab','search'),
+    musicTab:u.ls.get('musicTab','overview'), radioTab:u.ls.get('radioTab','stations'), ytTab:u.ls.get('ytTab','search'),
     musicQuery:'', album:null, radioTag:'', radioQuery:'', radioItems:null, radioBusy:false, radioErr:'', radioKey:'' };
-  if(ui.musicTab==='favs'||ui.musicTab==='lists'||ui.musicTab==='songs'||ui.musicTab==='albums'||ui.musicTab==='videos'){} else ui.musicTab='songs';
+  if(['overview','songs','albums','videos','lists','favs','recent'].indexOf(ui.musicTab)<0) ui.musicTab='overview';
+  ui.musicSort=u.ls.get('musicSort','recent');
+  ui.playerOpen=false;
+  ui.playerDismissed=null;
 
   /* ---------- Einträge auflösen ---------- */
   function resolve(arr){
@@ -107,7 +110,7 @@
       return '<button class="row'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" data-n="'+(t.track||i+1)+'">'+
         '<span class="row__n num">'+(on?eq():(t.track||i+1))+'</span>'+
         artBox(t,'').replace('%BADGE%','')+
-        '<span class="row__t"><b>'+(S.isFav(t)?'<span style="color:var(--gold)">★</span> ':'')+esc(t.title)+'</b><span>'+esc(t.artist||'Unbekannt')+(t.album?' · '+esc(t.album):'')+'</span></span>'+
+        '<span class="row__t"><b>'+(S.isFav(t)?'<span style="color:var(--acc)" aria-hidden="true">♥</span> ':'')+esc(t.title)+'</b><span>'+esc(t.artist||'Unbekannt')+(t.album?' · '+esc(t.album):'')+'</span></span>'+
         '<span class="row__x">'+esc(t.album||(t.isVideo?'Video':'Single'))+'</span>'+
         '<span class="row__d row__end"><span class="num">'+(t.duration?u.fmt(t.duration):'')+'</span>'+moreBtn('row__more',18)+'</span></button>';
     }).join('')+'</div>';
@@ -160,7 +163,7 @@
   /* Favoriten nur einer Art (track | radio | yt) */
   function favsOf(kind){ return resolve(S.favs.filter(function(f){ return f.kind===kind; })); }
   function recentOf(kind){ return resolve(S.history.filter(function(f){ return f.kind===kind; })); }
-  var FAV_TXT = { track:'Tippe auf den Stern ☆ bei einem Song oder Musikvideo.', radio:'Tippe auf den Stern ☆ bei einem Sender.', yt:'Tippe auf den Stern ☆ bei einem Video oder Suchtreffer.' };
+  var FAV_TXT = { track:'Tippe auf das Herz ♡ bei einem Song oder Musikvideo.', radio:'Tippe auf das Herz ♡ bei einem Sender.', yt:'Tippe auf das Herz ♡ bei einem Video oder Suchtreffer.' };
   function favSection(kind,l){
     var items=favsOf(kind), wide=kind==='yt';
     return '<section class="panel glass" style="display:flex;flex-direction:column;gap:12px"><div class="sec-h" style="align-items:center"><h3>Favoriten · <span class="num">'+items.length+'</span></h3>'+
@@ -176,22 +179,64 @@
   /* ============================================================
      MUSIK: Songs · Alben · Videos · Listen · Favoriten
      ============================================================ */
+
+  function sortMusic(items){
+    return items.slice().sort(function(a,b){
+      if(ui.musicSort==='title') return a.title.localeCompare(b.title,G.lang);
+      if(ui.musicSort==='artist') return (a.artist||'').localeCompare(b.artist||'',G.lang)||a.title.localeCompare(b.title,G.lang);
+      var added=function(x){ return x.added || (x.tracks ? Math.max.apply(null,x.tracks.map(function(t){return t.added||0;})) : 0); };
+      return added(b)-added(a)||a.title.localeCompare(b.title,G.lang);
+    });
+  }
+  function albumCard(a){
+    return '<button class="tile album-card" type="button" data-album="'+esc(a.key)+'" title="'+esc(a.title)+'">'+
+      '<div class="art" style="'+u.artStyle({title:a.title,art:a.art})+'">'+(a.art?'':ic('album',48))+
+      '<span class="album-card__play">'+ic('play',22)+'</span></div><div class="tile__t" data-noi18n>'+esc(a.title)+'</div><div class="tile__s" data-noi18n>'+esc(a.artist||'')+'</div></button>';
+  }
+  function viewOverview(){
+    var L=G.library, songs=L.songs(), recent=recentOf('track'), item=recent[0]||songs.slice().sort(function(a,b){return b.added-a.added;})[0]||L.videos()[0];
+    var featured='';
+    if(item){
+      reg('featured',[item]);
+      featured='<section class="feature feature--track"><div class="feature__art" aria-hidden="true" style="'+u.artStyle(item)+'"></div><div class="feature__content">'+
+        '<span class="eyebrow">'+(recent.length?'Zuletzt gehört':'DEINE BIBLIOTHEK')+'</span><h2 data-noi18n>'+esc(item.title)+'</h2><p data-noi18n>'+esc(item.artist||item.sub||'')+'</p>'+
+        '<button class="btn btn--solid" type="button" data-l="featured" data-i="0">'+ic('play',18)+'Weiterhören</button></div></section>';
+    } else {
+      featured='<section class="feature feature--welcome"><div class="feature__art feature__art--welcome" aria-hidden="true"></div><div class="feature__content">'+
+        '<span class="eyebrow">WILLKOMMEN BEI G04MUSIK</span><h2>Dein Sound.<br>Dein Moment.</h2><p>Deine Lieblingsmusik, Radio und Videos. Alles an einem Ort.</p>'+
+        '<button class="btn btn--solid" type="button" data-act="pickFiles">'+ic('plus',18)+'Musik hinzufügen</button></div></section>';
+    }
+    var albums=sortMusic(L.albums()).slice(0,6), added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
+    if(!L.tracks.length){
+      return featured+'<section class="home-section"><div class="sec-h"><h3>Mach es zu deiner Musik.</h3></div><div class="start-options">'+
+        '<button class="start-option" type="button" data-act="pickFiles"><span class="start-option__icon">'+ic('music',25)+'</span><b>Eigene Musik</b><span>Dateien und Ordner von deinem Gerät</span></button>'+
+        '<button class="start-option" type="button" data-go="radio"><span class="start-option__icon">'+ic('radio',25)+'</span><b>Radio entdecken</b><span>Deine Sender. Live und weltweit.</span></button>'+
+        '<button class="start-option" type="button" data-go="yt"><span class="start-option__icon">'+ic('yt',25)+'</span><b>YouTube</b><span>Musikvideos suchen und abspielen</span></button></div></section>'+
+        '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
+    }
+    return featured+(albums.length?'<section class="home-section"><div class="sec-h"><h3>Deine Alben</h3><button class="text-btn" type="button" data-mtab="albums">Alle Alben anzeigen</button></div><div class="grid home-albums">'+albums.map(albumCard).join('')+'</div></section>':'')+
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3><button class="text-btn" type="button" data-mtab="songs">Alle Songs anzeigen</button></div>'+rows(added,'home-recent')+'</section>';
+  }
+
   function viewMusic(){
     var L=G.library, t=ui.musicTab;
     if(!L.ready) return '<section class="panel glass">'+empty('music','Bibliothek wird geladen …','')+'</section>';
     var tabs=subTabs('musicTabs','data-mtab',ui.album?'albums':t,[
-      ['songs','Songs','music',L.songs().length,C.pink],['albums','Alben','album',L.albums().length,C.orange],
+      ['overview','Übersicht','home','',C.red],['songs','Songs','music',L.songs().length,C.red],['albums','Alben','album',L.albums().length,C.orange],
       ['videos','Videos','video',L.videos().length,C.violet],['lists','Listen','lists',G.lists.all.length,C.blue],
       ['favs','Favoriten','star',favsOf('track').length,C.gold]]);
-    var search = (t==='songs'||t==='albums'||t==='videos') && !ui.album;
-    var head='<section class="panel glass filters">'+tabs+
-      (search?'<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Suchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
-      '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Dateien</span></button>'+
+    var search = (t==='overview'||t==='songs'||t==='albums'||t==='videos') && !ui.album;
+    var head='<section class="panel glass filters music-filters">'+tabs+
+      (search?'<div class="filterbar"><label class="field field--sm">'+ic('search',17)+'<input id="musicSearch" type="search" placeholder="Songs, Alben, Künstler suchen" aria-label="Musik durchsuchen" value="'+esc(ui.musicQuery)+'" autocomplete="off"></label>'+
+      '<button class="btn btn--solid btn--icon" type="button" data-act="pickFiles" title="Dateien hinzufügen" aria-label="Dateien hinzufügen">'+ic('plus',18)+'<span>Musik hinzufügen</span></button>'+
       (canFolder()?'<button class="btn btn--icon" type="button" data-act="pickFolder" title="Ordner hinzufügen" aria-label="Ordner hinzufügen">'+ic('folder',18)+'<span>Ordner</span></button>':'')+
       '<button class="btn btn--icon" type="button" data-act="dsServer" title="Vom DS-Server importieren" aria-label="Vom DS-Server importieren">'+ic('nas',18)+'<span>DS-Server</span></button></div>':'')+
+      (search?'<label class="music-sort"><span>Sortieren</span><select id="musicSort" aria-label="Musik sortieren">'+[['recent','Zuletzt hinzugefügt'],['title','Titel A–Z'],['artist','Künstler A–Z']].map(function(x){return '<option value="'+x[0]+'"'+(ui.musicSort===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>':'')+
       '</section>';
     if(t==='lists') return importBar()+head+viewLists();
     if(t==='favs') return importBar()+head+favSection('track','mfav');
+    if(t==='recent') return importBar()+head+recentSection('track','mrecent');
+    if(t==='overview'&&!ui.album&&!ui.musicQuery.trim()) return importBar()+head+viewOverview();
     if(!L.tracks.length && !L.importing && !u.ls.get('welcomeDone',false)) return head+welcome();
     if(!L.tracks.length) return importBar()+head+'<section class="panel glass">'+empty('music','Deine Bibliothek ist leer','Wähle Musik- oder Videodateien von diesem Gerät oder hole sie von deiner Synology DiskStation. Titel, Künstler, Album und Cover werden automatisch gelesen.',BTN_FILES+BTN_DS)+'</section>';
 
@@ -209,14 +254,14 @@
         '<button class="qbtn qbtn--sm qbtn--main" type="button" data-l="album" data-i="0" title="Abspielen" aria-label="Abspielen">'+ic('play',20)+'</button></div>'+
         rows(al.tracks,'album')+'</section>';
     } else if(t==='albums'){
-      var albums=L.albums().filter(function(a){ return !q || (a.title+' '+a.artist).toLowerCase().indexOf(q)>=0; });
+      var albums=sortMusic(L.albums().filter(function(a){ return !q || (a.title+' '+a.artist).toLowerCase().indexOf(q)>=0; }));
       body='<section class="panel glass"><div class="grid">'+albums.map(function(a){
         return '<button class="tile" type="button" data-album="'+esc(a.key)+'"><div class="art" style="'+u.artStyle({title:a.title,art:a.art})+'">'+(a.art?'':esc(u.initials(a.title)))+'</div><div class="tile__t">'+esc(a.title)+'</div><div class="tile__s">'+esc(a.artist)+' · '+a.tracks.length+' Titel</div></button>'; }).join('')+'</div></section>';
     } else if(t==='videos'){
-      var vids=L.videos().filter(match);
+      var vids=sortMusic(L.videos().filter(match));
       body='<section class="panel glass">'+(vids.length? grid(vids,'mvideos',true) : empty('video',q?'Kein Treffer':'Noch keine Musikvideos', q?'Versuch es mit einem anderen Wort.':'Füge MP4-, WebM-, MOV- oder MKV-Dateien hinzu.', q?'':BTN_FILES))+'</section>';
     } else {
-      var songs=L.songs().filter(match), tot=songs.reduce(function(a,x){return a+(x.duration||0);},0);
+      var songs=sortMusic(L.songs().filter(match)), tot=songs.reduce(function(a,x){return a+(x.duration||0);},0);
       body='<section class="panel glass" style="display:flex;flex-direction:column;gap:10px"><div class="sec-h"><h3>Songs</h3><span class="num">'+songs.length+' Titel · '+Math.round(tot/60)+' min</span></div>'+
         (songs.length? (lay()==='list'? rows(songs,'msongs') : grid(songs,'msongs')) : empty('music',q?'Kein Treffer':'Noch keine Songs',q?'Versuch es mit einem anderen Wort.':'Füge Musikdateien hinzu.'))+'</section>';
     }
@@ -409,8 +454,12 @@
      ============================================================ */
   V.renderNav = function(){
     var badge={music:G.library.tracks.length||''};
-    u.$('#nav').innerHTML=V.NAV.map(function(n){
-      return '<button class="nav__item'+(S.view===n.id?' is-active':'')+'" type="button" data-go="'+n.id+'" title="'+n.n+'">'+ic(n.i,20)+'<span>'+(window.innerWidth<1200&&window.innerWidth>=768?(n.short||n.n):n.n)+'</span>'+(badge[n.id]?'<span class="nav__badge num">'+badge[n.id]+'</span>':'')+'</button>';
+    u.$('#nav').innerHTML=V.NAV.filter(function(n){return n.id!=='settings';}).map(function(n){
+      var on=S.view===n.id;
+      return '<button class="nav__item'+(on?' is-active':'')+'" type="button" data-go="'+n.id+'" title="'+n.n+'"'+(on?' aria-current="page"':'')+'>'+ic(n.i,21)+'<span>'+n.n+'</span></button>';
+    }).join('')+'<span class="nav__sep">DEINE BIBLIOTHEK</span>'+[['favs','Favoriten','star'],['lists','Playlists','lists'],['recent','Zuletzt gehört','clock']].map(function(n){
+      var on=S.view==='music'&&ui.musicTab===n[0];
+      return '<button class="nav__item nav__library'+(on?' is-active':'')+'" type="button" data-library="'+n[0]+'" title="'+n[1]+'"'+(on?' aria-current="page"':'')+'>'+ic(n[2],21)+'<span>'+n[1]+'</span></button>';
     }).join('');
     u.$('#tabbar').innerHTML=V.NAV.map(function(n){
       return '<button class="'+(S.view===n.id?'is-active':'')+'" type="button" data-go="'+n.id+'">'+ic(n.i,21)+'<span>'+(n.short||n.n)+'</span></button>';
@@ -419,20 +468,19 @@
 
   V.render = function(){
     var t=TITLES[S.view]; u.$('#viewTitle').textContent=t[0]; u.$('#viewSub').textContent=t[1];
-    var hasHero=!!HERO_VIEWS[S.view];
-    u.$('#hero').hidden=!hasHero; u.$('#content').classList.toggle('no-hero',!hasHero);
+    V.syncPlayerLayout();
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
     u.$('#viewHost').classList.toggle('set-view',S.view==='settings');
     V.renderNav(); V.renderLayBtn(); V.renderTopBtns();
     if(!G.player.cur) V.renderNP();
-    V.updateLand();
+    V.renderDock(); V.updateLand();
   };
 
   /* Handy quer: Läuft etwas und ist ein Abspielfenster zu sehen, füllt es den ganzen Bildschirm */
   var landMQ = window.matchMedia('(max-width:1023px) and (orientation:landscape) and (max-height:520px)');
   V.updateLand = function(){
     if(!G.player.cur) ui.landMin=false;   /* nach dem Beenden startet das nächste Lied wieder groß */
-    document.body.classList.toggle('land-full', landMQ.matches && !!G.player.cur && V.hasHero() && !ui.landMin);
+    document.body.classList.remove('land-full');
   };
   if(landMQ.addEventListener) landMQ.addEventListener('change',function(){ V.updateLand(); }); else if(landMQ.addListener) landMQ.addListener(function(){ V.updateLand(); });
   /* Neu zeichnen, ohne dass ein Suchfeld den Fokus verliert */
@@ -502,7 +550,15 @@
 
   /* ---------- Bühne ---------- */
   var KIND={track:'Meine Musik',radio:'Radio',yt:'YouTube'};
+  V.syncPlayerLayout = function(){
+    var c=G.player.cur, video=!!(c&&(c.kind==='yt'||c.isVideo)), key=c?S.key(c):null;
+    var show=!!c&&!!HERO_VIEWS[S.view]&&(ui.playerOpen||(video&&ui.playerDismissed!==key));
+    u.$('#hero').hidden=!show;
+    u.$('#content').classList.toggle('no-hero',!show);
+    document.body.classList.toggle('player-expanded',show);
+  };
   V.renderStage = function(){
+    V.syncPlayerLayout();
     var P=G.player, c=P.cur, st=u.$('#stage');
     u.$('#stageIdle').hidden=!!c;
     u.$('#hero').classList.toggle('is-idle',!c);
@@ -589,7 +645,7 @@
       b.innerHTML=ic(off?'mute':'vol',+b.dataset.volicon||18);
       b.setAttribute('aria-label',label); b.title=label; b.classList.toggle('is-on',off);
     });
-    ['volRange','volRange2'].forEach(function(id){ var r=document.getElementById(id); if(r&&document.activeElement!==r) r.value=pct; });
+    ['volRange','volRange2','dockVolume'].forEach(function(id){ var r=document.getElementById(id); if(r&&document.activeElement!==r) r.value=pct; });
     var t=document.getElementById('volPct'); if(t) t.textContent=pct+' %';
   };
   function greet(){ var h=new Date().getHours(); return h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend'; }
@@ -598,15 +654,22 @@
   V.dockWanted = false;
   V.renderDock = function(){
     var P=G.player, c=P.cur, d=u.$('#pdock');
-    var show = !!c && V.dockWanted;
+    var show=!!c;
     d.hidden=!show; document.body.classList.toggle('has-dock',show);
     if(show){
-      var dur=P.duration(), t=P.time(), sh=V.shown(c);
-      d.innerHTML='<div class="cover'+(c.kind==='radio'&&c.art&&!sh.art?' art--logo':'')+'" style="'+(sh.art?coverStyle(sh.art):u.artStyle(c))+'">'+(sh.art?'':u.artText(c))+'</div>'+
-        '<button class="pdock__meta" type="button" data-act="toStage"><b>'+esc(sh.title)+'</b><span>'+(P.error?'Fehler – antippen':esc(sh.sub))+'</span></button>'+
-        '<button class="icon-btn" type="button" data-act="next" aria-label="Weiter">'+ic('next',16)+'</button>'+
-        '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',19)+'</button>'+
-        (P.isLive()?'':'<span class="pdock__prog"><i class="js-bar" style="width:'+(dur?t/dur*100:0)+'%"></i></span>');
+      var dur=P.duration(), t=P.time(), sh=V.shown(c), live=P.isLive(), fav=S.isFav(c), st=S.settings;
+      var control=function(action,icon,label,cls){return '<button class="icon-btn '+(cls||'')+'" type="button" data-act="'+action+'" aria-label="'+label+'" title="'+label+'">'+ic(icon,20)+'</button>';};
+      d.innerHTML='<div class="dock-track"><button class="cover dock-cover" type="button" data-act="toStage" aria-label="Großes Abspielfenster" style="'+(sh.art?coverStyle(sh.art):u.artStyle(c))+'">'+(sh.art?'':u.artText(c))+'</button>'+
+        '<button class="pdock__meta" type="button" data-act="toStage"><b data-noi18n>'+esc(sh.title)+'</b><span data-noi18n>'+(P.error?esc(P.error):P.loading?'Lädt …':esc(sh.sub))+'</span></button>'+
+        control('fav',fav?'starF':'star','Favorit','dock-fav'+(fav?' is-on':''))+'</div>'+
+        '<div class="dock-playback"><div class="dock-controls">'+control('shuffle','shuffle','Zufall','dock-desktop'+(st.shuffle?' is-on':''))+control('prev','prev','Zurück','dock-desktop')+
+        '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',24)+'</button>'+
+        control('next','next','Weiter')+control('repeat',st.repeat==='one'?'repeat1':'repeat','Wiederholen','dock-desktop'+(st.repeat!=='off'?' is-on':''))+'</div>'+
+        '<div class="dock-seek"><span class="num js-time">'+(live?'LIVE':u.fmt(t))+'</span><div class="seek__bar js-seek'+(live?' is-live':'')+'"'+(live?'':' role="slider" aria-label="Position" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(dur?Math.round(t/dur*100):0)+'"')+'><i class="js-bar" style="width:'+(dur?Math.min(100,t/dur*100):0)+'%"></i></div><span class="num js-dur">'+(live?'':u.fmt(dur))+'</span></div></div>'+
+        '<div class="dock-tools"><button class="icon-btn" type="button" data-act="mute" data-volicon="20"></button><input id="dockVolume" type="range" min="0" max="100" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke">'+
+        control('queue','queue','Warteschlange')+control('npMore','more','Mehr')+'</div>'+
+        '<span class="pdock__prog"><i class="js-bar" style="width:'+(dur?Math.min(100,t/dur*100):0)+'%"></i></span>';
+      V.syncVol();
     }
     /* Kopfzeile und Seitenleiste */
     var lc=u.$('#liveChip'); lc.classList.toggle('is-on',!!(c&&P.playing));
@@ -624,6 +687,7 @@
     u.$$('.js-bar').forEach(function(b){ b.style.width=w; });
     u.$$('.js-time').forEach(function(b){ b.textContent=u.fmt(t); });
     u.$$('.js-dur').forEach(function(b){ b.textContent=u.fmt(d); });
+    u.$$('.js-seek[role=slider]').forEach(function(b){ b.setAttribute('aria-valuenow',d?Math.round(t/d*100):0); });
   };
 
   /* ---------- Klangbalken ----------
