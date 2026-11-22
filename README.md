@@ -1,4 +1,7 @@
-# G04Musik v0.7.3
+# G04Musik v0.8.0
+
+Neue Musikübersicht mit großen Albumcovern, ruhigem Anthrazit-Design und rotem Akzent. Der kompakte Player bleibt unten erreichbar; Cover antippen öffnet das große Abspielfenster. Die Übersicht verwendet ausschließlich deine importierten Dateien. Favoriten, Playlists und zuletzt gehörte Titel sind in der Seitenleiste direkt erreichbar. Songs und Alben lassen sich nach Titel, Künstler oder Hinzufügedatum sortieren. Die Warteschlange öffnest du am Desktop direkt im Player, am Handy über das Menü.
+
 
 ![G04Musik](art/social-preview.png)
 
@@ -15,7 +18,7 @@ Gebaut wie [G04TV](https://github.com/PaulFV/G04TV): reines HTML, CSS und JavaSc
 
 | Bereich | Beschreibung |
 |:--|:--|
-| **Abspielfenster** | Steht fest oben in Musik, Radio und YouTube – der Inhalt scrollt darunter. Auf dem Handy kompakt, Zusatzknöpfe hinter „⋯“ |
+| **Abspielfenster** | Der kompakte Player steht fest unten. Cover oder Titel antippen öffnet das große Abspielfenster; Videos öffnen es automatisch. Zusatzknöpfe auf dem Handy hinter „⋯“ |
 | **Musik** | Reiter **Songs**, **Alben**, **Videos**, **Listen**, **Favoriten** – eigene Songs und Musikvideos, eigene Listen, Musik-Favoriten |
 | **Radio** | Reiter **Sender**, **Favoriten**, **Zuletzt** – über 30.000 Sender über [radio-browser.info](https://www.radio-browser.info), nach Land, Genre oder Namen. Zeigt **Künstler, Titel, Cover, Album und Jahr** des laufenden Lieds, wenn der Sender den Titel meldet (aufklappbare Infos, auf dem Handy über „⋯“ → Songinfos) |
 | **YouTube** | Reiter **Suche**, **Favoriten**, **Zuletzt** – direkt suchen und abspielen; ein eingefügter YouTube-Link landet in den Favoriten |
@@ -58,20 +61,20 @@ Ohne Einrichtung: den Musik-Ordner als Netzlaufwerk verbinden (Windows-Explorer,
 * **Abspielfenster** mit echten Klangbalken (Web Audio) für eigene Songs; bei Radio nachgebildet. Videos laufen direkt im Abspielfenster,
   mit **Vollbild** und **Bild-in-Bild**.
 * **Antippen des Abspielfensters** pausiert bzw. spielt weiter; pausiert steht ein großes Pause-Zeichen in der Mitte (Vollbild bei Videos über den Knopf oben rechts).
-* **Mini-Player** unten rechts in den Einstellungen – die Musik läuft weiter.
+* **Mini-Player** am unteren Rand, auch in den Einstellungen – die Musik läuft weiter.
 * **Mini-Fenster (Bild-in-Bild):** bleibt über anderen Apps sichtbar – Musikvideos als Video, eigene Songs und Radio mit Cover, Titel und Fortschritt (Knopf in der Bedienzeile unter dem Bild; in Chrome/Android auch automatisch beim App-Wechsel). YouTube erlaubt das nicht.
 * **Sperrbildschirm, Kontrollzentrum, Auto** (Media Session): Titel, Cover, Weiter/Zurück.
 * **Einschlaf-Timer** 15–90 Minuten, am Ende wird es leiser. **Wiederholen** (alle/einen), **Zufall**,
   **Als Nächstes spielen**.
 * **Kacheln oder Liste:** ein Knopf oben in der Kopfzeile wechselt die Ansicht für die ganze App, die Wahl wird gemerkt.
-* **Stern** oben rechts auf jeder Kachel (Songs, Videos, Radiosender, YouTube): Favorit an/aus, ohne abzuspielen.
+* **Herz** oben rechts auf jeder Kachel (Songs, Videos, Radiosender, YouTube): Favorit an/aus, ohne abzuspielen.
 * **„⋯“-Knopf** auf jeder Kachel und Zeile – oder **lang drücken** (Rechtsklick am Rechner): Favorit, als Nächstes, Zu Liste hinzufügen, Infos, löschen.
 * Tastatur am Rechner: Leertaste = Pause, N/P = weiter/zurück, F = Vollbild, M = Ton aus/an. Lautstärke und Ton aus: Lautsprecher-Knopf oben rechts im Abspielfenster, Regler am Rechner unter den Knöpfen, am Handy unter „⋯“.
 
 ### Bildschirmgrößen
-* **Desktop** (ab 1200 px): volle Seitenleiste, Abspielfenster und Bedienfeld nebeneinander.
-* **Tablet/iPad** (768–1199 px): schmale Leiste; **quer** geteilt – Player links, Inhalt rechts; **hochkant** Player oben mit Bild und Steuerung nebeneinander.
-* **Handy** (unter 768 px): untere Leiste mit Musik, Radio, YouTube, Mehr; Abspielfenster kompakt und fest oben; **quer** scrollt es mit.
+* **Desktop** (ab 1200 px): volle Seitenleiste mit direkten Bibliothekszugriffen, große Albumcover und Player unten.
+* **Tablet/iPad** (768–1199 px): schmale Seitenleiste, anpassungsfähiges Coverraster und Player unten.
+* **Handy** (unter 768 px): untere Navigation mit Musik, Radio, YouTube und Mehr; kompakter Player darüber, zwei Cover pro Reihe.
 
 ### Gut zu wissen
 * **iPhone/iPad:** Dort sind die Klangbalken nachgebildet, weil iOS die Musik sonst im Hintergrund stummschaltet.
@@ -89,7 +92,7 @@ Ohne Einrichtung: den Musik-Ordner als Netzlaufwerk verbinden (Windows-Explorer,
 index.html            Rahmen, Abspielfenster, Mini-Player, Dialog
 manifest.webmanifest  Installation als App
 sw.js                 Service Worker (App-Dateien offline)
-css/  theme · layout · components · player · responsive · theme-light
+css/  theme · layout · components · player · responsive · theme-light · modern
 js/   util · i18n (Deutsch/English) · db (IndexedDB) · id3 (Tags) · store · library · radio · youtube · playlists · player · pip (Mini-Fenster) · views · app
 img/                App-Icons (rote Kopfhörer mit Klangwelle)
 ```

@@ -11,6 +11,41 @@
 
   /* ---------- Feste Texte ---------- */
   var D = {
+    "Deine Musik":"Your music",
+    "Dein Sound. Dein Moment.":"Your sound. Your moment.",
+    "Dein Sound.":"Your sound.",
+    "Dein Moment.":"Your moment.",
+    "Übersicht":"Overview",
+    "DEINE BIBLIOTHEK":"YOUR LIBRARY",
+    "WILLKOMMEN BEI G04MUSIK":"WELCOME TO G04MUSIK",
+    "Musik hinzufügen":"Add music",
+    "Songs, Alben, Künstler suchen":"Search songs, albums, artists",
+    "Musik durchsuchen":"Search your music",
+    "Musik sortieren":"Sort your music",
+    "Sortieren":"Sort by",
+    "Zuletzt hinzugefügt":"Recently added",
+    "Titel A–Z":"Title A–Z",
+    "Künstler A–Z":"Artist A–Z",
+    "Weiterhören":"Keep listening",
+    "Deine Alben":"Your albums",
+    "Alle Alben anzeigen":"View all albums",
+    "Alle Songs anzeigen":"View all songs",
+    "Mach es zu deiner Musik.":"Make it your music.",
+    "Deine Lieblingsmusik, Radio und Videos. Alles an einem Ort.":"Your favourite music, radio and videos. All in one place.",
+    "Eigene Musik":"Your own music",
+    "Dateien und Ordner von deinem Gerät":"Files and folders from your device",
+    "Radio entdecken":"Discover radio",
+    "Deine Sender. Live und weltweit.":"Your stations. Live and worldwide.",
+    "Musikvideos suchen und abspielen":"Find and play music videos",
+    "Deine Bibliothek reist mit.":"Your library goes with you.",
+    "Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.":"Imported files stay on this device and are available offline.",
+    "DS-Server verbinden":"Connect DS server",
+    "Warteschlange":"Queue",
+    "Die Warteschlange ist leer.":"The queue is empty.",
+    "Tippe auf das Herz ♡ bei einem Song oder Musikvideo.":"Tap the heart ♡ on a song or music video.",
+    "Tippe auf das Herz ♡ bei einem Sender.":"Tap the heart ♡ on a station.",
+    "Tippe auf das Herz ♡ bei einem Video oder Suchtreffer.":"Tap the heart ♡ on a video or search result.",
+
 
     /* DS-Server (Synology) */
     'Über die DS file-App auswählen':'Choose via the DS file app',
@@ -322,8 +357,8 @@
     [/^Eigener Sender$/, 'Custom station']
   ];
 
-  function tr(s){
-    if (G.lang !== 'en' || !s) return s;
+  function tr(s, english){
+    if ((G.lang !== 'en' && !english) || !s) return s;
     var t = s.trim(); if (!t) return s;
     var out = null;
     if (Object.prototype.hasOwnProperty.call(D, t)) out = D[t];
@@ -343,7 +378,7 @@
   function doText(n){
     if (skip(n.parentElement)) return;
     var cur = n.nodeValue, o = orig.get(n);
-    if (o == null || (cur !== o && cur !== tr(o))) { o = cur; orig.set(n, o); }   /* neuer Text vom Programm */
+    if (o == null || (cur !== o && cur !== tr(o, true))) { o = cur; orig.set(n, o); }   /* neuer Text vom Programm */
     var want = G.lang === 'en' ? tr(o) : o;
     if (cur !== want) n.nodeValue = want;
   }
@@ -352,7 +387,7 @@
     ATTR.forEach(function(a){
       if (!el.hasAttribute(a)) return;
       var key = 'data-de-' + a, cur = el.getAttribute(a), o = el.getAttribute(key);
-      if (o == null || (cur !== o && cur !== tr(o))) { o = cur; el.setAttribute(key, o); }
+      if (o == null || (cur !== o && cur !== tr(o, true))) { o = cur; el.setAttribute(key, o); }
       var want = G.lang === 'en' ? tr(o) : o;
       if (cur !== want) el.setAttribute(a, want);
     });

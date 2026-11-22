@@ -1,11 +1,11 @@
 /* G04Musik — Service Worker: legt die App-Dateien ab, damit sie offline startet.
    Musik, Sender und Videos kommen nicht hier hinein (eigene Dateien liegen in der IndexedDB). */
-var CACHE = 'g04musik-v0.7.3';
+var CACHE = 'g04musik-v0.8.0';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest?v=6',
-  'css/theme.css?v=0.7.3', 'css/layout.css?v=0.7.3', 'css/components.css?v=0.7.3', 'css/player.css?v=0.7.3', 'css/responsive.css?v=0.7.3', 'css/theme-light.css?v=0.7.3',
-  'js/util.js?v=0.7.3', 'js/i18n.js?v=0.7.3', 'js/db.js?v=0.7.3', 'js/id3.js?v=0.7.3', 'js/store.js?v=0.7.3', 'js/library.js?v=0.7.3', 'js/dsserver.js?v=0.7.3', 'js/radio.js?v=0.7.3', 'js/nowplaying.js?v=0.7.3', 'js/youtube.js?v=0.7.3', 'js/playlists.js?v=0.7.3',
-  'js/player.js?v=0.7.3', 'js/pip.js?v=0.7.3', 'js/views.js?v=0.7.3', 'js/app.js?v=0.7.3',
+  'css/theme.css?v=0.8.0', 'css/layout.css?v=0.8.0', 'css/components.css?v=0.8.0', 'css/player.css?v=0.8.0', 'css/responsive.css?v=0.8.0', 'css/theme-light.css?v=0.8.0', 'css/modern.css?v=0.8.0', 'art/icon-1024.png',
+  'js/util.js?v=0.8.0', 'js/i18n.js?v=0.8.0', 'js/db.js?v=0.8.0', 'js/id3.js?v=0.8.0', 'js/store.js?v=0.8.0', 'js/library.js?v=0.8.0', 'js/dsserver.js?v=0.8.0', 'js/radio.js?v=0.8.0', 'js/nowplaying.js?v=0.8.0', 'js/youtube.js?v=0.8.0', 'js/playlists.js?v=0.8.0',
+  'js/player.js?v=0.8.0', 'js/pip.js?v=0.8.0', 'js/views.js?v=0.8.0', 'js/app.js?v=0.8.0',
   'img/icon-192.png?v=6', 'img/icon-512.png?v=6', 'img/icon-180.png?v=6', 'img/favicon-32.png?v=6', 'img/icon-maskable-512.png?v=6', 'img/icon.svg?v=6', 'img/icon-96.png'
 ];
 
@@ -14,7 +14,7 @@ self.addEventListener('install', function (e) {
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+    return Promise.all(keys.filter(function (k) { return k.indexOf('g04musik-') === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 /* Nur eigene App-Dateien: zuerst Netz (damit Updates sofort da sind), sonst Ablage */
