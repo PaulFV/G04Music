@@ -26,7 +26,8 @@
   /* Hintergrund für Cover: Bild oder Verlauf mit Initialen */
   u.artStyle = function(item){
     if(item && item.art) return 'background-image:url(&quot;'+u.esc(item.art)+'&quot;)';
-    return 'background-image:'+u.grad(item&&item.title);
+    var n=u.hue(item&&(item.id||item.title))%6+1;
+    return 'background-image:url(assets/music-art/music-'+n+'.avif);color:transparent';
   };
   u.artText = function(item){ return item && item.art ? '' : u.esc(u.initials(item&&item.title)); };
   u.debounce = function(fn,ms){ var t; return function(){ var a=arguments,s=this; clearTimeout(t); t=setTimeout(function(){fn.apply(s,a);},ms); }; };

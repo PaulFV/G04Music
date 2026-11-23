@@ -86,13 +86,6 @@ body.np-paused .tile.is-playing .art::before{animation-play-state:paused}
   background-size:cover;background-position:center;
 }
 .art[data-title]::after{content:attr(data-title);position:absolute;bottom:0;left:0;right:0;padding:12px 10px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85));font-size:11px;font-weight:600;line-height:1.4;color:#fff;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;white-space:normal}
-.art[data-music="0"]{background-image:url(../assets/music-art/music-1.avif)!important}
-.art[data-music="1"]{background-image:url(../assets/music-art/music-2.avif)!important}
-.art[data-music="2"]{background-image:url(../assets/music-art/music-3.avif)!important}
-.art[data-music="3"]{background-image:url(../assets/music-art/music-4.avif)!important}
-.art[data-music="4"]{background-image:url(../assets/music-art/music-5.avif)!important}
-.art[data-music="5"]{background-image:url(../assets/music-art/music-6.avif)!important}
-.art[data-music]{background-size:cover;background-position:center;color:transparent}
 .art--wide{aspect-ratio:16/9}
 .art--logo{background-color:#fff;background-size:70%;background-repeat:no-repeat}
 .art .pill{position:absolute;left:7px;top:7px}

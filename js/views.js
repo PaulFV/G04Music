@@ -49,7 +49,7 @@
   function eq(){ return '<span class="eq'+(G.player.playing?'':' is-paused')+'"><i></i><i></i><i></i></span>'; }
   function artBox(it,cls,idx){
     var logo = it.kind==='radio' && it.art;
-    return '<div class="art '+(cls||'')+(logo?' art--logo':'')+'"'+(it.art?'':' data-music="'+(idx%6)+'"')+' style="'+u.artStyle(it)+'">'+u.artText(it)+'%BADGE%</div>';
+    return '<div class="art '+(cls||'')+(logo?' art--logo':'')+'" style="'+u.artStyle(it)+'">'+u.artText(it)+'%BADGE%</div>';
   }
   /* „⋯“: öffnet dasselbe Menü wie langes Drücken oder Rechtsklick (app.js: itemMenu) */
   function moreBtn(cls,size){
@@ -202,8 +202,8 @@
         '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
     }
     var recent_heard=recent.slice(0,6), recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
-    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-heard" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
-      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-added" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
+    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-heard" data-i="'+i+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-added" data-i="'+i+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
   function viewMusic(){
