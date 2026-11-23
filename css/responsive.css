@@ -28,6 +28,8 @@ body.has-dock .main{padding-bottom:110px}
   .np__head{display:block}
   .panel{padding:14px;gap:12px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+  .ctl--main .icon-btn{width:54px;height:54px}
+  .ctl--main .play-btn{width:76px;height:76px}
 }
 
 /* ---------- Desktop (≥1200px): Stage groß wie G04TV ---------- */
@@ -39,6 +41,8 @@ body.has-dock .main{padding-bottom:110px}
   .panel{padding:16px;gap:14px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
   .content{padding:0 var(--gutter);gap:14px}
+  .ctl--main .icon-btn{width:48px;height:48px}
+  .ctl--main .play-btn{width:68px;height:68px}
 }
 
 /* ---------- Kleiner Desktop: Bühne untereinander ab hier zu eng ---------- */
