@@ -20,7 +20,7 @@
     {id:'settings', n:'Einstellungen', short:'Mehr', i:'gear'}
   ];
   var TITLES = {
-    music:['Deine Musik','Dein Sound. Dein Moment.'],
+    music:['',''],
     radio:['Radio','Sender aus aller Welt, live'],
     yt:['YouTube','Suchen, merken, abspielen'],
     settings:['Einstellungen','Wiedergabe, Bibliothek, Über']
