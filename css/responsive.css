@@ -43,6 +43,7 @@ body.has-dock .main{padding-bottom:110px}
   .content{padding:0 var(--gutter);gap:14px}
   .ctl--main .icon-btn{width:56px;height:56px}
   .ctl--main .play-btn{width:80px;height:80px}
+  .pdock{display:none}
 }
 
 /* ---------- Kleiner Desktop: Bühne untereinander ab hier zu eng ---------- */
