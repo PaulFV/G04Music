@@ -216,7 +216,7 @@
     }
     var recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
     return featured+
-      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="grid">'+reg('overview-added',recent_added).map(function(t){return '<button class="tile" type="button" data-l="overview-added" data-i="'+recent_added.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t){return '<button class="tile" type="button" data-l="overview-added" data-i="'+recent_added.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
   function viewMusic(){
