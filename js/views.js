@@ -47,9 +47,9 @@
   /* ---------- Bausteine ---------- */
   function isCur(it){ return G.player.cur && S.key(G.player.cur)===S.key(it); }
   function eq(){ return '<span class="eq'+(G.player.playing?'':' is-paused')+'"><i></i><i></i><i></i></span>'; }
-  function artBox(it,cls){
+  function artBox(it,cls,idx){
     var logo = it.kind==='radio' && it.art;
-    return '<div class="art '+(cls||'')+(logo?' art--logo':'')+'" style="'+u.artStyle(it)+'">'+u.artText(it)+'%BADGE%</div>';
+    return '<div class="art '+(cls||'')+(logo?' art--logo':'')+'"'+(it.art?'':' data-music="'+(idx%6)+'"')+' style="'+u.artStyle(it)+'">'+u.artText(it)+'%BADGE%</div>';
   }
   /* „⋯“: öffnet dasselbe Menü wie langes Drücken oder Rechtsklick (app.js: itemMenu) */
   function moreBtn(cls,size){
@@ -63,7 +63,7 @@
 
     var on=isCur(it);
     return '<button class="tile'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
-      artBox(it,wide?'art--wide':'').replace('%BADGE%',badge)+
+      artBox(it,wide?'art--wide':'',i).replace('%BADGE%',badge)+
       '<span class="tile__fav'+(S.isFav(it)?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" title="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-label="'+(S.isFav(it)?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+S.isFav(it)+'">'+ic(S.isFav(it)?'starF':'star',17,2.1)+'</span>'+
       moreBtn('tile__more',17)+
       '<div class="tile__t">'+(on?eq():'')+esc(it.title)+'</div>'+
@@ -83,7 +83,7 @@
             : it.isVideo ? '<span class="row__x">Video</span>' : '';
     var dur = (it.kind==='track'||it.kind==='yt')&&it.duration ? u.fmt(it.duration) : '';
     return '<button class="row lrow'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" title="'+esc(it.title)+'">'+
-      artBox(it,(it.kind==='yt'||it.isVideo)?'art--wide':'').replace('%BADGE%','')+
+      artBox(it,(it.kind==='yt'||it.isVideo)?'art--wide':'',i).replace('%BADGE%','')+
       '<span class="row__t"><b>'+(on?eq():'')+esc(it.title)+'</b><span>'+esc(it.sub||'')+'</span></span>'+
       '<span class="lrow__end">'+tag+(dur?'<span class="row__d num">'+dur+'</span>':'')+moreBtn('row__more',18)+'</span>'+
       '<span class="tile__fav row__fav'+(fav?' is-on':'')+'" role="button" tabindex="0" data-favbtn="1" aria-label="'+(fav?'Aus Favoriten entfernen':'Zu Favoriten')+'" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',16,2.1)+'</span></button>';
@@ -109,7 +109,7 @@
       var on=isCur(t);
       return '<button class="row'+(on?' is-playing':'')+'" type="button" data-l="'+l+'" data-i="'+i+'" data-n="'+(t.track||i+1)+'">'+
         '<span class="row__n num">'+(on?eq():(t.track||i+1))+'</span>'+
-        artBox(t,'').replace('%BADGE%','')+
+        artBox(t,'',i).replace('%BADGE%','')+
         '<span class="row__t"><b>'+(S.isFav(t)?'<span style="color:var(--acc)" aria-hidden="true">♥</span> ':'')+esc(t.title)+'</b><span>'+esc(t.artist||'Unbekannt')+(t.album?' · '+esc(t.album):'')+'</span></span>'+
         '<span class="row__x">'+esc(t.album||(t.isVideo?'Video':'Single'))+'</span>'+
         '<span class="row__d row__end"><span class="num">'+(t.duration?u.fmt(t.duration):'')+'</span>'+moreBtn('row__more',18)+'</span></button>';
@@ -202,8 +202,8 @@
         '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
     }
     var recent_heard=recent.slice(0,6), recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
-    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t){return '<button class="tile" type="button" data-l="overview-heard" data-i="'+recent_heard.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
-      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t){return '<button class="tile" type="button" data-l="overview-added" data-i="'+recent_added.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
+    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t,i){return '<button class="tile" type="button" data-l="overview-heard" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t,i){return '<button class="tile" type="button" data-l="overview-added" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
   function viewMusic(){
