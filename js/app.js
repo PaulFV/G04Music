@@ -48,6 +48,7 @@
   S.on(function(what){
     if(what==='player'){
       V.renderStage(); V.renderNP(); V.renderDock(); V.updateLand();
+      document.body.classList.toggle('np-paused',!P.playing);
       var k=P.cur?S.key(P.cur):null;
       if(k!==lastKey){ lastKey=k; V.markPlaying(); }
       else if(P.playing!==lastPlaying){ u.$$('.eq').forEach(function(e){ e.classList.toggle('is-paused',!P.playing); }); }

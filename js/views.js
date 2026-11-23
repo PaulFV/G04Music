@@ -202,8 +202,8 @@
         '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
     }
     var recent_heard=recent.slice(0,6), recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
-    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t,i){return '<button class="tile" type="button" data-l="overview-heard" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
-      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t,i){return '<button class="tile" type="button" data-l="overview-added" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
+    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-heard" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t,i){return '<button class="tile'+(isCur(t)?' is-playing':'')+'" type="button" data-l="overview-added" data-i="'+i+'"><div class="art"'+(t.art?'':' data-music="'+(i%6)+'"')+' style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+(isCur(t)?eq():'')+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
   function viewMusic(){
@@ -490,6 +490,9 @@
       var r=V.lookup(el.dataset.l,el.dataset.i), on=!!(r&&r.item&&isCur(r.item));
       if(on===el.classList.contains('is-playing')) return;
       el.classList.toggle('is-playing',on);
+      var car=on&&el.closest('.carousel');
+      if(car){ var er=el.getBoundingClientRect(), cr=car.getBoundingClientRect();
+        if(er.left<cr.left||er.right>cr.right) car.scrollBy({left:er.left-cr.left-12,behavior:'smooth'}); }
       var num=el.querySelector('.row__n');
       if(num){ if(on) num.innerHTML=eq(); else num.textContent=el.dataset.n||''; return; }
       var host=el.querySelector('.tile__t, .row__t b'); if(!host) return;
@@ -539,8 +542,8 @@
   /* ---------- Bühne ---------- */
   var KIND={track:'Meine Musik',radio:'Radio',yt:'YouTube'};
   V.syncPlayerLayout = function(){
-    var c=G.player.cur, video=!!(c&&(c.kind==='yt'||c.isVideo)), key=c?S.key(c):null;
-    var show=!!c&&!!HERO_VIEWS[S.view]&&(ui.playerOpen||(video&&ui.playerDismissed!==key));
+    var c=G.player.cur, key=c?S.key(c):null;
+    var show=!!c&&!!HERO_VIEWS[S.view]&&(ui.playerOpen||ui.playerDismissed!==key);
     u.$('#hero').hidden=!show;
     u.$('#content').classList.toggle('no-hero',!show);
     document.body.classList.toggle('player-expanded',show);

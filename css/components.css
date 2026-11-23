@@ -71,7 +71,13 @@
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
 }
 .tile:hover{transform:translateY(-2px);border-color:var(--acc-line);background:var(--glass-bg-2)}
-.tile.is-playing{border-color:var(--acc)}
+.tile.is-playing{border-color:var(--acc);background:var(--acc-dim);box-shadow:inset 0 0 0 1px var(--acc)}
+.tile.is-playing .art::before{content:"";position:absolute;left:8px;bottom:8px;z-index:1;width:30px;height:26px;box-sizing:border-box;padding:6px 7px;border-radius:8px;
+  background-color:rgba(0,0,0,.7);background-origin:content-box;background-repeat:no-repeat;
+  background-image:linear-gradient(var(--acc),var(--acc)),linear-gradient(var(--acc),var(--acc)),linear-gradient(var(--acc),var(--acc));
+  background-position:0 100%,50% 100%,100% 100%;background-size:3px 40%,3px 90%,3px 60%;animation:eqBars .9s ease-in-out infinite}
+@keyframes eqBars{0%,100%{background-size:3px 40%,3px 90%,3px 60%}50%{background-size:3px 95%,3px 35%,3px 85%}}
+body.np-paused .tile.is-playing .art::before{animation-play-state:paused}
 .tile.is-playing .art{box-shadow:inset 0 0 0 1px var(--acc-line),inset 0 0 24px rgba(var(--acc-rgb),.18);animation:tilePulse 1.5s ease-in-out infinite}
 @keyframes tilePulse{0%,100%{box-shadow:inset 0 0 0 1px var(--acc-line),inset 0 0 24px rgba(var(--acc-rgb),.18)}50%{box-shadow:inset 0 0 0 2px var(--acc-line),inset 0 0 32px rgba(var(--acc-rgb),.35)}}
 .art{
