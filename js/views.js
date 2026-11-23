@@ -194,28 +194,15 @@
       '<span class="album-card__play">'+ic('play',22)+'</span></div><div class="tile__t" data-noi18n>'+esc(a.title)+'</div><div class="tile__s" data-noi18n>'+esc(a.artist||'')+'</div></button>';
   }
   function viewOverview(){
-    var L=G.library, songs=L.songs(), recent=recentOf('track'), item=recent[0]||songs.slice().sort(function(a,b){return b.added-a.added;})[0]||L.videos()[0];
-    var featured='';
-    if(item){
-      reg('featured',[item]);
-      featured='<section class="feature feature--track"><div class="feature__art" aria-hidden="true" style="'+u.artStyle(item)+'"></div><div class="feature__content">'+
-        '<span class="eyebrow">'+(recent.length?'Zuletzt gehört':'DEINE BIBLIOTHEK')+'</span><h2 data-noi18n>'+esc(item.title)+'</h2><p data-noi18n>'+esc(item.artist||item.sub||'')+'</p>'+
-        '<button class="btn btn--solid" type="button" data-l="featured" data-i="0">'+ic('play',18)+'Weiterhören</button></div></section>';
-    } else {
-      featured='<section class="feature feature--welcome"><div class="feature__art feature__art--welcome" aria-hidden="true"></div><div class="feature__content">'+
-        '<span class="eyebrow">WILLKOMMEN BEI G04MUSIK</span><h2>Dein Sound.<br>Dein Moment.</h2><p>Deine Lieblingsmusik, Radio und Videos. Alles an einem Ort.</p>'+
-        '<button class="btn btn--solid" type="button" data-act="pickFiles">'+ic('plus',18)+'Musik hinzufügen</button></div></section>';
-    }
-    var albums=sortMusic(L.albums()).slice(0,6), added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
+    var L=G.library, songs=L.songs(), recent=recentOf('track');
     if(!L.tracks.length){
-      return featured+'<section class="home-section"><div class="sec-h"><h3>Mach es zu deiner Musik.</h3></div><div class="start-options">'+
-        '<button class="start-option" type="button" data-act="pickFiles"><span class="start-option__icon">'+ic('music',25)+'</span><b>Eigene Musik</b><span>Dateien und Ordner von deinem Gerät</span></button>'+
-        '<button class="start-option" type="button" data-go="radio"><span class="start-option__icon">'+ic('radio',25)+'</span><b>Radio entdecken</b><span>Deine Sender. Live und weltweit.</span></button>'+
-        '<button class="start-option" type="button" data-go="yt"><span class="start-option__icon">'+ic('yt',25)+'</span><b>YouTube</b><span>Musikvideos suchen und abspielen</span></button></div></section>'+
+      return '<section class="feature feature--welcome"><div class="feature__art feature__art--welcome" aria-hidden="true"></div><div class="feature__content">'+
+        '<span class="eyebrow">WILLKOMMEN BEI G04MUSIK</span><h2>Dein Sound.<br>Dein Moment.</h2><p>Deine Lieblingsmusik, Radio und Videos. Alles an einem Ort.</p>'+
+        '<button class="btn btn--solid" type="button" data-act="pickFiles">'+ic('plus',18)+'Musik hinzufügen</button></div></section>'+
         '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
     }
-    var recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
-    return featured+
+    var recent_heard=recent.slice(0,6), recent_added=L.tracks.slice().sort(function(a,b){return b.added-a.added;}).slice(0,6);
+    return (recent_heard.length?'<section class="home-section"><div class="sec-h"><h3>Zuletzt gehört</h3></div><div class="carousel">'+reg('overview-heard',recent_heard).map(function(t){return '<button class="tile" type="button" data-l="overview-heard" data-i="'+recent_heard.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>':'')+
       '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3></div><div class="carousel">'+reg('overview-added',recent_added).map(function(t){return '<button class="tile" type="button" data-l="overview-added" data-i="'+recent_added.indexOf(t)+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
