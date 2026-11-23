@@ -333,7 +333,8 @@
     var art=[];
     if(cover) art.push({src:cover,sizes:'600x600'});
     else if(c.art) art.push({src:c.art,sizes:'512x512'});
-    art.push({src:'img/icon-512.png?v=6',sizes:'512x512',type:'image/png'});
+    else art.push({src:new URL('assets/music-art/music-'+G.u.musicNo(c)+'.jpg',location.href).href,sizes:'512x512',type:'image/jpeg'});
+    art.push({src:new URL('img/icon-512.png?v=6',location.href).href,sizes:'512x512',type:'image/png'});
     try{
       ms.metadata=new MediaMetadata({
         title: np ? np.title : c.title,
@@ -342,14 +343,21 @@
         artwork:art
       });
     }catch(e){}
+    skipHandlers();
+  }
+  /* iOS zeigt ±10 s statt Titelwechsel, solange Seek-Handler fehlen oder nach Quellenwechsel verloren gehen */
+  function skipHandlers(){
+    var A=function(n,f){ try{ navigator.mediaSession.setActionHandler(n,f); }catch(e){} };
+    A('seekbackward',null); A('seekforward',null);
+    A('nexttrack',function(){ P.next(); });
+    A('previoustrack',function(){ P.prev(); });
   }
   P.refreshSession = session;
   if('mediaSession' in navigator){
     var A=function(n,f){ try{ navigator.mediaSession.setActionHandler(n,f); }catch(e){} };
     A('play',function(){ if(!P.playing) P.toggle(); });
     A('pause',function(){ if(P.playing) P.toggle(); else { want=false; P.interrupted=false; clearTimeout(retryT); } });
-    A('nexttrack',function(){ P.next(); });
-    A('previoustrack',function(){ P.prev(); });
+    skipHandlers();
     A('seekto',function(d){ var du=P.duration(); if(du&&d.seekTime!=null) P.seekTo(d.seekTime/du); });
     S.on(function(w){ if(w==='player'&&'mediaSession' in navigator) try{ navigator.mediaSession.playbackState=P.playing?'playing':(P.cur?'paused':'none'); }catch(e){} });
   }
