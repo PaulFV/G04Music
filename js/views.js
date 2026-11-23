@@ -468,6 +468,7 @@
 
   V.render = function(){
     var t=TITLES[S.view]; u.$('#viewTitle').textContent=t[0]; u.$('#viewSub').textContent=t[1];
+    u.$('.topbar').classList.toggle('topbar--compact',S.view==='music');
     V.syncPlayerLayout();
     u.$('#viewHost').innerHTML=VIEWS[S.view]();
     u.$('#viewHost').classList.toggle('set-view',S.view==='settings');
@@ -656,11 +657,12 @@
     var P=G.player, c=P.cur, d=u.$('#pdock');
     var show=!!c;
     d.hidden=!show; document.body.classList.toggle('has-dock',show);
+    d.classList.toggle('is-playing',!!(show&&P.playing&&!P.loading&&!P.error));
     if(show){
       var dur=P.duration(), t=P.time(), sh=V.shown(c), live=P.isLive(), fav=S.isFav(c), st=S.settings;
       var control=function(action,icon,label,cls){return '<button class="icon-btn '+(cls||'')+'" type="button" data-act="'+action+'" aria-label="'+label+'" title="'+label+'">'+ic(icon,20)+'</button>';};
       d.innerHTML='<div class="dock-track"><button class="cover dock-cover" type="button" data-act="toStage" aria-label="Großes Abspielfenster" style="'+(sh.art?coverStyle(sh.art):u.artStyle(c))+'">'+(sh.art?'':u.artText(c))+'</button>'+
-        '<button class="pdock__meta" type="button" data-act="toStage"><b data-noi18n>'+esc(sh.title)+'</b><span data-noi18n>'+(P.error?esc(P.error):P.loading?'Lädt …':esc(sh.sub))+'</span></button>'+
+        '<button class="pdock__meta" type="button" data-act="toStage"><b data-noi18n>'+esc(sh.title)+'<span class="dock-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></b><span data-noi18n>'+(P.error?esc(P.error):P.loading?'Lädt …':esc(sh.sub))+'</span></button>'+
         control('fav',fav?'starF':'star','Favorit','dock-fav'+(fav?' is-on':''))+'</div>'+
         '<div class="dock-playback"><div class="dock-controls">'+control('shuffle','shuffle','Zufall','dock-desktop'+(st.shuffle?' is-on':''))+control('prev','prev','Zurück','dock-desktop')+
         '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',24)+'</button>'+
