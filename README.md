@@ -1,4 +1,4 @@
-# G04Musik v0.8.0
+# G04Musik v0.8.2
 
 Neue Musikübersicht mit großen Albumcovern, ruhigem Anthrazit-Design und rotem Akzent. Der kompakte Player bleibt unten erreichbar; Cover antippen öffnet das große Abspielfenster. Die Übersicht verwendet ausschließlich deine importierten Dateien. Favoriten, Playlists und zuletzt gehörte Titel sind in der Seitenleiste direkt erreichbar. Songs und Alben lassen sich nach Titel, Künstler oder Hinzufügedatum sortieren. Die Warteschlange öffnest du am Desktop direkt im Player, am Handy über das Menü.
 

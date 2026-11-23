@@ -703,7 +703,9 @@
 
   /* ---------- Höhe der Kopfzeile: darunter klebt das Abspielfenster ---------- */
   function setTopH(){ document.documentElement.style.setProperty('--topbar-h', u.$('.topbar').offsetHeight+'px'); }
-  window.addEventListener('resize',u.debounce(setTopH,100)); setTopH();
+  window.addEventListener('resize',u.debounce(setTopH,100));
+  if(window.ResizeObserver) new ResizeObserver(setTopH).observe(u.$('.topbar'));
+  setTopH();
 
   /* ---------- Kein Zoom (iOS ignoriert user-scalable=no) ---------- */
   ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
