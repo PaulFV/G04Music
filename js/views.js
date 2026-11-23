@@ -214,8 +214,8 @@
         '<button class="start-option" type="button" data-go="yt"><span class="start-option__icon">'+ic('yt',25)+'</span><b>YouTube</b><span>Musikvideos suchen und abspielen</span></button></div></section>'+
         '<section class="library-note">'+ic('disk',20)+'<div><b>Deine Bibliothek reist mit.</b><p>Importierte Dateien bleiben auf diesem Gerät und sind auch offline verfügbar.</p></div><button class="text-btn" type="button" data-act="dsServer">DS-Server verbinden</button></section>';
     }
-    return featured+(albums.length?'<section class="home-section"><div class="sec-h"><h3>Deine Alben</h3><button class="text-btn" type="button" data-mtab="albums">Alle Alben anzeigen</button></div><div class="grid home-albums">'+albums.map(albumCard).join('')+'</div></section>':'')+
-      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3><button class="text-btn" type="button" data-mtab="songs">Alle Songs anzeigen</button></div>'+rows(added,'home-recent')+'</section>';
+    return featured+(albums.length?'<section class="home-section"><div class="sec-h"><h3>Deine Alben</h3><button class="text-btn" type="button" data-mtab="albums">Alle Alben anzeigen</button></div><div class="carousel">'+albums.map(albumCard).join('')+'</div></section>':'')+
+      '<section class="home-section"><div class="sec-h"><h3>Zuletzt hinzugefügt</h3><button class="text-btn" type="button" data-mtab="songs">Alle Songs anzeigen</button></div><div class="carousel">'+added.map(function(t){return '<button class="tile" type="button" data-l="track" data-i="'+t.index+'"><div class="art" style="'+u.artStyle(t)+'">'+(t.art?'':esc(u.initials(t.title)))+'</div><div class="tile__t">'+esc(t.title)+'</div><div class="tile__s">'+esc(t.artist||'Unbekannter Künstler')+'</div></button>';}).join('')+'</div></section>';
   }
 
   function viewMusic(){

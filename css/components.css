@@ -52,6 +52,14 @@
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .toolbar .field{flex:1 1 240px}
 
+/* ---------- Carousels ---------- */
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:var(--glass-br) transparent}
+.carousel::-webkit-scrollbar{height:3px}
+.carousel::-webkit-scrollbar-track{background:transparent}
+.carousel::-webkit-scrollbar-thumb{background:var(--glass-br);border-radius:2px}
+.carousel .tile{flex:0 0 140px;scroll-snap-align:start}
+@media (max-width:767px){.carousel .tile{flex:0 0 110px}}
+
 /* ---------- Kacheln ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
 .grid--wide{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
