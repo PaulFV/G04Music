@@ -79,6 +79,7 @@
   font-weight:800;font-size:28px;letter-spacing:-.04em;color:rgba(255,255,255,.92);
   background-size:cover;background-position:center;
 }
+.art::after{content:attr(data-title);position:absolute;bottom:0;left:0;right:0;padding:10px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.8));font-size:12px;font-weight:600;line-height:1.3;color:#fff;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .art[data-music="0"]{background-image:url(../assets/music-art/music-1.avif)}
 .art[data-music="1"]{background-image:url(../assets/music-art/music-2.avif)}
 .art[data-music="2"]{background-image:url(../assets/music-art/music-3.avif)}
