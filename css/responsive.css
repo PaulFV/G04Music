@@ -163,7 +163,11 @@ body.has-dock .main{padding-bottom:110px}
   .tabbar button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .tabbar button.is-active{color:var(--acc);background:var(--acc-dim);border-color:var(--acc-line)}
 
-  .pdock{left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));width:auto;bottom:calc(var(--tabbar-h-phone) + 14px + env(safe-area-inset-bottom))}
+  .pdock{left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));width:auto;bottom:calc(var(--tabbar-h-phone) + 14px + env(safe-area-inset-bottom));padding:12px 14px;gap:14px;border-radius:24px}
+  .pdock .cover{width:56px;height:56px;font-size:18px;border-radius:14px}
+  .pdock .play-btn{width:48px;height:48px}
+  .pdock__meta b{font-size:15px}
+  .pdock__meta span{font-size:13px}
 
   .sheet{left:0;right:0;top:auto;bottom:0;transform:none;width:100%;max-height:85dvh;border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom);animation:sheetUp .32s var(--ease)}
   .toasts{bottom:calc(var(--tabbar-h-phone) + 70px + env(safe-area-inset-bottom))}

@@ -81,11 +81,12 @@
   padding:9px 10px 9px 9px;border-radius:20px;border-color:var(--acc-line);background:rgba(17,13,22,.82);
   animation:viewIn .3s var(--ease);
 }
-.pdock .cover{width:46px;font-size:15px;border-radius:11px;box-shadow:none}
+.pdock .cover{width:46px;font-size:15px;border-radius:11px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 .pdock__meta{flex:1;min-width:0;background:none;border:0;padding:0;text-align:left}
 .pdock__meta b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pdock__meta span{display:block;font-size:12px;color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pdock .play-btn{width:42px;height:42px}
+.pdock .play-btn{width:42px;height:42px;box-shadow:0 6px 18px rgba(var(--acc-rgb),.4),inset -1px -1px 3px rgba(0,0,0,.2),inset 1px 1px 3px rgba(255,255,255,.08)}
+.pdock .play-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(var(--acc-rgb),.5),inset -1px -1px 3px rgba(0,0,0,.2),inset 1px 1px 3px rgba(255,255,255,.08)}
 .pdock__prog{position:absolute;left:18px;right:18px;bottom:0;height:2px;border-radius:2px;overflow:hidden}
 .pdock__prog i{display:block;height:100%;background:var(--acc)}
 
