@@ -81,11 +81,12 @@
 
   /* ---------- Bild zeichnen ---------- */
   function loadArt(c){
-    if (!c.art || imgFor === c.art) return;
-    imgFor = c.art; img = null;
-    var im = new Image(); if (c.kind === 'radio') im.crossOrigin = 'anonymous';
-    im.onload = function(){ if (imgFor === c.art) img = im; };
-    im.src = c.art;
+    var src = c.art || new URL('assets/music-art/music-' + u.musicNo(c) + '.jpg', location.href).href;
+    if (imgFor === src) return;
+    imgFor = src; img = null;
+    var im = new Image(); if (c.art && c.kind === 'radio') im.crossOrigin = 'anonymous';
+    im.onload = function(){ if (imgFor === src) img = im; };
+    im.src = src;
   }
   function round(x, y, w, h, r){ cx.beginPath(); cx.moveTo(x+r, y); cx.arcTo(x+w, y, x+w, y+h, r); cx.arcTo(x+w, y+h, x, y+h, r); cx.arcTo(x, y+h, x, y, r); cx.arcTo(x, y, x+w, y, r); cx.closePath(); }
   function fit(text, max){ var t = String(text || ''); while (t.length > 1 && cx.measureText(t).width > max) t = t.slice(0, -2) + '…'; return t; }
@@ -99,7 +100,7 @@
     var s = 300, x = (W - s) / 2, y = 34;
     cx.save(); round(x, y, s, s, 26); cx.clip();
     if (img) {
-      if (c.kind === 'radio') { cx.fillStyle = '#fff'; cx.fillRect(x, y, s, s); cx.drawImage(img, x + 30, y + 30, s - 60, s - 60); }
+      if (c.kind === 'radio' && c.art) { cx.fillStyle = '#fff'; cx.fillRect(x, y, s, s); cx.drawImage(img, x + 30, y + 30, s - 60, s - 60); }
       else cx.drawImage(img, x, y, s, s);
     } else {
       var h = u.hue(c.title), gg = cx.createLinearGradient(x, y, x + s, y + s);
