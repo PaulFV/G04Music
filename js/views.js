@@ -613,12 +613,12 @@
       '<button class="play-btn" type="button" data-act="toggle" aria-label="'+(P.playing?'Pause':'Abspielen')+'">'+ic(P.playing?'pause':'play',26)+'</button>'+
       '<button class="icon-btn" type="button" data-act="next" title="Weiter" aria-label="Weiter">'+ic('next',18)+'</button>'+
       '<button class="icon-btn np-desk'+(st.repeat!=='off'?' is-on':'')+'" type="button" data-act="repeat" title="Wiederholen: '+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'" aria-label="Wiederholen">'+ic(rep,18)+'</button>'+
-      (G.pip&&G.pip.supported()?'<button class="icon-btn np-phone" type="button" data-act="pip" title="Mini-Fenster: bleibt über anderen Apps sichtbar" aria-label="Mini-Fenster">'+ic('pip',18)+'</button>':'')+
+      (G.pip&&G.pip.supported()?'<button class="icon-btn np-phone" type="button" data-act="pip" title="Mini-Fenster öffnen" aria-label="Mini-Fenster">'+ic('pip',18)+'</button>':'')+
       '<button class="icon-btn np-phone np-fav'+(fav?' is-on':'')+'" type="button" data-act="fav" title="Favorit" aria-label="Favorit" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',18)+'</button>'+
       '<button class="icon-btn np-phone'+(P.sleepAt||st.repeat!=='off'?' is-on':'')+'" type="button" data-act="npMore" title="Mehr" aria-label="Mehr">'+ic('more',18)+'</button></div>'+
       '<div class="ctl np-desk"><button class="icon-btn'+(fav?' is-on':'')+'" type="button" data-act="fav" title="Favorit" aria-label="Favorit" aria-pressed="'+fav+'">'+ic(fav?'starF':'star',18)+'</button>'+
       '<button class="icon-btn" type="button" data-act="toList" title="Zu Liste hinzufügen" aria-label="Zu Liste hinzufügen">'+ic('listAdd',18)+'</button>'+
-      (G.pip&&G.pip.supported()?'<button class="icon-btn" type="button" data-act="pip" title="Mini-Fenster: bleibt über anderen Apps sichtbar" aria-label="Mini-Fenster">'+ic('pip',18)+'</button>':'')+
+      (G.pip&&G.pip.supported()?'<button class="icon-btn" type="button" data-act="pip" title="Mini-Fenster öffnen" aria-label="Mini-Fenster">'+ic('pip',18)+'</button>':'')+
       '<button class="icon-btn'+(P.sleepAt?' is-on':'')+'" type="button" data-act="sleep" title="Einschlaf-Timer" aria-label="Einschlaf-Timer">'+ic('moon',18)+'</button>'+(P.sleepAt?'<span class="sleep-tag num">'+P.sleepLeft()+' min</span>':'')+
       '<div class="vol" title="Lautstärke"><button class="icon-btn vol__btn" type="button" data-act="mute" data-volicon="18"></button><input id="volRange" type="range" min="0" max="100" step="1" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke"></div>'+
       '<button class="icon-btn" type="button" data-act="stop" title="Beenden" aria-label="Beenden"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+

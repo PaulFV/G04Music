@@ -2,7 +2,7 @@
    Musik, Sender und Videos kommen nicht hier hinein (eigene Dateien liegen in der IndexedDB). */
 var CACHE = 'g04musik-v0.8.0';
 var FILES = [
-  './', 'index.html', 'manifest.webmanifest?v=6',
+  './', 'index.html', 'mini.html', 'manifest.webmanifest?v=6',
   'css/theme.css?v=0.8.0', 'css/layout.css?v=0.8.0', 'css/components.css?v=0.8.0', 'css/player.css?v=0.8.0', 'css/responsive.css?v=0.8.0', 'css/theme-light.css?v=0.8.0', 'css/modern.css?v=0.8.0', 'art/icon-1024.png',
   'js/util.js?v=0.8.0', 'js/i18n.js?v=0.8.0', 'js/db.js?v=0.8.0', 'js/id3.js?v=0.8.0', 'js/store.js?v=0.8.0', 'js/library.js?v=0.8.0', 'js/dsserver.js?v=0.8.0', 'js/radio.js?v=0.8.0', 'js/nowplaying.js?v=0.8.0', 'js/youtube.js?v=0.8.0', 'js/playlists.js?v=0.8.0',
   'js/player.js?v=0.8.0', 'js/pip.js?v=0.8.0', 'js/views.js?v=0.8.0', 'js/app.js?v=0.8.0',
