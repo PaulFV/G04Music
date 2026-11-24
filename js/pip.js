@@ -29,7 +29,7 @@
   };
 
   /* ---------- Mini-Fenster mit Bedienung (Chrome/Edge am Rechner) ---------- */
-  var MINI_CSS = 'html,body{margin:0;height:100%}body{display:flex;align-items:center;background:#0e0b12;color:#fff;font:13px system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
+  var MINI_CSS = 'html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;background:#0e0b12;color:#fff;font:13px system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
     + '.mp{display:grid;grid-template-columns:96px 1fr;gap:6px 14px;width:100%;box-sizing:border-box;padding:14px 16px}'
     + '.cov{grid-row:1/4;width:96px;height:96px;border-radius:12px;background:#2a1f2e center/cover no-repeat;box-shadow:0 6px 18px rgba(0,0,0,.5)}'
     + '.meta{min-width:0;align-self:end}.meta b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{display:block;color:#b3a4ab;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
@@ -72,7 +72,7 @@
     return update;
   };
   function openMini(){
-    return window.documentPictureInPicture.requestWindow({ width: 400, height: 150 }).then(function(w){
+    return window.documentPictureInPicture.requestWindow({ width: 400, height: 160 }).then(function(w){
       var update = G.pip.buildMini(w.document), tick = setInterval(update, 500);
       mini = { win: w, update: update };
       w.addEventListener('pagehide', function(){ clearInterval(tick); mini = null; S.emit && S.emit('player'); });
