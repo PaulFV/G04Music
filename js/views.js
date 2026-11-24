@@ -658,7 +658,7 @@
         control('next','next','Weiter')+control('repeat',st.repeat==='one'?'repeat1':'repeat','Wiederholen','dock-desktop'+(st.repeat!=='off'?' is-on':''))+'</div>'+
         '<div class="dock-seek"><span class="num js-time">'+(live?'LIVE':u.fmt(t))+'</span><div class="seek__bar js-seek'+(live?' is-live':'')+'"'+(live?'':' role="slider" aria-label="Position" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(dur?Math.round(t/dur*100):0)+'"')+'><i class="js-bar" style="width:'+(dur?Math.min(100,t/dur*100):0)+'%"></i></div><span class="num js-dur">'+(live?'':u.fmt(dur))+'</span></div></div>'+
         '<div class="dock-tools"><button class="icon-btn" type="button" data-act="mute" data-volicon="20"></button><input id="dockVolume" type="range" min="0" max="100" value="'+Math.round(st.volume*100)+'" aria-label="Lautstärke">'+
-        control('queue','queue','Warteschlange')+control('npMore','more','Mehr')+'</div>'+
+        (G.pip&&G.pip.supported()?control('pip','pip','Mini-Fenster','dock-desktop'):'')+control('queue','queue','Warteschlange')+control('npMore','more','Mehr')+'</div>'+
         '<span class="pdock__prog"><i class="js-bar" style="width:'+(dur?Math.min(100,t/dur*100):0)+'%"></i></span>';
       V.syncVol();
     }

@@ -16,14 +16,68 @@
   function hasPiP(v){ return !!(document.pictureInPictureEnabled || (v && v.webkitSupportsPresentationMode && v.webkitSupportsPresentationMode('picture-in-picture'))); }
   var testVid = document.createElement('video');
   var CAN_STREAM = !!cv.captureStream;
+  var DOC_PIP = !!(window.documentPictureInPicture && window.documentPictureInPicture.requestWindow);
+  var mini = null;
+  function isVid(c){ return c && c.kind === 'track' && c.isVideo; }
   G.pip = {
     supported: function(){
       var c = P.cur; if (!c || c.kind === 'yt') return false;
-      if (c.kind === 'track' && c.isVideo) return hasPiP(P.mediaEl());
-      return CAN_STREAM && hasPiP(testVid);
+      if (isVid(c)) return hasPiP(P.mediaEl());
+      return DOC_PIP || (CAN_STREAM && hasPiP(testVid));
     },
-    active: function(){ return !!(document.pictureInPictureElement || (vid && vid.webkitPresentationMode === 'picture-in-picture') || (P.mediaEl().webkitPresentationMode === 'picture-in-picture')); }
+    active: function(){ return !!(mini || document.pictureInPictureElement || (vid && vid.webkitPresentationMode === 'picture-in-picture') || (P.mediaEl().webkitPresentationMode === 'picture-in-picture')); }
   };
+
+  /* ---------- Mini-Fenster mit Bedienung (Chrome/Edge am Rechner) ---------- */
+  var MINI_CSS = 'html,body{margin:0;height:100%}body{display:flex;align-items:center;background:#0e0b12;color:#fff;font:13px system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
+    + '.mp{display:grid;grid-template-columns:96px 1fr;gap:6px 14px;width:100%;box-sizing:border-box;padding:14px 16px}'
+    + '.cov{grid-row:1/4;width:96px;height:96px;border-radius:12px;background:#2a1f2e center/cover no-repeat;box-shadow:0 6px 18px rgba(0,0,0,.5)}'
+    + '.meta{min-width:0;align-self:end}.meta b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{display:block;color:#b3a4ab;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    + '.ctl{display:flex;align-items:center;gap:6px}.ctl button{width:34px;height:34px;border:0;border-radius:50%;background:none;color:#fff;display:grid;place-items:center;cursor:pointer}.ctl button:hover{background:rgba(255,255,255,.12)}'
+    + '.ctl .pl{width:40px;height:40px;background:var(--acc,#ff3b4e)}.ctl .pl:hover{background:var(--acc,#ff3b4e);filter:brightness(1.15)}.vol{margin-left:auto;width:70px;accent-color:var(--acc,#ff3b4e)}'
+    + '.seek{display:flex;align-items:center;gap:8px;color:#b3a4ab;font-variant-numeric:tabular-nums;font-size:12px}.bar{flex:1;height:16px;position:relative;cursor:pointer}'
+    + '.bar::before{content:"";position:absolute;left:0;right:0;top:6px;height:4px;border-radius:4px;background:rgba(255,255,255,.15)}.bar i{position:absolute;left:0;top:6px;height:4px;border-radius:4px;background:var(--acc,#ff3b4e)}.bar.live{cursor:default}.bar.live i{width:100%!important}';
+  G.pip.buildMini = function(doc){
+    var acc = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim() || '#ff3b4e';
+    doc.documentElement.style.setProperty('--acc', acc);
+    var st = doc.createElement('style'); st.textContent = MINI_CSS; doc.head.appendChild(st);
+    doc.title = 'G04Musik';
+    doc.body.innerHTML = '<div class="mp"><div class="cov"></div><div class="meta"><b></b><span></span></div>'
+      + '<div class="ctl"><button type="button" data-a="prev" aria-label="Zurück">' + u.ic('prev', 20) + '</button><button type="button" class="pl" data-a="toggle" aria-label="Abspielen"></button><button type="button" data-a="next" aria-label="Weiter">' + u.ic('next', 20) + '</button><input class="vol" type="range" min="0" max="100" aria-label="Lautstärke"></div>'
+      + '<div class="seek"><span class="t">0:00</span><div class="bar"><i></i></div><span class="d">0:00</span></div></div>';
+    var q = function(s){ return doc.querySelector(s); }, shownKey = null;
+    function update(){
+      var c = P.cur; if (!c) return;
+      var sh = G.views.shown(c), key = S.key(c) + '|' + sh.title + '|' + sh.art;
+      if (key !== shownKey) {
+        shownKey = key;
+        var art = sh.art || c.art || new URL('assets/music-art/music-' + u.musicNo(c) + '.jpg', location.href).href;
+        q('.cov').style.backgroundImage = 'url("' + art + '")';
+        q('.meta b').textContent = sh.title; q('.meta span').textContent = sh.sub;
+      }
+      var pl = q('.pl'); pl.innerHTML = u.ic(P.playing ? 'pause' : 'play', 22); pl.setAttribute('aria-label', P.playing ? 'Pause' : 'Abspielen');
+      var live = P.isLive(), d = P.duration(), t = P.time();
+      q('.bar').classList.toggle('live', !!live);
+      q('.bar i').style.width = live ? '100%' : (d ? Math.min(100, t / d * 100) : 0) + '%';
+      q('.t').textContent = live ? 'LIVE' : u.fmt(t); q('.d').textContent = live ? '' : u.fmt(d);
+      var v = q('.vol'); if (doc.activeElement !== v) v.value = Math.round(S.settings.volume * 100);
+    }
+    doc.addEventListener('click', function(e){
+      var b = e.target.closest('[data-a]'); if (!b) return;
+      if (b.dataset.a === 'prev') P.prev(); else if (b.dataset.a === 'next') P.next(); else P.toggle();
+    });
+    q('.bar').addEventListener('click', function(e){ if (P.isLive()) return; var r = this.getBoundingClientRect(); P.seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width))); update(); });
+    q('.vol').addEventListener('input', function(){ P.setVolume(this.value / 100); });
+    update();
+    return update;
+  };
+  function openMini(){
+    return window.documentPictureInPicture.requestWindow({ width: 400, height: 150 }).then(function(w){
+      var update = G.pip.buildMini(w.document), tick = setInterval(update, 500);
+      mini = { win: w, update: update };
+      w.addEventListener('pagehide', function(){ clearInterval(tick); mini = null; S.emit && S.emit('player'); });
+    });
+  }
 
   /* ---------- Bild zeichnen ---------- */
   function loadArt(c){
@@ -106,6 +160,8 @@
     var c = P.cur;
     if (!c) return;
     try {
+      if (mini) { mini.win.close(); return; }
+      if (DOC_PIP && c.kind !== 'yt' && !isVid(c)) { openMini().catch(fail); return; }
       if (G.pip.active()) {
         if (document.exitPictureInPicture && document.pictureInPictureElement) { document.exitPictureInPicture().catch(function(){}); return; }
         var e = vid && vid.webkitPresentationMode === 'picture-in-picture' ? vid : P.mediaEl();
@@ -133,5 +189,5 @@
   var mv = P.mediaEl(); try { mv.autoPictureInPicture = true; mv.setAttribute('autopictureinpicture', ''); } catch (e) {}
 
   /* Neuer Titel während das Mini-Fenster offen ist: Bild aktualisieren */
-  S.on(function(w){ if (w !== 'player') return; if (timer) draw(); else if (P.playing) prepare(); });
+  S.on(function(w){ if (w !== 'player' && w !== 'meta') return; if (mini) { mini.update(); return; } if (w !== 'player') return; if (timer) draw(); else if (P.playing) prepare(); });
 })();
