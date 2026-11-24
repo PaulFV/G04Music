@@ -53,6 +53,12 @@
       if (w.closed || full) return;
       full = { w: w.innerWidth, h: w.innerHeight }; root.classList.add('compact');
       try { w.resizeBy(MINI_SMALL - w.innerWidth, MINI_SMALL - w.innerHeight); } catch (e) {}
+      /* Windows lässt Fenster nicht beliebig schmal werden: nach dem Verkleinern auf das erreichte Maß quadratisch ziehen */
+      w.setTimeout(function(){
+        if (!full || w.closed) return;
+        var s = Math.max(w.innerWidth, w.innerHeight);
+        try { w.resizeBy(s - w.innerWidth, s - w.innerHeight); } catch (e) {}
+      }, 150);
     }
     function expand(){
       if (!full) return;
