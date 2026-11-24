@@ -30,16 +30,19 @@
 
   /* ---------- Eigenes Mini-Fenster am Rechner: wie der Player unten, nur kleiner ---------- */
   var MINI_VARS = ['--acc', '--acc-rgb', '--bg-1', '--tx-0', '--tx-2', '--btn-1', '--btn-2', '--on-acc', '--glass-br'];
-  var MINI_CSS = 'html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;background:var(--bg-1,#141519);color:var(--tx-0,#f5f5f7);font:13px system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
-    + '.mp{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:6px 12px;width:100%;min-width:0;box-sizing:border-box;padding:12px 14px}'
+  /* Alles ist in rem gemessen; die Schriftgröße der Seite folgt dem Fenster (Inhalt ≈ 33 × 8,2 rem),
+     so wachsen und schrumpfen Cover, Tasten, Schrift und Balken gemeinsam. */
+  var MINI_CSS = 'html{font-size:clamp(7px,min(2.94vw,13.5vh),48px)}html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;justify-content:stretch;padding:0;text-align:left;background:var(--bg-1,#141519);color:var(--tx-0,#f5f5f7);font:1rem system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
+    + '.mp{display:grid;grid-template-columns:5rem minmax(0,1fr);align-items:center;gap:.5rem 1rem;width:100%;min-width:0;box-sizing:border-box;padding:.9rem 1.05rem}'
     + '.mp>*{min-width:0}'
-    + '.cov{width:56px;height:56px;border-radius:10px;background:#2a1f2e center/cover no-repeat}'
-    + '.meta b{display:block;font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{display:block;color:var(--tx-2,#a8a0a6);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
-    + '.ctl{display:flex;align-items:center;gap:2px}.ctl button{width:34px;height:34px;border:0;border-radius:50%;background:none;color:var(--tx-0,#f5f5f7);display:grid;place-items:center;cursor:pointer}.ctl button:hover{background:rgba(255,255,255,.1)}.ctl button.on{color:var(--acc,#ff4c66)}'
-    + '.ctl .pl{width:44px;height:44px;margin:0 4px;background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f));color:var(--on-acc,#fff);box-shadow:0 0 18px rgba(var(--acc-rgb,255,76,102),.45)}.ctl .pl:hover{filter:brightness(1.12);background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f))}'
-    + '.seek{grid-column:1/-1;display:flex;align-items:center;gap:8px;color:var(--tx-2,#a8a0a6);font-variant-numeric:tabular-nums;font-size:12px}.bar{flex:1;height:16px;position:relative;cursor:pointer}'
-    + '.bar::before{content:"";position:absolute;left:0;right:0;top:6px;height:4px;border-radius:4px;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:6px;height:4px;border-radius:4px;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}'
-    + '@media (max-width:400px){.ctl .sh,.ctl .rp{display:none}}';
+    + '.cov{grid-row:1/3;width:5rem;height:5rem;border-radius:.8rem;background:#2a1f2e center/cover no-repeat}'
+    + '.meta{display:flex;align-items:baseline;gap:.6rem;overflow:hidden}.meta b{flex:0 1 auto;min-width:0;font-size:1.1rem;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{flex:1 1 0;min-width:0;color:var(--tx-2,#a8a0a6);font-size:.96rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    + '.row2{display:flex;align-items:center;gap:.8rem}'
+    + '.ctl{display:flex;align-items:center;gap:.15rem}.ctl button{width:2.6rem;height:2.6rem;padding:0;border:0;border-radius:50%;background:none;color:var(--tx-0,#f5f5f7);display:grid;place-items:center;cursor:pointer}.ctl button:hover{background:rgba(255,255,255,.1)}.ctl button.on{color:var(--acc,#ff4c66)}'
+    + '.ctl svg{width:1.55rem;height:1.55rem}.ctl .pl svg{width:1.85rem;height:1.85rem}'
+    + '.ctl .pl{width:3.4rem;height:3.4rem;margin:0 .3rem;background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f));color:var(--on-acc,#fff);box-shadow:0 0 1.4rem rgba(var(--acc-rgb,255,76,102),.45)}.ctl .pl:hover{filter:brightness(1.12);background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f))}'
+    + '.seek{flex:1;display:flex;align-items:center;gap:.5rem;color:var(--tx-2,#a8a0a6);font-variant-numeric:tabular-nums;font-size:.92rem}.bar{flex:1;height:1.2rem;position:relative;cursor:pointer}'
+    + '.bar::before{content:"";position:absolute;left:0;right:0;top:.45rem;height:.3rem;border-radius:.3rem;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:.45rem;height:.3rem;border-radius:.3rem;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}';
   G.pip.buildMini = function(doc){
     var cs = getComputedStyle(document.documentElement);
     MINI_VARS.forEach(function(n){ var v = cs.getPropertyValue(n).trim(); if (v) doc.documentElement.style.setProperty(n, v); });
@@ -47,8 +50,8 @@
     doc.title = 'G04Musik';
     var btn = function(a, cls, label){ return '<button type="button" class="' + cls + '" data-a="' + a + '" aria-label="' + label + '"></button>'; };
     doc.body.innerHTML = '<div class="mp"><div class="cov"></div><div class="meta"><b></b><span></span></div>'
-      + '<div class="ctl">' + btn('shuffle', 'sh', 'Zufall') + btn('prev', 'pv', 'Zurück') + btn('toggle', 'pl', 'Abspielen') + btn('next', 'nx', 'Weiter') + btn('repeat', 'rp', 'Wiederholen') + '</div>'
-      + '<div class="seek"><span class="t">0:00</span><div class="bar"><i></i></div><span class="d">0:00</span></div></div>';
+      + '<div class="row2"><div class="ctl">' + btn('shuffle', 'sh', 'Zufall') + btn('prev', 'pv', 'Zurück') + btn('toggle', 'pl', 'Abspielen') + btn('next', 'nx', 'Weiter') + btn('repeat', 'rp', 'Wiederholen') + '</div>'
+      + '<div class="seek"><span class="t">0:00</span><div class="bar"><i></i></div><span class="d">0:00</span></div></div></div>';
     var q = function(s){ return doc.querySelector(s); }, shownKey = null, iconKey = null;
     function update(){
       var c = P.cur; if (!c) return;
@@ -86,7 +89,7 @@
   };
   /* Popup aus der Hauptseite: Ton und Steuerung bleiben dort, das Fenster zeigt und bedient nur */
   function openMini(){
-    var w = window.open('mini.html', 'g04mini', 'popup=yes,width=460,height=122');
+    var w = window.open('mini.html', 'g04mini', 'popup=yes,width=480,height=170');
     if (!w) throw new Error('blocked');
     var m = mini = { win: w, update: function(){}, tick: 0 }, tries = 0;
     function gone(){ clearInterval(m.tick); if (mini === m) { mini = null; S.emit('player'); } }
@@ -95,6 +98,11 @@
       var d; try { d = w.document; } catch (e) { return gone(); }
       if (!/mini\.html/.test(d.URL) || d.readyState !== 'complete' || !d.body) { if (tries++ < 80) setTimeout(init, 50); else gone(); return; }
       m.update = G.pip.buildMini(d);
+      /* Browser öffnen Popups oft anders als angefordert: Höhe auf das Seitenverhältnis des Inhalts bringen */
+      try {
+        var dw = Math.max(0, 420 - w.innerWidth), dh = Math.round((w.innerWidth + dw) * 0.225) - w.innerHeight;
+        if (dw || Math.abs(dh) > 3) w.resizeBy(dw, dh);
+      } catch (e) {}
       m.tick = setInterval(function(){ if (w.closed) gone(); else m.update(); }, 500);
       w.addEventListener('pagehide', gone);
     })();
