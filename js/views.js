@@ -399,7 +399,8 @@
       group('Wiedergabe',[
         row('Klangbalken','Bewegte Balken im Abspielfenster',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
-        (G.pip&&G.pip.miniWindow?row('Mini-Fenster zuklappen','Nach 15 Sekunden ohne Maus nur das Cover zeigen',sw('miniAuto')):''),
+        (G.pip&&G.pip.miniWindow?row('Mini-Fenster zuklappen','Ohne Maus nur das Cover zeigen, mit der Maus wieder alles',sw('miniAuto')):''),
+        (G.pip&&G.pip.miniWindow?row('Zuklappen nach','Zeit ohne Maus, bis nur das Cover bleibt','<span class="seg2">'+[5,10,15,30,60].map(function(s){ return '<button type="button" class="seg2__b'+((st.miniIdle||15)===s?' is-on':'')+'" data-miniidle="'+s+'" data-noi18n>'+s+' s</button>'; }).join('')+'</span>'):''),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
         row('Zufall','Reihenfolge mischen',sw('shuffle')),

@@ -50,7 +50,7 @@
     + '@keyframes g04eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}.ttl{display:none;position:absolute;z-index:1;left:0;right:0;bottom:0;padding:12vmin 5vmin 4.5vmin;box-sizing:border-box;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;font-size:8vmin;font-weight:650;line-height:1.2;overflow:hidden;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-word}.compact .ttl{display:-webkit-box}.paused .eq i{animation-play-state:paused}.paused.compact .cov::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45)}.compact .eq{display:flex}'
     + '.compact .meta,.compact .row2{display:none}.compact .mp{grid-template-columns:100%;gap:0;padding:0;height:100%}.compact .cov{grid-row:auto;width:100%;height:100%;border-radius:0}';
   /* Nach 15 s ohne Maus schrumpft das Fenster auf das Cover; Maus drauf: wieder voll */
-  var MINI_IDLE = 15000, MINI_SMALL = 96;
+  var MINI_SMALL = 96;
   function autoCompact(w, d){
     var root = d.documentElement, full = null, idle = 0;
     function compact(){
@@ -70,7 +70,7 @@
       try { w.resizeBy(f.w - w.innerWidth, f.h - w.innerHeight); } catch (e) {}
     }
     function auto(){ if (S.settings.miniAuto) compact(); }
-    function arm(){ w.clearTimeout(idle); if (S.settings.miniAuto) idle = w.setTimeout(auto, MINI_IDLE); }
+    function arm(){ w.clearTimeout(idle); if (S.settings.miniAuto) idle = w.setTimeout(auto, (S.settings.miniIdle || 15) * 1000); }
     d.addEventListener('g04min', compact);
     root.addEventListener('mouseenter', function(){ w.clearTimeout(idle); if (S.settings.miniAuto) expand(); });
     root.addEventListener('mouseleave', arm);
