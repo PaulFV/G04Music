@@ -32,11 +32,12 @@
   var MINI_VARS = ['--acc', '--acc-rgb', '--bg-1', '--tx-0', '--tx-2', '--btn-1', '--btn-2', '--on-acc', '--glass-br'];
   /* Alles ist in rem gemessen; die Schriftgröße der Seite folgt dem Fenster (Inhalt ≈ 33 × 8,2 rem),
      so wachsen und schrumpfen Cover, Tasten, Schrift und Balken gemeinsam. */
-  var MINI_CSS = 'html{font-size:clamp(7px,min(2.94vw,13.5vh),48px)}html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;justify-content:stretch;padding:0;text-align:left;background:var(--bg-1,#141519);color:var(--tx-0,#f5f5f7);font:1rem system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
+  var MINI_CSS = 'html{font-size:clamp(7px,min(2.94vw,13vh),48px)}html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;justify-content:stretch;padding:0;text-align:left;background:var(--bg-1,#141519);color:var(--tx-0,#f5f5f7);font:1rem system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
     + '.mp{display:grid;grid-template-columns:5rem minmax(0,1fr);align-items:center;gap:.5rem 1rem;width:100%;min-width:0;box-sizing:border-box;padding:.9rem 1.05rem}'
     + '.mp>*{min-width:0}'
     + '.cov{grid-row:1/3;width:5rem;height:5rem;border-radius:.8rem;background:#2a1f2e center/cover no-repeat}'
     + '.meta{display:flex;align-items:baseline;gap:.6rem;overflow:hidden}.meta b{flex:0 1 auto;min-width:0;font-size:1.1rem;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{flex:1 1 0;min-width:0;color:var(--tx-2,#a8a0a6);font-size:.96rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    + '.meta .min{flex:none;align-self:center;width:1.9rem;height:1.9rem;padding:0;border:0;border-radius:50%;background:none;color:var(--tx-2,#a8a0a6);display:grid;place-items:center;cursor:pointer}.meta .min:hover{background:rgba(255,255,255,.1);color:var(--tx-0,#f5f5f7)}.meta .min svg{width:1.15rem;height:1.15rem}'
     + '.row2{display:flex;align-items:center;gap:.8rem}'
     + '.ctl{display:flex;align-items:center;gap:.15rem}.ctl button{width:2.6rem;height:2.6rem;padding:0;border:0;border-radius:50%;background:none;color:var(--tx-0,#f5f5f7);display:grid;place-items:center;cursor:pointer}.ctl button:hover{background:rgba(255,255,255,.1)}.ctl button.on{color:var(--acc,#ff4c66)}'
     + '.ctl svg{width:1.55rem;height:1.55rem}.ctl .pl svg{width:1.85rem;height:1.85rem}'
@@ -59,6 +60,7 @@
       try { w.resizeBy(f.w - w.innerWidth, f.h - w.innerHeight); } catch (e) {}
     }
     function arm(){ w.clearTimeout(idle); idle = w.setTimeout(compact, MINI_IDLE); }
+    d.addEventListener('g04min', compact);
     root.addEventListener('mouseenter', function(){ w.clearTimeout(idle); expand(); });
     root.addEventListener('mouseleave', arm);
     arm();
@@ -70,7 +72,8 @@
     var st = doc.createElement('style'); st.textContent = MINI_CSS; doc.head.appendChild(st);
     doc.title = 'G04Musik';
     var btn = function(a, cls, label){ return '<button type="button" class="' + cls + '" data-a="' + a + '" aria-label="' + label + '"></button>'; };
-    doc.body.innerHTML = '<div class="mp"><div class="cov"></div><div class="meta"><b></b><span></span></div>'
+    var shrink = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>';
+    doc.body.innerHTML = '<div class="mp"><div class="cov"></div><div class="meta"><b></b><span></span><button type="button" class="min" data-a="min" aria-label="Verkleinern" title="Verkleinern">' + shrink + '</button></div>'
       + '<div class="row2"><div class="ctl">' + btn('shuffle', 'sh', 'Zufall') + btn('prev', 'pv', 'Zurück') + btn('toggle', 'pl', 'Abspielen') + btn('next', 'nx', 'Weiter') + btn('repeat', 'rp', 'Wiederholen') + '</div>'
       + '<div class="seek"><span class="t">0:00</span><div class="bar"><i></i></div><span class="d">0:00</span></div></div></div>';
     var q = function(s){ return doc.querySelector(s); }, shownKey = null, iconKey = null;
@@ -102,6 +105,7 @@
       if (a === 'prev') P.prev(); else if (a === 'next') P.next(); else if (a === 'toggle') P.toggle();
       else if (a === 'shuffle') S.set('shuffle', !S.settings.shuffle);
       else if (a === 'repeat') S.set('repeat', { off: 'all', all: 'one', one: 'off' }[S.settings.repeat]);
+      else if (a === 'min') doc.dispatchEvent(new Event('g04min'));
       update();
     });
     q('.bar').addEventListener('click', function(e){ if (P.isLive()) return; var r = this.getBoundingClientRect(); P.seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width))); update(); });
@@ -121,7 +125,7 @@
       m.update = G.pip.buildMini(d);
       /* Browser öffnen Popups oft anders als angefordert: Höhe auf das Seitenverhältnis des Inhalts bringen */
       try {
-        var dw = Math.max(0, 420 - w.innerWidth), dh = Math.round((w.innerWidth + dw) * 0.225) - w.innerHeight;
+        var dw = Math.max(0, 420 - w.innerWidth), dh = Math.round((w.innerWidth + dw) * 0.226) - w.innerHeight;
         if (dw || Math.abs(dh) > 3) w.resizeBy(dw, dh);
       } catch (e) {}
       autoCompact(w, d);
