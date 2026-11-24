@@ -399,6 +399,7 @@
       group('Wiedergabe',[
         row('Klangbalken','Bewegte Balken im Abspielfenster',sw('viz')),
         row('Bildschirm bleibt an','Solange ein Video läuft',sw('keepAwake')),
+        (G.pip&&G.pip.miniWindow?row('Mini-Fenster zuklappen','Nach 15 Sekunden ohne Maus nur das Cover zeigen',sw('miniAuto')):''),
         row('Einschlaf-Timer','15 bis 90 Minuten, am Ende wird es leiser','<span class="set__val">'+(G.player.sleepAt?'noch '+G.player.sleepLeft()+' min':'aus')+'</span>','sleep'),
         row('Wiederholen','Aus, alle oder einen Titel','<span class="set__val">'+({off:'aus',all:'alle',one:'ein Titel'})[st.repeat]+'</span>','repeat'),
         row('Zufall','Reihenfolge mischen',sw('shuffle')),

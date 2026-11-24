@@ -20,6 +20,7 @@
   var mini = null;
   function isVid(c){ return c && c.kind === 'track' && c.isVideo; }
   G.pip = {
+    miniWindow: POPUP,
     supported: function(){
       var c = P.cur; if (!c || c.kind === 'yt') return false;
       if (isVid(c)) return hasPiP(P.mediaEl());
@@ -68,10 +69,13 @@
       var f = full; full = null; root.classList.remove('compact');
       try { w.resizeBy(f.w - w.innerWidth, f.h - w.innerHeight); } catch (e) {}
     }
-    function arm(){ w.clearTimeout(idle); idle = w.setTimeout(compact, MINI_IDLE); }
+    function auto(){ if (S.settings.miniAuto) compact(); }
+    function arm(){ w.clearTimeout(idle); if (S.settings.miniAuto) idle = w.setTimeout(auto, MINI_IDLE); }
     d.addEventListener('g04min', compact);
-    root.addEventListener('mouseenter', function(){ w.clearTimeout(idle); expand(); });
+    root.addEventListener('mouseenter', function(){ w.clearTimeout(idle); if (S.settings.miniAuto) expand(); });
     root.addEventListener('mouseleave', arm);
+    /* Auch bei abgeschaltetem Auto-Zuklappen: Klick auf das kleine Cover holt das Fenster zurück */
+    d.addEventListener('click', function(e){ if (full && e.target.closest('.cov')) expand(); });
     arm();
   }
   G.pip.autoCompact = autoCompact;

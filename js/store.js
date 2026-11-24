@@ -20,6 +20,7 @@
       volume: 0.9,
       viz: true,
       keepAwake: true,
+      miniAuto: true,     /* Mini-Fenster klappt nach 15 s ohne Maus zu und mit der Maus wieder auf */
       sleepDefault: 30,
       repeat: 'off',      /* off | all | one */
       shuffle: false,

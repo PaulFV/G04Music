@@ -233,7 +233,7 @@
     'Allgemein':'General', 'Sprache':'Language', 'Design':'Appearance', 'Hell oder dunkel':'Light or dark', 'Dunkel':'Dark', 'Hell':'Light',
     'Hellen Modus aktivieren':'Switch to light mode', 'Dunklen Modus aktivieren':'Switch to dark mode', 'Deutsch / English':'Deutsch / English', 'Deutsch':'Deutsch', 'English':'English',
     'Wiedergabe':'Playback', 'Klangbalken':'Sound bars', 'Bewegte Balken im Abspielfenster':'Moving bars in the player',
-    'Bildschirm bleibt an':'Keep screen on', 'Solange ein Video läuft':'While a video is playing',
+    'Bildschirm bleibt an':'Keep screen on', 'Mini-Fenster zuklappen':'Collapse mini window', 'Nach 15 Sekunden ohne Maus nur das Cover zeigen':'Show only the cover after 15 seconds without the mouse', 'Solange ein Video läuft':'While a video is playing',
     '15 bis 90 Minuten, am Ende wird es leiser':'15 to 90 minutes, fades out at the end',
     'Aus, alle oder einen Titel':'Off, all or one track', 'Reihenfolge mischen':'Shuffle the order',
     'YouTube-Suchschlüssel':'YouTube search key', 'Optional, für zuverlässigere Suche':'Optional, for more reliable search',
