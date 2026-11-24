@@ -42,7 +42,28 @@
     + '.ctl svg{width:1.55rem;height:1.55rem}.ctl .pl svg{width:1.85rem;height:1.85rem}'
     + '.ctl .pl{width:3.4rem;height:3.4rem;margin:0 .3rem;background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f));color:var(--on-acc,#fff);box-shadow:0 0 1.4rem rgba(var(--acc-rgb,255,76,102),.45)}.ctl .pl:hover{filter:brightness(1.12);background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f))}'
     + '.seek{flex:1;display:flex;align-items:center;gap:.5rem;color:var(--tx-2,#a8a0a6);font-variant-numeric:tabular-nums;font-size:.92rem}.bar{flex:1;height:1.2rem;position:relative;cursor:pointer}'
-    + '.bar::before{content:"";position:absolute;left:0;right:0;top:.45rem;height:.3rem;border-radius:.3rem;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:.45rem;height:.3rem;border-radius:.3rem;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}';
+    + '.bar::before{content:"";position:absolute;left:0;right:0;top:.45rem;height:.3rem;border-radius:.3rem;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:.45rem;height:.3rem;border-radius:.3rem;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}'
+    + '.compact .meta,.compact .row2{display:none}.compact .mp{grid-template-columns:100%;gap:0;padding:0;height:100%}.compact .cov{grid-row:auto;width:100%;height:100%;border-radius:0}';
+  /* Nach 15 s ohne Maus schrumpft das Fenster auf das Cover; Maus drauf: wieder voll */
+  var MINI_IDLE = 15000, MINI_SMALL = 130;
+  function autoCompact(w, d){
+    var root = d.documentElement, full = null, idle = 0;
+    function compact(){
+      if (w.closed || full) return;
+      full = { w: w.innerWidth, h: w.innerHeight }; root.classList.add('compact');
+      try { w.resizeBy(MINI_SMALL - w.innerWidth, MINI_SMALL - w.innerHeight); } catch (e) {}
+    }
+    function expand(){
+      if (!full) return;
+      var f = full; full = null; root.classList.remove('compact');
+      try { w.resizeBy(f.w - w.innerWidth, f.h - w.innerHeight); } catch (e) {}
+    }
+    function arm(){ w.clearTimeout(idle); idle = w.setTimeout(compact, MINI_IDLE); }
+    root.addEventListener('mouseenter', function(){ w.clearTimeout(idle); expand(); });
+    root.addEventListener('mouseleave', arm);
+    arm();
+  }
+  G.pip.autoCompact = autoCompact;
   G.pip.buildMini = function(doc){
     var cs = getComputedStyle(document.documentElement);
     MINI_VARS.forEach(function(n){ var v = cs.getPropertyValue(n).trim(); if (v) doc.documentElement.style.setProperty(n, v); });
@@ -103,6 +124,7 @@
         var dw = Math.max(0, 420 - w.innerWidth), dh = Math.round((w.innerWidth + dw) * 0.225) - w.innerHeight;
         if (dw || Math.abs(dh) > 3) w.resizeBy(dw, dh);
       } catch (e) {}
+      autoCompact(w, d);
       m.tick = setInterval(function(){ if (w.closed) gone(); else m.update(); }, 500);
       w.addEventListener('pagehide', gone);
     })();
