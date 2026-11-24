@@ -44,6 +44,9 @@
     + '.ctl .pl{width:3.4rem;height:3.4rem;margin:0 .3rem;background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f));color:var(--on-acc,#fff);box-shadow:0 0 1.4rem rgba(var(--acc-rgb,255,76,102),.45)}.ctl .pl:hover{filter:brightness(1.12);background:linear-gradient(180deg,var(--btn-1,#ff4c66),var(--btn-2,#e0243f))}'
     + '.seek{flex:1;display:flex;align-items:center;gap:.5rem;color:var(--tx-2,#a8a0a6);font-variant-numeric:tabular-nums;font-size:.92rem}.bar{flex:1;height:1.2rem;position:relative;cursor:pointer}'
     + '.bar::before{content:"";position:absolute;left:0;right:0;top:.45rem;height:.3rem;border-radius:.3rem;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:.45rem;height:.3rem;border-radius:.3rem;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}'
+    + '.cov{position:relative;overflow:hidden}.eq{display:none;position:absolute;z-index:1;left:6vmin;top:6vmin;height:16vmin;padding:3vmin 3.5vmin;box-sizing:border-box;gap:2vmin;align-items:flex-end;background:rgba(0,0,0,.65);border-radius:3vmin}'
+    + '.eq i{display:block;width:2.6vmin;height:100%;border-radius:1px;background:var(--acc,#ff4c66);transform-origin:bottom;animation:g04eq .9s ease-in-out infinite}.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}'
+    + '@keyframes g04eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}.ttl{display:none;position:absolute;z-index:1;left:0;right:0;bottom:0;padding:12vmin 5vmin 4.5vmin;box-sizing:border-box;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff;font-size:8vmin;font-weight:650;line-height:1.2;overflow:hidden;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-word}.compact .ttl{display:-webkit-box}.paused .eq i{animation-play-state:paused}.paused.compact .cov::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45)}.compact .eq{display:flex}'
     + '.compact .meta,.compact .row2{display:none}.compact .mp{grid-template-columns:100%;gap:0;padding:0;height:100%}.compact .cov{grid-row:auto;width:100%;height:100%;border-radius:0}';
   /* Nach 15 s ohne Maus schrumpft das Fenster auf das Cover; Maus drauf: wieder voll */
   var MINI_IDLE = 15000, MINI_SMALL = 96;
@@ -79,18 +82,19 @@
     doc.title = 'G04Musik';
     var btn = function(a, cls, label){ return '<button type="button" class="' + cls + '" data-a="' + a + '" aria-label="' + label + '"></button>'; };
     var shrink = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>';
-    doc.body.innerHTML = '<div class="mp"><div class="cov"></div><div class="meta"><b></b><span></span><button type="button" class="min" data-a="min" aria-label="Verkleinern" title="Verkleinern">' + shrink + '</button></div>'
+    doc.body.innerHTML = '<div class="mp"><div class="cov"><div class="eq"><i></i><i></i><i></i></div><div class="ttl"></div></div><div class="meta"><b></b><span></span><button type="button" class="min" data-a="min" aria-label="Verkleinern" title="Verkleinern">' + shrink + '</button></div>'
       + '<div class="row2"><div class="ctl">' + btn('shuffle', 'sh', 'Zufall') + btn('prev', 'pv', 'Zurück') + btn('toggle', 'pl', 'Abspielen') + btn('next', 'nx', 'Weiter') + btn('repeat', 'rp', 'Wiederholen') + '</div>'
       + '<div class="seek"><span class="t">0:00</span><div class="bar"><i></i></div><span class="d">0:00</span></div></div></div>';
     var q = function(s){ return doc.querySelector(s); }, shownKey = null, iconKey = null;
     function update(){
       var c = P.cur; if (!c) return;
+      doc.documentElement.classList.toggle('paused', !P.playing);
       var sh = G.views.shown(c), key = S.key(c) + '|' + sh.title + '|' + sh.art + '|' + sh.sub;
       if (key !== shownKey) {
         shownKey = key;
         var art = sh.art || c.art || new URL('assets/music-art/music-' + u.musicNo(c) + '.jpg', location.href).href;
         q('.cov').style.backgroundImage = 'url("' + art + '")';
-        q('.meta b').textContent = sh.title; q('.meta span').textContent = sh.sub || c.artist || '';
+        q('.ttl').textContent = sh.title; q('.meta b').textContent = sh.title; q('.meta span').textContent = sh.sub || c.artist || '';
       }
       var st = S.settings, ik = [P.playing, st.shuffle, st.repeat].join('|');
       if (ik !== iconKey) {
