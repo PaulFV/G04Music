@@ -46,7 +46,7 @@
     + '.bar::before{content:"";position:absolute;left:0;right:0;top:.45rem;height:.3rem;border-radius:.3rem;background:rgba(255,255,255,.14)}.bar i{position:absolute;left:0;top:.45rem;height:.3rem;border-radius:.3rem;background:var(--acc,#ff4c66)}.bar.live{cursor:default}.bar.live i{width:100%!important}'
     + '.compact .meta,.compact .row2{display:none}.compact .mp{grid-template-columns:100%;gap:0;padding:0;height:100%}.compact .cov{grid-row:auto;width:100%;height:100%;border-radius:0}';
   /* Nach 15 s ohne Maus schrumpft das Fenster auf das Cover; Maus drauf: wieder voll */
-  var MINI_IDLE = 15000, MINI_SMALL = 130;
+  var MINI_IDLE = 15000, MINI_SMALL = 96;
   function autoCompact(w, d){
     var root = d.documentElement, full = null, idle = 0;
     function compact(){
