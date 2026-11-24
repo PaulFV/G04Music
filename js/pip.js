@@ -30,11 +30,12 @@
 
   /* ---------- Mini-Fenster mit Bedienung (Chrome/Edge am Rechner) ---------- */
   var MINI_CSS = 'html,body{margin:0;height:100%;overflow:hidden}body{display:flex;align-items:center;background:#0e0b12;color:#fff;font:13px system-ui,sans-serif;-webkit-user-select:none;user-select:none}'
-    + '.mp{display:grid;grid-template-columns:96px 1fr;gap:6px 14px;width:100%;box-sizing:border-box;padding:14px 16px}'
-    + '.cov{grid-row:1/4;width:96px;height:96px;border-radius:12px;background:#2a1f2e center/cover no-repeat;box-shadow:0 6px 18px rgba(0,0,0,.5)}'
+    + '.mp{display:grid;grid-template-columns:88px minmax(0,1fr);gap:6px 12px;width:100%;min-width:0;box-sizing:border-box;padding:12px 14px}'
+    + '.mp>*{min-width:0}'
+    + '.cov{grid-row:1/4;width:88px;height:88px;border-radius:12px;background:#2a1f2e center/cover no-repeat;box-shadow:0 6px 18px rgba(0,0,0,.5)}'
     + '.meta{min-width:0;align-self:end}.meta b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{display:block;color:#b3a4ab;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
     + '.ctl{display:flex;align-items:center;gap:6px}.ctl button{width:34px;height:34px;border:0;border-radius:50%;background:none;color:#fff;display:grid;place-items:center;cursor:pointer}.ctl button:hover{background:rgba(255,255,255,.12)}'
-    + '.ctl .pl{width:40px;height:40px;background:var(--acc,#ff3b4e)}.ctl .pl:hover{background:var(--acc,#ff3b4e);filter:brightness(1.15)}.vol{margin-left:auto;width:70px;accent-color:var(--acc,#ff3b4e)}'
+    + '.ctl .pl{width:40px;height:40px;background:var(--acc,#ff3b4e)}.ctl .pl:hover{background:var(--acc,#ff3b4e);filter:brightness(1.15)}.vol{flex:1;min-width:30px;max-width:80px;margin-left:auto;accent-color:var(--acc,#ff3b4e)}'
     + '.seek{display:flex;align-items:center;gap:8px;color:#b3a4ab;font-variant-numeric:tabular-nums;font-size:12px}.bar{flex:1;height:16px;position:relative;cursor:pointer}'
     + '.bar::before{content:"";position:absolute;left:0;right:0;top:6px;height:4px;border-radius:4px;background:rgba(255,255,255,.15)}.bar i{position:absolute;left:0;top:6px;height:4px;border-radius:4px;background:var(--acc,#ff3b4e)}.bar.live{cursor:default}.bar.live i{width:100%!important}';
   G.pip.buildMini = function(doc){
